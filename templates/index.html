@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniLab - Laboratory Experiments Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="app-title-card d-none d-md-block">
+        <h1>OmniLab</h1>
+    </div>
+
+    <div class="excalidraw-floating-toolbar" id="floating-toolbar">
+        <button class="toolbar-trigger-btn" id="trigger-chemicals">Chemicals</button>
+        <button class="toolbar-trigger-btn" id="trigger-apparatus">Apparatus</button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-trigger-btn" id="trigger-theme">Theme</button>
+    </div>
+
+    <div class="floating-popover-panel" id="sub-panel-chemicals">
+        <div style="margin-bottom: 12px; position: relative; width: 100%;">
+            <input type="text" id="chem-search-input" placeholder="Search chemicals" 
+                   style="width: 100%; padding: 10px 14px; border: 2px solid var(--text-color); border-radius: 8px; background: var(--bg-main); color: var(--text-color); font-size: 14px; box-sizing: border-box; outline: none;">
+        </div>
+        <div class="chemical-grid" id="chem-matrix-target"></div>
+    </div>
+
+    <div class="floating-popover-panel" id="sub-panel-apparatus">
+        <div class="apparatus-selector-wrapper">
+            <div class="apparatus-option-card selected" id="opt-flask">Erlenmeyer Flask</div>
+            <div class="apparatus-option-card" id="opt-tube">Graduated Test Tube</div>
+            <div class="apparatus-option-card" id="opt-beaker">Laboratory Beaker</div>
+            <div class="apparatus-option-card" id="opt-burner">Bunsen Burner</div>
+        </div>
+    </div>
+
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            
+            <div class="col-lg-8" id="canvas-zone" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event)">
+                <canvas id="labCanvas"></canvas>
+            </div>
+
+            <div class="col-lg-4 ai-sidebar p-4">
+                <h3 class="fw-bold mb-3">Reaction Analytics</h3>
+                
+                <div class="border border-2 rounded-3 p-3 mb-3" style="border-color: var(--border-color) !important; background: var(--bg-canvas);">
+                    <span class="d-block small fw-bold mb-1" style="color: var(--text-color); opacity: 0.7;">COMPOUNDS MATRIX:</span>
+                    <h4 id="current-mixture" class="m-0 fw-bold text-danger">Empty Vessel</h4>
+                    <button class="btn btn-sm action-btn-secondary mt-3 px-3 py-1" id="btn-reset-lab">Reset Setup</button>
+                </div>
+
+                <div class="response-container mb-3">
+                    <div id="ai-response-content" style="color: var(--text-color);">
+                        <p class="text-center mt-5" style="opacity: 0.6;">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>
+                    </div>
+                </div>
+
+                <button class="btn action-btn-primary w-100 py-3" id="btn-fire-analysis">
+                    Analyze Chemical Reaction
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        window.chemicalDataUrl = "{% static 'js/chemicaldata.json' %}";
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script type="module" src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

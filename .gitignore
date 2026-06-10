@@ -1,0 +1,25 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Security and Environment Variables
+.env
+
+# Database
+*.sqlite3
+
+# Python Bytecode and Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE and Editor Settings
+.vscode/
+.idea/
+
+# User Uploaded Media files
+media/
+
+# Compiled TypeScript output
+static/js/**
