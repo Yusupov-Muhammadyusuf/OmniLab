@@ -8,9 +8,8 @@ The inspiration came from remembering how static and unengaging school chemistry
 ## What it does
 OmniLab AI is an interactive, academic-grade chemistry simulator that visualizes and find chemical reactions in real time. Users can select and mix compounds within three dynamic glass vessels (Flasks, Beakers, or Test Tubes), apply thermal heat using a virtual Bunsen burner, and see advanced physics-based fluid animations. Instantly, the backend processes the mixture to output balanced molecular equations, thermodynamics analysis, high-density explanations, and critical safety rules with active command verbs for physical execution.
 
-<p display="flex" flex-direction="row" justify-content="center">
-  <video src="https://github.com/user-attachments/assets/53149a98-4826-48ca-8b86-f2b7dfec6e22" width="49%" controls></video>
-  <video src="https://github.com/user-attachments/assets/51316f66-a813-44b8-8e55-8c38fafe35c9" width="49%" controls></video>
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/51316f66-a813-44b8-8e55-8c38fafe35c9" width="60%" controls></video>
 </p>
 
 ## How I built it
