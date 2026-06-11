@@ -10,10 +10,6 @@ OmniLab AI is an interactive, academic-grade chemistry simulator that visualizes
 
 <img width="800" height="450" alt="analyze" src="https://github.com/user-attachments/assets/40307e36-3c64-4493-aa2e-251ede5fb084" />
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/40307e36-3c64-4493-aa2e-251ede5fb084" width="70%">
-</p>
-
 ## How I built it
 I engineered OmniLab AI using a powerful, multi-layered architecture. The backend is powered by Django, utilizing custom prompt structures connected to LLM APIs for robust JSON processing of reaction analytics. On the frontend, I crafted a high-performance rendering system using HTML5 Canvas and Vanilla JavaScript (ESModules) to simulate real-time fluid waves, dynamic color transitions, and particle-based boiling effects. I also used Bootstrap 5 for a responsive layout and configured a secure .env system for infrastructure stability.
 
