@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-ybe*(4vg#nit#m@o7y_%&rwn4)-k$-@c5e&tt0k3$&yus#m&8$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    'omnilab-bk8q.onrender.com',
+    '127.0.0.1',
+    'localhost',
+]
 
 
 # Application definition
