@@ -128,3 +128,13 @@ WHITENOISE_USE_FINDERS = True
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+
+# Keep the anonymous reaction provider available to a typical shared classroom
+# while bounding automated traffic from one network address.
+OMNILAB_REACTION_RATE_LIMIT_REQUESTS = int(
+    os.getenv("OMNILAB_REACTION_RATE_LIMIT_REQUESTS", "60")
+)
+OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS = int(
+    os.getenv("OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS", "600")
+)

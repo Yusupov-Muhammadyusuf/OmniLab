@@ -1,8 +1,14 @@
-import os
+import hashlib
+import ipaddress
 import json
+import os
 import re
-from django.shortcuts import render
+import time
+
+from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -72,6 +78,62 @@ REACTION_API_BASE_URL = os.getenv(
     "https://models.github.ai/inference",
 )
 REACTION_MODEL = os.getenv("OMNILAB_AI_MODEL", "openai/gpt-4o-mini")
+
+
+def get_client_network_address(request):
+    forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    # Render puts the real client address first and appends proxy hops after it.
+    # The application socket address is the safe fallback for malformed input.
+    candidates = [
+        forwarded_for.split(",", 1)[0].strip(),
+        request.META.get("REMOTE_ADDR", "").strip(),
+    ]
+
+    for candidate in candidates:
+        try:
+            return ipaddress.ip_address(candidate).compressed
+        except ValueError:
+            continue
+
+    return "unknown"
+
+
+def reaction_rate_limit(request):
+    limit = max(1, settings.OMNILAB_REACTION_RATE_LIMIT_REQUESTS)
+    window_seconds = max(
+        1, settings.OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS
+    )
+    now = int(time.time())
+    window_number = now // window_seconds
+    retry_after = window_seconds - (now % window_seconds)
+    client_address = get_client_network_address(request)
+    client_digest = hashlib.sha256(client_address.encode()).hexdigest()
+    cache_key = f"omnilab:reaction-analysis:{client_digest}:{window_number}"
+
+    if cache.add(cache_key, 1, timeout=retry_after):
+        request_count = 1
+    else:
+        try:
+            request_count = cache.incr(cache_key)
+        except ValueError:
+            cache.set(cache_key, 1, timeout=retry_after)
+            request_count = 1
+
+    if request_count <= limit:
+        return None
+
+    response = JsonResponse(
+        {
+            "status": "rate_limited",
+            "message": (
+                "Too many reaction analyses were requested from this "
+                f"network. Try again in {retry_after} seconds."
+            ),
+        },
+        status=429,
+    )
+    response["Retry-After"] = str(retry_after)
+    return response
 
 
 def get_reaction_client():
@@ -249,6 +311,10 @@ def ai_insights(request):
                 "OmniLab only analyzes the chemicals you select and won't "
                 "introduce another reagent."
             )
+
+        rate_limit_response = reaction_rate_limit(request)
+        if rate_limit_response is not None:
+            return rate_limit_response
 
         system_prompt = (
             "You are an advanced academic chemistry simulator engine for OmniLab. "
