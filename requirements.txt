@@ -1,3 +1,4 @@
 django==6.0.6
 openai==1.62.0
 python-dotenv==1.0.1
+gunicorn
