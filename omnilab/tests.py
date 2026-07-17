@@ -338,14 +338,77 @@ class LabJourneyRepairTests(TestCase):
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
         css = (settings.BASE_DIR / "static/css/style.css").read_text()
+        render_block = interactions.split(
+            "export function renderReactionResult", 1
+        )[1].split("\n}\n\nfunction renderStatusMessage", 1)[0]
 
         self.assertNotIn("<h6", interactions)
-        self.assertEqual(interactions.count('<h3 class="h6'), 7)
-        self.assertEqual(interactions.count("safety-heading"), 2)
-        self.assertEqual(interactions.count("safety-list"), 2)
+        equation_heading = render_block.index("Chemical Equation Formula")
+        analysis_heading = render_block.index("Analysis")
+        safety_heading = render_block.index("Safety rules")
+        self.assertLess(equation_heading, analysis_heading)
+        self.assertLess(analysis_heading, safety_heading)
+        self.assertIn("safety-heading", interactions)
+        self.assertIn("safety-list", interactions)
         self.assertIn(".safety-heading", css)
         self.assertIn(".safety-list", css)
         self.assertIn("color: var(--text-color);", css)
+
+    def test_reaction_results_render_provider_fields_as_text(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        render_block = interactions.split(
+            "export function renderReactionResult", 1
+        )[1].split("\n}\n\nfunction renderStatusMessage", 1)[0]
+
+        self.assertIn("equation.textContent = reaction.equation", render_block)
+        self.assertIn(
+            "explanation.textContent = reaction.explanation", render_block
+        )
+        self.assertIn("document.createTextNode(point)", render_block)
+        self.assertNotIn("${reaction.equation}", render_block)
+        self.assertNotIn("${reaction.explanation}", render_block)
+        self.assertNotIn("${reaction.safety}", render_block)
+
+    @patch("omnilab.views.get_reaction_client")
+    def test_malicious_provider_markup_stays_data_for_safe_browser_rendering(
+        self, get_client
+    ):
+        payload = {
+            "effect": "none",
+            "equation": (
+                "2Na(s) + Cl2(g) -> 2NaCl(s)"
+                '<img src=x onerror="window.__providerMarkupRan=true">'
+            ),
+            "explanation": (
+                '<svg onload="window.__providerMarkupRan=true"></svg>'
+                "The selected reactants form sodium chloride."
+            ),
+            "safety": (
+                '<script>window.__providerMarkupRan=true</script>Wear goggles. | '
+                '<img src=x onerror="window.__providerMarkupRan=true">Keep sodium dry. | '
+                "Use trained supervision."
+            ),
+        }
+        create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(content=json.dumps(payload))
+                    )
+                ]
+            )
+        )
+        get_client.return_value = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
+        )
+
+        response = self.client.post("/ai_insights/", {"query": "Na + Cl2"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "success")
+        self.assertEqual(response.json()["data"], payload)
 
     @patch("omnilab.views.get_reaction_client")
     def test_reaction_endpoint_uses_current_provider_defaults(self, get_client):
