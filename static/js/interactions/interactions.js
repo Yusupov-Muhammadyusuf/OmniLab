@@ -5,6 +5,77 @@ import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 const DEFAULT_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>';
 let activeAnalysisController = null;
 let currentAnalysisRunId = 0;
+export function renderReactionResult(panel, reaction) {
+    panel.innerHTML = `
+        <div class="lh-base spectrum-analysis-log animate__animated animate__fadeIn text-body-emphasis" style="font-family: 'UbuntuLocal', sans-serif; font-size: 16px; line-height: 1.6; letter-spacing: 0.3px;">
+
+            <div class="mb-4 core-equation-block p-3 bg-dark text-white rounded-4 shadow-lg border border-secondary border-opacity-25">
+                <h3 class="h6 text-white-50 text-uppercase small fw-bold mb-2" style="letter-spacing: 1.5px;">
+                    <i class="bi bi-mortar-pestle me-2 text-info"></i>Chemical Equation Formula
+                </h3>
+                <div class="fs-5 text-center py-2 px-2 text-white border border-secondary border-opacity-50 rounded-3 reaction-equation"
+                    style="font-family: 'Fira Code', monospace; font-weight: 500; background-color: #1e1e24; letter-spacing: 1.5px;"></div>
+            </div>
+
+            <div class="mb-4 conceptual-breakdown px-2">
+                <h3 class="h6 text-body-secondary text-uppercase small fw-bold mb-2">
+                    <i class="bi bi-file-earmark-text me-2 text-info"></i>Analysis
+                </h3>
+                <div class="text-body-emphasis reaction-explanation" style="text-align: justify; text-justify: inter-word;"></div>
+            </div>
+
+            <div class="alert alert-warning bg-warning-subtle border-warning border-start border-5 shadow-sm p-3 safety-matrix-block rounded-end">
+                <h3 class="h6 text-uppercase small fw-bold mb-2 safety-heading">
+                    <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Safety rules
+                </h3>
+                <ul class="list-unstyled mb-0 small fw-medium safety-list"></ul>
+            </div>
+
+        </div>
+    `;
+    const equation = panel.querySelector('.reaction-equation');
+    const explanation = panel.querySelector('.reaction-explanation');
+    const safetyList = panel.querySelector('.safety-list');
+    if (!equation || !explanation || !safetyList)
+        return;
+    equation.textContent = reaction.equation;
+    explanation.textContent = reaction.explanation;
+    const safetyPoints = reaction.safety
+        .split('|')
+        .map(point => point.trim())
+        .filter(point => point.length > 0);
+    for (const point of safetyPoints.length > 0 ? safetyPoints : [reaction.safety]) {
+        const item = document.createElement('li');
+        item.className = 'mb-2';
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-shield-exclamation me-2';
+        icon.setAttribute('aria-hidden', 'true');
+        item.append(icon, document.createTextNode(point));
+        safetyList.append(item);
+    }
+}
+function renderStatusMessage(panel, title, message, kind) {
+    panel.innerHTML = kind === 'info'
+        ? `
+            <div class="alert alert-info bg-info-subtle text-info-emphasis border-info border-start border-5 shadow-sm p-3 rounded-end" role="status">
+                <h3 class="h6 fw-bold mb-2"></h3>
+                <p class="mb-0"></p>
+            </div>
+        `
+        : '<div class="alert alert-danger bg-danger-subtle text-danger-emphasis border-danger" role="alert"></div>';
+    if (kind === 'info') {
+        const heading = panel.querySelector('h3');
+        const body = panel.querySelector('p');
+        if (heading)
+            heading.textContent = title;
+        if (body)
+            body.textContent = message;
+        return;
+    }
+    const body = panel.querySelector('[role="alert"]');
+    if (body)
+        body.textContent = `${title}: ${message}`;
+}
 export function setupCanvasDrag() {
     if (!config.canvas)
         return;
@@ -169,12 +240,7 @@ export function fireAIAnalysis() {
                 duration_ms: Math.round(performance.now() - analysisStartedAt)
             });
             localStorage.removeItem('savedReaction');
-            panel.innerHTML = `
-                <div class="alert alert-info bg-info-subtle text-info-emphasis border-info border-start border-5 shadow-sm p-3 rounded-end" role="status">
-                    <h3 class="h6 fw-bold mb-2">Try a different setup</h3>
-                    <p class="mb-0">${resData.message}</p>
-                </div>
-            `;
+            renderStatusMessage(panel, 'Try a different setup', resData.message || 'Add another selected chemical and try again.', 'info');
         }
         else if (resData.status === 'success' && resData.data) {
             capture('reaction_analysis_completed', {
@@ -185,41 +251,7 @@ export function fireAIAnalysis() {
             });
             localStorage.setItem('savedReaction', JSON.stringify(resData.data));
             const reaction = resData.data;
-            const safetyPoints = reaction.safety.split('|').map(p => p.trim()).filter(p => p.length > 0);
-            const safetyHTML = safetyPoints.map(p => `<li class="mb-2"><i class="bi bi-shield-exclamation me-2"></i>${p}</li>`).join('');
-            panel.innerHTML = `
-                <div class="lh-base spectrum-analysis-log animate__animated animate__fadeIn text-body-emphasis" style="font-family: 'UbuntuLocal', sans-serif; font-size: 16px; line-height: 1.6; letter-spacing: 0.3px;">
-
-                    <div class="mb-4 core-equation-block p-3 bg-dark text-white rounded-4 shadow-lg border border-secondary border-opacity-25">
-                        <h3 class="h6 text-white-50 text-uppercase small fw-bold mb-2" style="letter-spacing: 1.5px;">
-                            <i class="bi bi-mortar-pestle me-2 text-info"></i>Chemical Equation Formula
-                        </h3>
-                        <div class="fs-5 text-center py-2 px-2 text-white border border-secondary border-opacity-50 rounded-3"
-                            style="font-family: 'Fira Code', monospace; font-weight: 500; background-color: #1e1e24; letter-spacing: 1.5px;">
-                            ${reaction.equation}
-                        </div>
-                    </div>
-
-                    <div class="mb-4 conceptual-breakdown px-2">
-                        <h3 class="h6 text-body-secondary text-uppercase small fw-bold mb-2">
-                            <i class="bi bi-file-earmark-text me-2 text-info"></i>Analysis
-                        </h3>
-                        <div class="text-body-emphasis" style="text-align: justify; text-justify: inter-word;">
-                            ${reaction.explanation}
-                        </div>
-                    </div>
-
-                    <div class="alert alert-warning bg-warning-subtle border-warning border-start border-5 shadow-sm p-3 safety-matrix-block rounded-end">
-                        <h3 class="h6 text-uppercase small fw-bold mb-2 safety-heading">
-                            <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Safety rules
-                        </h3>
-                        <ul class="list-unstyled mb-0 small fw-medium safety-list">
-                            ${safetyHTML || `<li>${reaction.safety}</li>`}
-                        </ul>
-                    </div>
-
-                </div>
-            `;
+            renderReactionResult(panel, reaction);
             config.updateLabState({ isBubbling: false });
             if (reaction.effect === 'explosion') {
                 triggerThermalBlast();
@@ -244,7 +276,7 @@ export function fireAIAnalysis() {
                 stage: 'response',
                 duration_ms: Math.round(performance.now() - analysisStartedAt)
             });
-            panel.innerHTML = `<div class="alert alert-danger bg-danger-subtle text-danger-emphasis border-danger">Processing Fault: ${resData.message}</div>`;
+            renderStatusMessage(panel, 'Processing Fault', resData.message || 'The reaction response could not be displayed.', 'danger');
         }
     })
         .catch(err => {
@@ -255,7 +287,7 @@ export function fireAIAnalysis() {
             stage: 'network_or_parse',
             duration_ms: Math.round(performance.now() - analysisStartedAt)
         });
-        panel.innerHTML = `<div class="alert alert-danger bg-danger-subtle text-danger-emphasis border-danger">Network Runtime Error: ${err.message}</div>`;
+        renderStatusMessage(panel, 'Network Runtime Error', err instanceof Error ? err.message : 'The reaction request failed.', 'danger');
     });
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -293,41 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const panel = document.getElementById('ai-response-content');
             if (!panel)
                 return;
-            const safetyPoints = reaction.safety.split('|').map((p) => p.trim()).filter((p) => p.length > 0);
-            const safetyHTML = safetyPoints.map((p) => `<li class="mb-2"><i class="bi bi-shield-exclamation me-2"></i>${p}</li>`).join('');
-            panel.innerHTML = `
-                <div class="lh-base spectrum-analysis-log animate__animated animate__fadeIn text-body-emphasis" style="font-family: 'UbuntuLocal', sans-serif; font-size: 16px; line-height: 1.6; letter-spacing: 0.3px;">
-
-                    <div class="mb-4 core-equation-block p-3 bg-dark text-white rounded-4 shadow-lg border border-secondary border-opacity-25">
-                        <h3 class="h6 text-white-50 text-uppercase small fw-bold mb-2" style="letter-spacing: 1.5px;">
-                            <i class="bi bi-mortar-pestle me-2 text-info"></i>Chemical Equation Formula
-                        </h3>
-                        <div class="fs-5 text-center py-2 px-2 text-white border border-secondary border-opacity-50 rounded-3"
-                            style="font-family: 'Fira Code', monospace; font-weight: 500; background-color: #1e1e24; letter-spacing: 1.5px;">
-                            ${reaction.equation}
-                        </div>
-                    </div>
-
-                    <div class="mb-4 conceptual-breakdown px-2">
-                        <h3 class="h6 text-body-secondary text-uppercase small fw-bold mb-2">
-                            <i class="bi bi-file-earmark-text me-2 text-info"></i>Analysis
-                        </h3>
-                        <div class="text-body-emphasis" style="text-align: justify; text-justify: inter-word;">
-                            ${reaction.explanation}
-                        </div>
-                    </div>
-
-                    <div class="alert alert-warning bg-warning-subtle border-warning border-start border-5 shadow-sm p-3 safety-matrix-block rounded-end">
-                        <h3 class="h6 text-uppercase small fw-bold mb-2 safety-heading">
-                            <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Safety rules
-                        </h3>
-                        <ul class="list-unstyled mb-0 small fw-medium safety-list">
-                            ${safetyHTML || `<li>${reaction.safety}</li>`}
-                        </ul>
-                    </div>
-
-                </div>
-            `;
+            renderReactionResult(panel, reaction);
         }
         catch (e) {
             localStorage.removeItem('savedReaction');
