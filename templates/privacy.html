@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Read how OmniLab's current public release handles reaction inputs, local browser storage, service data, and limited product analytics.">
+    <title>Privacy | OmniLab</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="info-page">
+    <header class="pricing-site-header">
+        <a class="pricing-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="pricing-page-label">Privacy</span>
+    </header>
+
+    <main class="info-shell">
+        <header class="info-hero">
+            <p class="pricing-context">Current public release</p>
+            <h1>Privacy, without the mystery.</h1>
+            <p class="info-lede">This notice explains what the current OmniLab website sends, stores, and may measure when you explore a predicted reaction.</p>
+            <p class="info-updated">Updated July 17, 2026</p>
+        </header>
+
+        <div class="info-layout">
+            <aside class="info-summary" aria-labelledby="privacy-summary-heading">
+                <h2 id="privacy-summary-heading">At a glance</h2>
+                <ul>
+                    <li>No account or payment details are required.</li>
+                    <li>Chemical names leave your browser only when you request an analysis.</li>
+                    <li>Your saved lab setup and returned result stay in your browser storage.</li>
+                </ul>
+            </aside>
+
+            <div class="info-sections">
+                <section>
+                    <h2>Reaction analysis</h2>
+                    <p>When you select <strong>Analyze Chemical Reaction</strong>, OmniLab sends the names of the selected chemicals to its server. The server passes those names to its AI inference provider to produce a predicted equation, explanation, and safety guidance. The input is intended for chemical names, so please don't enter personal, confidential, or identifying information.</p>
+                </section>
+
+                <section>
+                    <h2>Browser storage</h2>
+                    <p>OmniLab uses your browser's local storage to remember the selected chemicals, liquid appearance, and most recent reaction result on that device. Resetting the lab removes the saved setup, and a later analysis can replace the saved result. Your browser settings can clear all of this data.</p>
+                </section>
+
+                <section>
+                    <h2>Service data</h2>
+                    <p>The hosting and network services that deliver OmniLab may process standard request information, such as an IP address, browser details, and timestamps. The current public release has no account, payment, or profile system.</p>
+                </section>
+
+                <section>
+                    <h2>Product analytics</h2>
+                    <p>If limited product analytics are enabled, OmniLab may record a page visit, the first lab setup, and whether a reaction analysis starts, completes, or fails. These events are designed not to include selected chemical names or generated reaction content, and session recording and automatic click capture are disabled.</p>
+                </section>
+
+                <section>
+                    <h2>Questions</h2>
+                    <p>For a privacy question, email <a href="mailto:omnilab-bk8q@mail.tin.computer">omnilab-bk8q@mail.tin.computer</a>.</p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+</body>
+</html>

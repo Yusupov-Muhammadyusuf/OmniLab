@@ -1,0 +1,13 @@
+<footer class="site-footer{% if floating_footer %} site-footer--floating{% endif %}" aria-label="Site footer">
+    <a class="site-footer-brand" href="{% url 'index' %}">OmniLab</a>
+    <nav class="site-footer-nav" aria-label="Footer navigation">
+        <a href="{% url 'pricing' %}">Pricing</a>
+        <a href="mailto:omnilab-bk8q@mail.tin.computer">Contact</a>
+        <a href="{% url 'privacy' %}">Privacy</a>
+        <a href="{% url 'terms' %}">Terms</a>
+    </nav>
+    <a class="site-footer-credit" href="https://tin.computer">
+        <span class="tin-mark" aria-hidden="true"></span>
+        Growth by Tin
+    </a>
+</footer>

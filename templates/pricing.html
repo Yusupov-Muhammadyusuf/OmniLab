@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Use OmniLab's current public virtual chemistry lab release for free, with no account required. The source code is available under the MIT License.">
+    <title>Pricing | OmniLab</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="pricing-page">
+    <header class="pricing-site-header">
+        <a class="pricing-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="pricing-page-label">Pricing</span>
+    </header>
+
+    <main class="pricing-shell">
+        <section class="pricing-hero" aria-labelledby="pricing-heading">
+            <div class="pricing-copy">
+                <p class="pricing-context">Simple pricing</p>
+                <h1 id="pricing-heading">Free to use in the current public release.</h1>
+                <p class="pricing-lede">Open the virtual chemistry lab, mix compounds, and review predicted reactions without creating an account or entering payment details.</p>
+
+                <div class="pricing-offer">
+                    <div class="pricing-price-line">
+                        <span class="pricing-price">$0</span>
+                        <span class="pricing-term">Current public release</span>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Interactive compound mixing in your browser</li>
+                        <li>Flasks, test tubes, beakers, and thermal testing</li>
+                        <li>Predicted equations, explanations, and safety guidance</li>
+                        <li>No account or payment required</li>
+                    </ul>
+                    <a class="pricing-primary" href="{% url 'index' %}">Open the lab</a>
+                </div>
+            </div>
+
+            <figure class="pricing-preview">
+                <div class="pricing-preview-frame">
+                    <img src="{% static 'images/omnilab-lab-preview.png' %}" alt="The OmniLab virtual chemistry workspace with compound controls and reaction analytics">
+                </div>
+                <figcaption>The same interactive lab available on the homepage, with no separate signup flow.</figcaption>
+            </figure>
+        </section>
+
+        <section class="pricing-open-source" aria-labelledby="open-source-heading">
+            <h2 id="open-source-heading">Open source under MIT.</h2>
+            <p>OmniLab's source code is public and licensed for use, modification, and distribution under the MIT License. <a class="pricing-source-link" href="https://github.com/Yusupov-Muhammadyusuf/OmniLab">View the source on GitHub</a>.</p>
+        </section>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+</body>
+</html>

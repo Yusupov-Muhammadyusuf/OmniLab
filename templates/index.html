@@ -4,7 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore predicted reactions in a virtual lab built for chemistry students. OmniLab is educational and doesn't replace physical lab procedures.">
     <title>OmniLab - Laboratory Experiments Assistant</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -22,11 +25,15 @@
             disable_session_recording: true
         });
     </script>
+    <script type="application/ld+json">{{ faq_schema_json|safe }}</script>
+    <script type="application/ld+json">{{ software_schema_json|safe }}</script>
 </head>
-<body>
-    <div class="app-title-card d-none d-md-block">
-        <h1>OmniLab</h1>
-    </div>
+<body class="home-page">
+    <header class="app-title-card">
+        <p class="app-wordmark">OmniLab</p>
+        <h1>Test chemical reactions in a virtual lab</h1>
+        <p class="app-subheadline">For chemistry students to mix compounds, try lab equipment, and understand predicted outcomes before working with real materials.</p>
+    </header>
 
     <div class="excalidraw-floating-toolbar" id="floating-toolbar">
         <button class="toolbar-trigger-btn" id="trigger-chemicals">Chemicals</button>
@@ -52,25 +59,25 @@
         </div>
     </div>
 
-    <div class="container-fluid p-0">
-        <div class="row g-0">
+    <main class="container-fluid p-0">
+        <section class="lab-workspace row g-0" aria-label="Virtual chemistry lab">
             
             <div class="col-lg-8" id="canvas-zone" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event)">
                 <canvas id="labCanvas"></canvas>
             </div>
 
             <div class="col-lg-4 ai-sidebar p-4">
-                <h3 class="fw-bold mb-3">Reaction Analytics</h3>
+                <h2 class="fw-bold mb-3">Reaction Analytics</h2>
                 
                 <div class="border border-2 rounded-3 p-3 mb-3" style="border-color: var(--border-color) !important; background: var(--bg-canvas);">
                     <span class="d-block small fw-bold mb-1" style="color: var(--text-color); opacity: 0.7;">COMPOUNDS MATRIX:</span>
-                    <h4 id="current-mixture" class="m-0 fw-bold text-danger">Empty Vessel</h4>
+                    <h3 id="current-mixture" class="m-0 fw-bold text-danger">Empty Vessel</h3>
                     <button class="btn btn-sm action-btn-secondary mt-3 px-3 py-1" id="btn-reset-lab">Reset Setup</button>
                 </div>
 
                 <div class="response-container mb-3">
                     <div id="ai-response-content" style="color: var(--text-color);">
-                        <p class="text-center mt-5" style="opacity: 0.6;">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>
+                        <p class="text-center mt-5">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>
                     </div>
                 </div>
 
@@ -79,8 +86,29 @@
                 </button>
             </div>
 
-        </div>
-    </div>
+        </section>
+
+        <section class="faq-section" aria-labelledby="faq-title">
+            <div class="faq-shell">
+                <div class="faq-intro">
+                    <p class="faq-context">Before you analyze</p>
+                    <h2 id="faq-title">Know what the virtual lab can tell you</h2>
+                    <p>Set up a reaction in minutes, then treat the result as a prediction to check and learn from.</p>
+                </div>
+
+                <div class="faq-list">
+                    {% for faq in homepage_faqs %}
+                    <details class="faq-item"{% if forloop.first %} open{% endif %}>
+                        <summary>{{ faq.question }}</summary>
+                        <p>{{ faq.answer }}</p>
+                    </details>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    {% include "partials/site_footer.html" %}
 
     <script>
         window.chemicalDataUrl = "{% static 'js/chemicaldata.json' %}";
