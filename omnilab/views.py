@@ -16,6 +16,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PRODUCTION_BASE_URL = "https://omnilab-bk8q.onrender.com"
+SOCIAL_PREVIEW_URL = (
+    f"{PRODUCTION_BASE_URL}/static/images/omnilab-social-preview.png"
+)
+SOCIAL_PREVIEW_ALT = (
+    "OmniLab virtual chemistry lab showing sodium and chlorine selected, "
+    "a sodium chloride equation, reaction analysis, and safety guidance."
+)
 PUBLIC_CANONICAL_URLS = {
     "index": f"{PRODUCTION_BASE_URL}/",
     "pricing": f"{PRODUCTION_BASE_URL}/pricing/",
@@ -244,6 +251,8 @@ def index(request):
         "index.html",
         {
             "canonical_url": PUBLIC_CANONICAL_URLS["index"],
+            "social_preview_url": SOCIAL_PREVIEW_URL,
+            "social_preview_alt": SOCIAL_PREVIEW_ALT,
             "homepage_faqs": HOMEPAGE_FAQS,
             "faq_schema_json": json.dumps(faq_schema),
             "software_schema_json": json.dumps(software_schema),
