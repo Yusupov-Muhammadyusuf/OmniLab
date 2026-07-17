@@ -242,15 +242,19 @@ class AnalyticsInstrumentationTests(TestCase):
 
 
 class LabJourneyRepairTests(TestCase):
-    def test_catalog_restores_the_repository_evidenced_sodium_input(self):
+    def test_catalog_exposes_the_repository_evidenced_reaction_pair(self):
         catalog = json.loads(
             (settings.BASE_DIR / "static/js/chemicaldata.json").read_text()
         )
 
         self.assertEqual(
             catalog,
-            [{"id": "Na", "name": "Sodium", "color": "#e09f25"}],
+            [
+                {"id": "Na", "name": "Sodium", "color": "#e09f25"},
+                {"id": "Cl2", "name": "Chlorine", "color": "#89a83b"},
+            ],
         )
+        self.assertEqual(len({chemical["id"] for chemical in catalog}), 2)
 
     def test_homepage_and_runtime_use_the_same_canvas_identifier(self):
         response = self.client.get("/")
@@ -297,8 +301,10 @@ class LabJourneyRepairTests(TestCase):
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
 
-        self.assertEqual(catalog[0]["id"], "Na")
-        self.assertEqual(catalog[0]["name"], "Sodium")
+        self.assertEqual(
+            [(chemical["id"], chemical["name"]) for chemical in catalog],
+            [("Na", "Sodium"), ("Cl2", "Chlorine")],
+        )
         self.assertIn("card.setAttribute('data-name', chem.id)", menu)
         self.assertIn("state.selectedChemicals.join(' + ')", interactions)
 
@@ -374,6 +380,23 @@ class LabJourneyRepairTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "success")
+        reaction = response.json()["data"]
+        self.assertTrue(
+            equation_uses_only_selected_reactants(
+                reaction["equation"], ["Na", "Cl2"]
+            )
+        )
+        self.assertTrue(reaction["explanation"])
+        self.assertEqual(
+            len(
+                [
+                    rule.strip()
+                    for rule in reaction["safety"].split("|")
+                    if rule.strip()
+                ]
+            ),
+            3,
+        )
         self.assertEqual(
             REACTION_API_BASE_URL,
             "https://models.github.ai/inference",
