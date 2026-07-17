@@ -4,9 +4,9 @@ import { drawVesselAndFluid, triggerSmokeEffect, triggerThermalBlast } from '../
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 
 interface ReactionData {
-    status: 'success' | 'error';
+    status: 'success' | 'error' | 'insufficient_input';
     message?: string;
-    data: {
+    data?: {
         equation: string;
         explanation: string;
         safety: string;
@@ -178,7 +178,19 @@ export function fireAIAnalysis(): void {
         const cleanedText = rawText.replace(/[\n\r\t]/g, ' ');
         const resData: ReactionData = JSON.parse(cleanedText);
 
-        if (resData.status === 'success') {
+        if (resData.status === 'insufficient_input') {
+            capture('reaction_analysis_failed', {
+                stage: 'insufficient_input',
+                duration_ms: Math.round(performance.now() - analysisStartedAt)
+            });
+            localStorage.removeItem('savedReaction');
+            panel.innerHTML = `
+                <div class="alert alert-info bg-info-subtle text-info-emphasis border-info border-start border-5 shadow-sm p-3 rounded-end" role="status">
+                    <h3 class="h6 fw-bold mb-2">Try a different setup</h3>
+                    <p class="mb-0">${resData.message}</p>
+                </div>
+            `;
+        } else if (resData.status === 'success' && resData.data) {
             capture('reaction_analysis_completed', {
                 chemical_count: state.selectedChemicals.length,
                 vessel: state.currentVessel,

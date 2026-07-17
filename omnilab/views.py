@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -81,6 +82,58 @@ def get_reaction_client():
         raise RuntimeError("Reaction provider is not configured.")
 
     return OpenAI(base_url=REACTION_API_BASE_URL, api_key=api_key)
+
+
+def parse_selected_chemicals(user_query):
+    return list(
+        dict.fromkeys(
+            chemical.strip()
+            for chemical in user_query.split("+")
+            if chemical.strip()
+        )
+    )
+
+
+def normalize_reactant(reactant):
+    normalized = reactant.strip()
+    normalized = re.sub(r"^\d+(?:\.\d+)?\s*", "", normalized)
+    normalized = re.sub(r"\((?:s|l|g|aq)\)\s*$", "", normalized, flags=re.I)
+    return re.sub(r"\s+", "", normalized).casefold()
+
+
+def equation_uses_only_selected_reactants(equation, selected_chemicals):
+    selected = {
+        normalize_reactant(chemical) for chemical in selected_chemicals
+    }
+    equation_steps = [
+        step.strip() for step in equation.split("|") if step.strip()
+    ]
+
+    if not equation_steps:
+        return False
+
+    for step in equation_steps:
+        if "->" not in step:
+            return False
+        reactant_side, _ = step.split("->", 1)
+        reactants = {
+            normalize_reactant(reactant)
+            for reactant in reactant_side.split("+")
+            if reactant.strip()
+        }
+        if not reactants or not reactants.issubset(selected):
+            return False
+
+    return True
+
+
+def insufficient_input_response(message):
+    return JsonResponse(
+        {
+            "status": "insufficient_input",
+            "message": message,
+        }
+    )
 
 
 def index(request):
@@ -188,10 +241,24 @@ def sitemap_xml(request):
 def ai_insights(request):
     if request.method == "POST":
         user_query = request.POST.get("query", "No chemicals specified.")
+        selected_chemicals = parse_selected_chemicals(user_query)
+
+        if len(selected_chemicals) < 2:
+            return insufficient_input_response(
+                "Add at least two chemicals to predict a reaction. "
+                "OmniLab only analyzes the chemicals you select and won't "
+                "introduce another reagent."
+            )
 
         system_prompt = (
             "You are an advanced academic chemistry simulator engine for OmniLab. "
             "Analyze the mixture of provided chemicals thoroughly.\n\n"
+            "Treat the user's selected chemical list as the complete set of "
+            "reactants. Never add water, air, acid, a solvent, or any other "
+            "unselected reagent to the reactant side of an equation or describe "
+            "it as part of the chosen setup. If the selected chemicals do not "
+            "support a meaningful reaction, return effect 'none' and an equation "
+            "that contains only the selected chemicals.\n\n"
             "You MUST return strictly a single valid JSON object containing these exact keys:\n"
             "{\n"
             "  \"effect\": \"explosion\",\n"
@@ -220,6 +287,14 @@ def ai_insights(request):
             
             ai_raw_text = response.choices[0].message.content.strip()
             data = json.loads(ai_raw_text)
+
+            if not equation_uses_only_selected_reactants(
+                data.get("equation", ""), selected_chemicals
+            ):
+                return insufficient_input_response(
+                    "OmniLab couldn't produce a prediction using only your "
+                    "selected chemicals. Try a different combination."
+                )
             
             return JsonResponse({"status": "success", "data": data})
             
