@@ -1,7 +1,16 @@
 import * as config from '../configuration/config.js';
 import { closeAllPopovers } from '../userInterface/ui.js';
-import { drawVesselAndFluid, triggerSmokeEffect, triggerThermalBlast } from '../rendering/render.js';
+import {
+    cancelReactionEffects,
+    drawVesselAndFluid,
+    triggerSmokeEffect,
+    triggerThermalBlast
+} from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
+
+const DEFAULT_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>';
+let activeAnalysisController: AbortController | null = null;
+let currentAnalysisRunId = 0;
 
 interface ReactionData {
     status: 'success' | 'error' | 'insufficient_input';
@@ -125,11 +134,19 @@ export function drop(ev: DragEvent): void {
 export function resetLaboratory(): void {
     localStorage.removeItem('savedChemicals');
     localStorage.removeItem('savedLiquidColor');
+    localStorage.removeItem('savedReaction');
+
+    currentAnalysisRunId += 1;
+    activeAnalysisController?.abort();
+    activeAnalysisController = null;
+    cancelReactionEffects();
 
     config.updateLabState({
         selectedChemicals: [],
         targetLiquidVol: 0,
         currentLiquidVol: 0,
+        liquidColor: '#3399ff',
+        streamColor: '#ffffff',
         splashParticles: [],
         ambientBubbles: [],
         smokeParticles: [],
@@ -144,6 +161,11 @@ export function resetLaboratory(): void {
     if (mixtureEl) {
         mixtureEl.innerText = "Empty Vessel";
     }
+
+    const panel = document.getElementById('ai-response-content');
+    if (panel) {
+        panel.innerHTML = DEFAULT_REACTION_INSTRUCTION;
+    }
     drawVesselAndFluid();
 }
 
@@ -157,6 +179,10 @@ export function fireAIAnalysis(): void {
     const panel = document.getElementById('ai-response-content');
     if (!panel) return;
 
+    activeAnalysisController?.abort();
+    const requestController = new AbortController();
+    activeAnalysisController = requestController;
+    const analysisRunId = ++currentAnalysisRunId;
     const analysisStartedAt = performance.now();
     capture('reaction_analysis_started', {
         chemical_count: state.selectedChemicals.length,
@@ -171,10 +197,13 @@ export function fireAIAnalysis(): void {
 
     fetch('/ai_insights/', {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: requestController.signal
     })
     .then(res => res.text())
     .then(rawText => {
+        if (analysisRunId !== currentAnalysisRunId) return;
+        activeAnalysisController = null;
         const cleanedText = rawText.replace(/[\n\r\t]/g, ' ');
         const resData: ReactionData = JSON.parse(cleanedText);
 
@@ -266,6 +295,8 @@ export function fireAIAnalysis(): void {
         }
     })
     .catch(err => {
+        if (requestController.signal.aborted || analysisRunId !== currentAnalysisRunId) return;
+        activeAnalysisController = null;
         capture('reaction_analysis_failed', {
             stage: 'network_or_parse',
             duration_ms: Math.round(performance.now() - analysisStartedAt)
@@ -356,7 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
         const panel = document.getElementById('ai-response-content');
         if (panel) {
-            panel.innerHTML = '<p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger analytical mapping.</p>';
+            panel.innerHTML = DEFAULT_REACTION_INSTRUCTION;
         }
     }
 });
