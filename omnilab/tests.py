@@ -1,11 +1,19 @@
 import json
 import re
 import xml.etree.ElementTree as ET
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from django.conf import settings
 from django.test import TestCase
 
-from .views import HOMEPAGE_FAQS, PRODUCTION_BASE_URL, PUBLIC_CANONICAL_URLS
+from .views import (
+    HOMEPAGE_FAQS,
+    PRODUCTION_BASE_URL,
+    PUBLIC_CANONICAL_URLS,
+    REACTION_API_BASE_URL,
+    REACTION_MODEL,
+)
 
 
 class HomepageFaqTests(TestCase):
@@ -203,3 +211,130 @@ class AnalyticsInstrumentationTests(TestCase):
         ):
             with self.subTest(module_path=module_path):
                 self.assertIn(f"from '{module_path}'", entry)
+
+    def test_reaction_events_exclude_private_lab_content(self):
+        source = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        captures = re.findall(
+            r"capture\('reaction_analysis_(?:started|completed|failed)', \{"
+            r"(.*?)\}\);",
+            source,
+            re.DOTALL,
+        )
+
+        self.assertEqual(len(captures), 4)
+        for properties in captures:
+            property_names = set(
+                re.findall(r"^\s*([a-zA-Z_]+):", properties, re.MULTILINE)
+            )
+            for private_value in (
+                "selectedChemicals",
+                "query",
+                "equation",
+                "explanation",
+                "safety",
+                "formData",
+            ):
+                with self.subTest(private_value=private_value):
+                    self.assertNotIn(private_value, property_names)
+
+
+class LabJourneyRepairTests(TestCase):
+    def test_catalog_restores_the_repository_evidenced_sodium_input(self):
+        catalog = json.loads(
+            (settings.BASE_DIR / "static/js/chemicaldata.json").read_text()
+        )
+
+        self.assertEqual(
+            catalog,
+            [{"id": "Na", "name": "Sodium", "color": "#e09f25"}],
+        )
+
+    def test_homepage_and_runtime_use_the_same_canvas_identifier(self):
+        response = self.client.get("/")
+        runtime = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+
+        self.assertContains(
+            response,
+            '<canvas id="lab-canvas"></canvas>',
+            html=True,
+        )
+        self.assertIn("getElementById('lab-canvas')", runtime)
+
+    def test_runtime_initializes_catalog_canvas_and_drop_path(self):
+        entry = (settings.BASE_DIR / "static/ts/root/main.ts").read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        renderer = (
+            settings.BASE_DIR / "static/ts/rendering/render.ts"
+        ).read_text()
+
+        for expected in (
+            "fetch(jsonUrl)",
+            "ui.resizeCanvas()",
+            "requestAnimationFrame(engineLoop)",
+            "addEventListener('drop'",
+        ):
+            self.assertIn(expected, entry)
+        self.assertIn("selectedChemicals: updatedChemicals", interactions)
+        self.assertIn("updatedChemicals.join(' + ')", interactions)
+        self.assertIn("updatedState.currentVessel", renderer)
+        self.assertIn("updatedState.burnerActive", renderer)
+
+    def test_instruction_text_uses_contrast_token_without_opacity(self):
+        response = self.client.get("/")
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+
+        self.assertContains(response, "lab-instruction")
+        self.assertIn(".lab-instruction", css)
+        self.assertIn("color: var(--muted-text);", css)
+        self.assertNotIn('style="opacity: 0.6;"', interactions)
+
+    @patch("omnilab.views.get_reaction_client")
+    def test_reaction_endpoint_uses_current_provider_defaults(self, get_client):
+        create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(
+                            content=json.dumps(
+                                {
+                                    "effect": "none",
+                                    "equation": "Na(s) -> Na(s)",
+                                    "explanation": "No second reagent was selected.",
+                                    "safety": (
+                                        "Wear eye protection. | Keep sodium dry. | "
+                                        "Use trained supervision."
+                                    ),
+                                }
+                            )
+                        )
+                    )
+                ]
+            )
+        )
+        get_client.return_value = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
+        )
+
+        response = self.client.post("/ai_insights/", {"query": "Na"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "success")
+        self.assertEqual(
+            REACTION_API_BASE_URL,
+            "https://models.github.ai/inference",
+        )
+        self.assertEqual(REACTION_MODEL, "openai/gpt-4o-mini")
+        self.assertEqual(create.call_args.kwargs["model"], REACTION_MODEL)
+        self.assertEqual(
+            create.call_args.kwargs["response_format"],
+            {"type": "json_object"},
+        )

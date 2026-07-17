@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
     else {
         const panel = document.getElementById('ai-response-content');
         if (panel) {
-            panel.innerHTML = '<p class="text-center mt-5" style="opacity: 0.6;">Introduce elements into the vessel from the floating core menu, then trigger analytical mapping.</p>';
+            panel.innerHTML = '<p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger analytical mapping.</p>';
         }
     }
 });
