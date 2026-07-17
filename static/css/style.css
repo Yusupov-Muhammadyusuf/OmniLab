@@ -328,6 +328,10 @@ body {
     z-index: 1020;
 }
 
+.lab-instruction {
+    color: var(--muted-text);
+}
+
 .response-container {
     flex-grow: 1;
     border: 2px solid var(--text-color);

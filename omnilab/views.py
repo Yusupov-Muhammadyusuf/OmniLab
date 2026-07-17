@@ -66,10 +66,22 @@ HOMEPAGE_FAQS = [
     },
 ]
 
-client = OpenAI(
-    base_url="https://models.inference.ai.azure.com",
-    api_key=os.getenv("FEATHERLESS_AI_API")
+REACTION_API_BASE_URL = os.getenv(
+    "OMNILAB_AI_BASE_URL",
+    "https://models.github.ai/inference",
 )
+REACTION_MODEL = os.getenv("OMNILAB_AI_MODEL", "openai/gpt-4o-mini")
+
+
+def get_reaction_client():
+    api_key = os.getenv("GITHUB_MODELS_API_KEY") or os.getenv(
+        "FEATHERLESS_AI_API"
+    )
+    if not api_key:
+        raise RuntimeError("Reaction provider is not configured.")
+
+    return OpenAI(base_url=REACTION_API_BASE_URL, api_key=api_key)
+
 
 def index(request):
     faq_schema = {
@@ -195,8 +207,8 @@ def ai_insights(request):
         )
 
         try:
-            response = client.chat.completions.create(
-                model="Meta-Llama-3.1-8B-Instruct", 
+            response = get_reaction_client().chat.completions.create(
+                model=REACTION_MODEL,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_query}
