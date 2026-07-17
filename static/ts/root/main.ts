@@ -2,6 +2,7 @@ import * as config from '../configuration/config';
 import * as ui from '../userInterface/ui';
 import * as render from '../rendering/render';
 import * as interactions from '../interactions/interactions';
+import { capture } from '../analytics/analytics.js';
 
 declare global {
     interface Window {
@@ -17,6 +18,7 @@ declare global {
 }
 
 document.addEventListener("DOMContentLoaded", function(): void {
+    capture('lab_viewed', { route: window.location.pathname });
     ui.resizeCanvas();
     requestAnimationFrame(engineLoop);
     interactions.setupCanvasDrag();
