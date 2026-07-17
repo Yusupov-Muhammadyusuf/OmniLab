@@ -1,12 +1,20 @@
 import os
 import json
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
+
+PRODUCTION_BASE_URL = "https://omnilab-bk8q.onrender.com"
+PUBLIC_CANONICAL_URLS = {
+    "index": f"{PRODUCTION_BASE_URL}/",
+    "pricing": f"{PRODUCTION_BASE_URL}/pricing/",
+    "privacy": f"{PRODUCTION_BASE_URL}/privacy/",
+    "terms": f"{PRODUCTION_BASE_URL}/terms/",
+}
 
 HOMEPAGE_FAQS = [
     {
@@ -79,23 +87,90 @@ def index(request):
             for faq in HOMEPAGE_FAQS
         ],
     }
+    software_schema = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "OmniLab",
+        "url": PUBLIC_CANONICAL_URLS["index"],
+        "description": (
+            "An interactive virtual chemistry laboratory for chemistry "
+            "students to mix compounds, choose lab equipment, and review "
+            "predicted reactions."
+        ),
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "featureList": [
+            "Search and mix supported chemicals",
+            "Choose a flask, test tube, beaker, or virtual Bunsen burner",
+            (
+                "Review predicted equations, explanations, visual effects, "
+                "and safety guidance"
+            ),
+        ],
+        "license": (
+            "https://github.com/Yusupov-Muhammadyusuf/OmniLab/blob/main/LICENSE"
+        ),
+        "codeRepository": "https://github.com/Yusupov-Muhammadyusuf/OmniLab",
+    }
     return render(
         request,
         "index.html",
         {
+            "canonical_url": PUBLIC_CANONICAL_URLS["index"],
             "homepage_faqs": HOMEPAGE_FAQS,
             "faq_schema_json": json.dumps(faq_schema),
+            "software_schema_json": json.dumps(software_schema),
         },
     )
 
 def pricing(request):
-    return render(request, "pricing.html")
+    return render(
+        request,
+        "pricing.html",
+        {"canonical_url": PUBLIC_CANONICAL_URLS["pricing"]},
+    )
 
 def privacy(request):
-    return render(request, "privacy.html")
+    return render(
+        request,
+        "privacy.html",
+        {"canonical_url": PUBLIC_CANONICAL_URLS["privacy"]},
+    )
 
 def terms(request):
-    return render(request, "terms.html")
+    return render(
+        request,
+        "terms.html",
+        {"canonical_url": PUBLIC_CANONICAL_URLS["terms"]},
+    )
+
+
+def robots_txt(request):
+    content = "\n".join(
+        [
+            "User-agent: *",
+            "Allow: /",
+            "Disallow: /admin/",
+            "Disallow: /ai_insights/",
+            f"Sitemap: {PRODUCTION_BASE_URL}/sitemap.xml",
+            "",
+        ]
+    )
+    return HttpResponse(content, content_type="text/plain; charset=utf-8")
+
+
+def sitemap_xml(request):
+    urls = "".join(
+        f"  <url><loc>{url}</loc></url>\n"
+        for url in PUBLIC_CANONICAL_URLS.values()
+    )
+    content = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{urls}"
+        "</urlset>\n"
+    )
+    return HttpResponse(content, content_type="application/xml; charset=utf-8")
 
 @csrf_exempt
 def ai_insights(request):
