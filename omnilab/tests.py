@@ -297,6 +297,20 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("color: var(--muted-text);", css)
         self.assertNotIn('style="opacity: 0.6;"', interactions)
 
+    def test_reaction_results_keep_heading_order_and_safety_contrast(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+
+        self.assertNotIn("<h6", interactions)
+        self.assertEqual(interactions.count('<h3 class="h6'), 6)
+        self.assertEqual(interactions.count("safety-heading"), 2)
+        self.assertEqual(interactions.count("safety-list"), 2)
+        self.assertIn(".safety-heading", css)
+        self.assertIn(".safety-list", css)
+        self.assertIn("color: var(--text-color);", css)
+
     @patch("omnilab.views.get_reaction_client")
     def test_reaction_endpoint_uses_current_provider_defaults(self, get_client):
         create = Mock(

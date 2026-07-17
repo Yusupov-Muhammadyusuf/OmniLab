@@ -332,6 +332,11 @@ body {
     color: var(--muted-text);
 }
 
+.safety-heading,
+.safety-list {
+    color: var(--text-color);
+}
+
 .response-container {
     flex-grow: 1;
     border: 2px solid var(--text-color);

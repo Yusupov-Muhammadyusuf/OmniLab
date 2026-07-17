@@ -156,9 +156,9 @@ export function fireAIAnalysis() {
                 <div class="lh-base spectrum-analysis-log animate__animated animate__fadeIn text-body-emphasis" style="font-family: 'UbuntuLocal', sans-serif; font-size: 16px; line-height: 1.6; letter-spacing: 0.3px;">
 
                     <div class="mb-4 core-equation-block p-3 bg-dark text-white rounded-4 shadow-lg border border-secondary border-opacity-25">
-                        <h6 class="text-white-50 text-uppercase small fw-bold mb-2" style="letter-spacing: 1.5px;">
+                        <h3 class="h6 text-white-50 text-uppercase small fw-bold mb-2" style="letter-spacing: 1.5px;">
                             <i class="bi bi-mortar-pestle me-2 text-info"></i>Chemical Equation Formula
-                        </h6>
+                        </h3>
                         <div class="fs-5 text-center py-2 px-2 text-white border border-secondary border-opacity-50 rounded-3"
                             style="font-family: 'Fira Code', monospace; font-weight: 500; background-color: #1e1e24; letter-spacing: 1.5px;">
                             ${reaction.equation}
@@ -166,19 +166,19 @@ export function fireAIAnalysis() {
                     </div>
 
                     <div class="mb-4 conceptual-breakdown px-2">
-                        <h6 class="text-body-secondary text-uppercase small fw-bold mb-2">
+                        <h3 class="h6 text-body-secondary text-uppercase small fw-bold mb-2">
                             <i class="bi bi-file-earmark-text me-2 text-info"></i>Analysis
-                        </h6>
+                        </h3>
                         <div class="text-body-emphasis" style="text-align: justify; text-justify: inter-word;">
                             ${reaction.explanation}
                         </div>
                     </div>
 
                     <div class="alert alert-warning bg-warning-subtle border-warning border-start border-5 shadow-sm p-3 safety-matrix-block rounded-end">
-                        <h6 class="text-secondary text-uppercase small fw-bold mb-2">
+                        <h3 class="h6 text-uppercase small fw-bold mb-2 safety-heading">
                             <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Safety rules
-                        </h6>
-                        <ul class="list-unstyled mb-0 small text-secondary fw-medium">
+                        </h3>
+                        <ul class="list-unstyled mb-0 small fw-medium safety-list">
                             ${safetyHTML || `<li>${reaction.safety}</li>`}
                         </ul>
                     </div>
@@ -261,9 +261,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="lh-base spectrum-analysis-log animate__animated animate__fadeIn text-body-emphasis" style="font-family: 'UbuntuLocal', sans-serif; font-size: 16px; line-height: 1.6; letter-spacing: 0.3px;">
 
                     <div class="mb-4 core-equation-block p-3 bg-dark text-white rounded-4 shadow-lg border border-secondary border-opacity-25">
-                        <h6 class="text-white-50 text-uppercase small fw-bold mb-2" style="letter-spacing: 1.5px;">
+                        <h3 class="h6 text-white-50 text-uppercase small fw-bold mb-2" style="letter-spacing: 1.5px;">
                             <i class="bi bi-mortar-pestle me-2 text-info"></i>Chemical Equation Formula
-                        </h6>
+                        </h3>
                         <div class="fs-5 text-center py-2 px-2 text-white border border-secondary border-opacity-50 rounded-3"
                             style="font-family: 'Fira Code', monospace; font-weight: 500; background-color: #1e1e24; letter-spacing: 1.5px;">
                             ${reaction.equation}
@@ -271,19 +271,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
 
                     <div class="mb-4 conceptual-breakdown px-2">
-                        <h6 class="text-body-secondary text-uppercase small fw-bold mb-2">
+                        <h3 class="h6 text-body-secondary text-uppercase small fw-bold mb-2">
                             <i class="bi bi-file-earmark-text me-2 text-info"></i>Analysis
-                        </h6>
+                        </h3>
                         <div class="text-body-emphasis" style="text-align: justify; text-justify: inter-word;">
                             ${reaction.explanation}
                         </div>
                     </div>
 
                     <div class="alert alert-warning bg-warning-subtle border-warning border-start border-5 shadow-sm p-3 safety-matrix-block rounded-end">
-                        <h6 class="text-secondary text-uppercase small fw-bold mb-2">
+                        <h3 class="h6 text-uppercase small fw-bold mb-2 safety-heading">
                             <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Safety rules
-                        </h6>
-                        <ul class="list-unstyled mb-0 small text-secondary fw-medium">
+                        </h3>
+                        <ul class="list-unstyled mb-0 small fw-medium safety-list">
                             ${safetyHTML || `<li>${reaction.safety}</li>`}
                         </ul>
                     </div>
