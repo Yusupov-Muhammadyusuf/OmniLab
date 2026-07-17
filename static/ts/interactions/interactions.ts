@@ -1,6 +1,7 @@
 import * as config from '../configuration/config.js';
 import { closeAllPopovers } from '../userInterface/ui.js';
 import { drawVesselAndFluid, triggerSmokeEffect, triggerThermalBlast } from '../rendering/render.js';
+import { capture } from '../analytics/analytics.js';
 
 interface ReactionData {
     status: 'success' | 'error';
@@ -102,6 +103,13 @@ export function drop(ev: DragEvent): void {
             streamActive: true,
             targetLiquidVol: targetVol
         });
+
+        if (updatedChemicals.length === 1) {
+            capture('lab_setup_started', {
+                vessel: state.currentVessel,
+                burner_active: state.burnerActive
+            });
+        }
         
         localStorage.setItem('savedChemicals', JSON.stringify(updatedChemicals));
         localStorage.setItem('savedLiquidColor', color);
@@ -149,6 +157,13 @@ export function fireAIAnalysis(): void {
     const panel = document.getElementById('ai-response-content');
     if (!panel) return;
 
+    const analysisStartedAt = performance.now();
+    capture('reaction_analysis_started', {
+        chemical_count: state.selectedChemicals.length,
+        vessel: state.currentVessel,
+        burner_active: state.burnerActive
+    });
+
     panel.innerHTML = '<div class="text-center mt-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 fw-bold text-body-secondary">Analyzing chemical reaction...</p></div>';
 
     let formData = new FormData();
@@ -164,6 +179,12 @@ export function fireAIAnalysis(): void {
         const resData: ReactionData = JSON.parse(cleanedText);
 
         if (resData.status === 'success') {
+            capture('reaction_analysis_completed', {
+                chemical_count: state.selectedChemicals.length,
+                vessel: state.currentVessel,
+                effect: resData.data.effect,
+                duration_ms: Math.round(performance.now() - analysisStartedAt)
+            });
             localStorage.setItem('savedReaction', JSON.stringify(resData.data));
             const reaction = resData.data;
 
@@ -225,10 +246,18 @@ export function fireAIAnalysis(): void {
             }
 
         } else {
+            capture('reaction_analysis_failed', {
+                stage: 'response',
+                duration_ms: Math.round(performance.now() - analysisStartedAt)
+            });
             panel.innerHTML = `<div class="alert alert-danger bg-danger-subtle text-danger-emphasis border-danger">Processing Fault: ${resData.message}</div>`;
         }
     })
     .catch(err => {
+        capture('reaction_analysis_failed', {
+            stage: 'network_or_parse',
+            duration_ms: Math.round(performance.now() - analysisStartedAt)
+        });
         panel.innerHTML = `<div class="alert alert-danger bg-danger-subtle text-danger-emphasis border-danger">Network Runtime Error: ${err.message}</div>`;
     });
 }

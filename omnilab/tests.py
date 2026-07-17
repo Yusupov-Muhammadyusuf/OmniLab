@@ -2,6 +2,7 @@ import json
 import re
 import xml.etree.ElementTree as ET
 
+from django.conf import settings
 from django.test import TestCase
 
 from .views import HOMEPAGE_FAQS, PRODUCTION_BASE_URL, PUBLIC_CANONICAL_URLS
@@ -127,3 +128,49 @@ class SearchDiscoveryTests(TestCase):
         self.assertNotIn("aggregateRating", software_schema)
         self.assertNotIn("publisher", software_schema)
         self.assertNotIn("author", software_schema)
+
+
+class AnalyticsInstrumentationTests(TestCase):
+    def test_homepage_uses_privacy_limited_posthog_configuration(self):
+        response = self.client.get("/")
+
+        for setting in (
+            "autocapture: false",
+            "capture_pageview: false",
+            "capture_pageleave: false",
+            "capture_performance: false",
+            "disable_session_recording: true",
+        ):
+            with self.subTest(setting=setting):
+                self.assertContains(response, setting)
+
+        self.assertContains(
+            response,
+            '<script type="module" src="/static/js/main.js"></script>',
+            html=True,
+        )
+
+    def test_lab_setup_event_contains_only_coarse_setup_properties(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        setup_capture = re.search(
+            r"capture\('lab_setup_started', \{(.*?)\}\);",
+            interactions,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(setup_capture)
+        properties = setup_capture.group(1)
+        self.assertIn("vessel", properties)
+        self.assertIn("burner_active", properties)
+
+        for private_value in (
+            "selectedChemicals",
+            "chemical",
+            "query",
+            "reaction",
+            "formData",
+        ):
+            with self.subTest(private_value=private_value):
+                self.assertNotIn(private_value, properties)
