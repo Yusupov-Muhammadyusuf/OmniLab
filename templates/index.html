@@ -4,15 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore chemical reactions safely in an interactive virtual laboratory with AI-powered equations, explanations, and safety guidance.">
+    <meta name="description" content="Explore predicted chemical reactions in an interactive virtual laboratory with equations, explanations, and safety guidance for chemistry students.">
     <title>OmniLab - Laboratory Experiments Assistant</title>
     <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script type="application/ld+json">{{ faq_schema_json|safe }}</script>
 </head>
-<body>
+<body class="home-page">
     <header class="app-title-card">
         <p class="app-wordmark">OmniLab</p>
         <h1>Test chemical reactions in a virtual lab</h1>
@@ -44,7 +45,7 @@
     </div>
 
     <main class="container-fluid p-0">
-        <div class="row g-0">
+        <section class="lab-workspace row g-0" aria-label="Virtual chemistry lab">
             
             <div class="col-lg-8" id="canvas-zone" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event)">
                 <canvas id="labCanvas"></canvas>
@@ -70,10 +71,29 @@
                 </button>
             </div>
 
-        </div>
+        </section>
+
+        <section class="faq-section" aria-labelledby="faq-title">
+            <div class="faq-shell">
+                <div class="faq-intro">
+                    <p class="faq-context">Before you analyze</p>
+                    <h2 id="faq-title">Know what the virtual lab can tell you</h2>
+                    <p>Set up a reaction in minutes, then treat the result as a prediction to check and learn from.</p>
+                </div>
+
+                <div class="faq-list">
+                    {% for faq in homepage_faqs %}
+                    <details class="faq-item"{% if forloop.first %} open{% endif %}>
+                        <summary>{{ faq.question }}</summary>
+                        <p>{{ faq.answer }}</p>
+                    </details>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
     </main>
 
-    {% include "partials/site_footer.html" with floating_footer=True %}
+    {% include "partials/site_footer.html" %}
 
     <script>
         window.chemicalDataUrl = "{% static 'js/chemicaldata.json' %}";

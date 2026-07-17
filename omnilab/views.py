@@ -8,13 +8,85 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+HOMEPAGE_FAQS = [
+    {
+        "question": "How do I set up an experiment in OmniLab?",
+        "answer": (
+            "Choose an Erlenmeyer flask, graduated test tube, or laboratory "
+            "beaker from Apparatus. Open Chemicals, search the available "
+            "inputs, and drag one or more into the vessel. Add the virtual "
+            "Bunsen burner if you want to model heating, then select Analyze "
+            "Chemical Reaction."
+        ),
+    },
+    {
+        "question": "Which chemicals and equipment can I use?",
+        "answer": (
+            "The current release uses the chemicals listed in its searchable "
+            "Chemicals menu. Equipment includes an Erlenmeyer flask, graduated "
+            "test tube, laboratory beaker, and virtual Bunsen burner. The menus "
+            "in the lab are the current source of truth for supported inputs."
+        ),
+    },
+    {
+        "question": "How accurate are the reaction results?",
+        "answer": (
+            "OmniLab generates predicted equations, explanations, visual "
+            "effects, and safety guidance from the chemical names you select. "
+            "Generated results can be incomplete or wrong, so check important "
+            "information against trusted chemistry sources and follow your "
+            "instructor's guidance."
+        ),
+    },
+    {
+        "question": "Can OmniLab replace a physical chemistry lab?",
+        "answer": (
+            "No. OmniLab is an educational prediction tool for exploring "
+            "setups before working with real materials. It doesn't reproduce "
+            "every real-world condition or replace trained supervision, "
+            "professional judgment, or the safety procedures of a physical "
+            "laboratory."
+        ),
+    },
+    {
+        "question": "Do I need an account to start?",
+        "answer": (
+            "No. The current public release opens directly in the lab and "
+            "doesn't require an account or payment. Future access or pricing "
+            "may change as the product develops."
+        ),
+    },
+]
+
 client = OpenAI(
     base_url="https://models.inference.ai.azure.com",
     api_key=os.getenv("FEATHERLESS_AI_API")
 )
 
 def index(request):
-    return render(request, "index.html")
+    faq_schema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": faq["question"],
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": faq["answer"],
+                },
+            }
+            for faq in HOMEPAGE_FAQS
+        ],
+    }
+    return render(
+        request,
+        "index.html",
+        {
+            "homepage_faqs": HOMEPAGE_FAQS,
+            "faq_schema_json": json.dumps(faq_schema),
+        },
+    )
 
 def pricing(request):
     return render(request, "pricing.html")
