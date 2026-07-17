@@ -41,6 +41,19 @@ class HomepageFaqTests(TestCase):
 
 
 class SearchDiscoveryTests(TestCase):
+    def test_homepage_description_states_audience_action_and_boundary(self):
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            (
+                '<meta name="description" content="Explore predicted reactions '
+                "in a virtual lab built for chemistry students. OmniLab is "
+                "educational and doesn't replace physical lab procedures.\">"
+            ),
+            html=True,
+        )
+
     def test_public_pages_use_production_canonical_urls(self):
         routes = {
             "/": "index",
