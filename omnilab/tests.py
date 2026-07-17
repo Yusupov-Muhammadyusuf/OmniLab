@@ -13,6 +13,7 @@ from .views import (
     PUBLIC_CANONICAL_URLS,
     REACTION_API_BASE_URL,
     REACTION_MODEL,
+    equation_uses_only_selected_reactants,
 )
 
 
@@ -223,7 +224,7 @@ class AnalyticsInstrumentationTests(TestCase):
             re.DOTALL,
         )
 
-        self.assertEqual(len(captures), 4)
+        self.assertEqual(len(captures), 5)
         for properties in captures:
             property_names = set(
                 re.findall(r"^\s*([a-zA-Z_]+):", properties, re.MULTILINE)
@@ -285,6 +286,35 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("updatedState.currentVessel", renderer)
         self.assertIn("updatedState.burnerActive", renderer)
 
+    def test_browser_submits_catalog_ids_as_selected_reactants(self):
+        catalog = json.loads(
+            (settings.BASE_DIR / "static/js/chemicaldata.json").read_text()
+        )
+        menu = (
+            settings.BASE_DIR / "static/ts/userInterface/ui.ts"
+        ).read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+
+        self.assertEqual(catalog[0]["id"], "Na")
+        self.assertEqual(catalog[0]["name"], "Sodium")
+        self.assertIn("card.setAttribute('data-name', chem.id)", menu)
+        self.assertIn("state.selectedChemicals.join(' + ')", interactions)
+
+    def test_reactant_validation_normalizes_coefficients_and_states(self):
+        self.assertTrue(
+            equation_uses_only_selected_reactants(
+                "2Na(s) + Cl2(g) -> 2NaCl(s)", ["Na", "Cl2"]
+            )
+        )
+        self.assertFalse(
+            equation_uses_only_selected_reactants(
+                "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g)",
+                ["Na", "Cl2"],
+            )
+        )
+
     def test_instruction_text_uses_contrast_token_without_opacity(self):
         response = self.client.get("/")
         css = (settings.BASE_DIR / "static/css/style.css").read_text()
@@ -304,7 +334,7 @@ class LabJourneyRepairTests(TestCase):
         css = (settings.BASE_DIR / "static/css/style.css").read_text()
 
         self.assertNotIn("<h6", interactions)
-        self.assertEqual(interactions.count('<h3 class="h6'), 6)
+        self.assertEqual(interactions.count('<h3 class="h6'), 7)
         self.assertEqual(interactions.count("safety-heading"), 2)
         self.assertEqual(interactions.count("safety-list"), 2)
         self.assertIn(".safety-heading", css)
@@ -321,8 +351,8 @@ class LabJourneyRepairTests(TestCase):
                             content=json.dumps(
                                 {
                                     "effect": "none",
-                                    "equation": "Na(s) -> Na(s)",
-                                    "explanation": "No second reagent was selected.",
+                                    "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
+                                    "explanation": "The selected reactants form sodium chloride.",
                                     "safety": (
                                         "Wear eye protection. | Keep sodium dry. | "
                                         "Use trained supervision."
@@ -338,7 +368,9 @@ class LabJourneyRepairTests(TestCase):
             chat=SimpleNamespace(completions=SimpleNamespace(create=create))
         )
 
-        response = self.client.post("/ai_insights/", {"query": "Na"})
+        response = self.client.post(
+            "/ai_insights/", {"query": "Na + Cl2"}
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "success")
@@ -348,7 +380,71 @@ class LabJourneyRepairTests(TestCase):
         )
         self.assertEqual(REACTION_MODEL, "openai/gpt-4o-mini")
         self.assertEqual(create.call_args.kwargs["model"], REACTION_MODEL)
+        self.assertIn(
+            "complete set of reactants",
+            create.call_args.kwargs["messages"][0]["content"],
+        )
         self.assertEqual(
             create.call_args.kwargs["response_format"],
             {"type": "json_object"},
         )
+
+    @patch("omnilab.views.get_reaction_client")
+    def test_single_selected_chemical_returns_insufficient_input(self, get_client):
+        response = self.client.post("/ai_insights/", {"query": "Na"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "insufficient_input")
+        self.assertIn("Add at least two chemicals", response.json()["message"])
+        self.assertNotIn("water", response.content.decode().lower())
+        get_client.assert_not_called()
+
+    @patch("omnilab.views.get_reaction_client")
+    def test_unselected_reactant_is_not_returned_to_the_browser(self, get_client):
+        create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(
+                            content=json.dumps(
+                                {
+                                    "effect": "explosion",
+                                    "equation": (
+                                        "2Na(s) + 2H2O(l) -> "
+                                        "2NaOH(aq) + H2(g)"
+                                    ),
+                                    "explanation": (
+                                        "Water was introduced by the model."
+                                    ),
+                                    "safety": (
+                                        "Wear eye protection. | Keep sodium dry. | "
+                                        "Use trained supervision."
+                                    ),
+                                }
+                            )
+                        )
+                    )
+                ]
+            )
+        )
+        get_client.return_value = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
+        )
+
+        response = self.client.post(
+            "/ai_insights/", {"query": "Na + Cl2"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "insufficient_input")
+        self.assertNotIn("equation", response.content.decode().lower())
+
+    def test_browser_renders_insufficient_input_as_an_educational_state(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+
+        self.assertIn("resData.status === 'insufficient_input'", interactions)
+        self.assertIn("Try a different setup", interactions)
+        self.assertIn("localStorage.removeItem('savedReaction')", interactions)
+        self.assertIn("stage: 'insufficient_input'", interactions)
