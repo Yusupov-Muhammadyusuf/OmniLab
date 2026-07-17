@@ -16,6 +16,9 @@ client = OpenAI(
 def index(request):
     return render(request, "index.html")
 
+def pricing(request):
+    return render(request, "pricing.html")
+
 @csrf_exempt
 def ai_insights(request):
     if request.method == "POST":
