@@ -13,7 +13,7 @@ let activeAnalysisController: AbortController | null = null;
 let currentAnalysisRunId = 0;
 
 interface ReactionData {
-    status: 'success' | 'error' | 'insufficient_input';
+    status: 'success' | 'error' | 'insufficient_input' | 'rate_limited';
     message?: string;
     data?: {
         equation: string;
@@ -291,7 +291,18 @@ export function fireAIAnalysis(): void {
         const cleanedText = rawText.replace(/[\n\r\t]/g, ' ');
         const resData: ReactionData = JSON.parse(cleanedText);
 
-        if (resData.status === 'insufficient_input') {
+        if (resData.status === 'rate_limited') {
+            capture('reaction_analysis_failed', {
+                stage: 'rate_limited',
+                duration_ms: Math.round(performance.now() - analysisStartedAt)
+            });
+            renderStatusMessage(
+                panel,
+                'Please wait before trying again',
+                resData.message || 'This network has reached its reaction analysis limit.',
+                'info'
+            );
+        } else if (resData.status === 'insufficient_input') {
             capture('reaction_analysis_failed', {
                 stage: 'insufficient_input',
                 duration_ms: Math.round(performance.now() - analysisStartedAt)

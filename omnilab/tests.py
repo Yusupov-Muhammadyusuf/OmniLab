@@ -5,7 +5,8 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from django.conf import settings
-from django.test import TestCase
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 
 from .views import (
     HOMEPAGE_FAQS,
@@ -224,7 +225,7 @@ class AnalyticsInstrumentationTests(TestCase):
             re.DOTALL,
         )
 
-        self.assertEqual(len(captures), 5)
+        self.assertEqual(len(captures), 6)
         for properties in captures:
             property_names = set(
                 re.findall(r"^\s*([a-zA-Z_]+):", properties, re.MULTILINE)
@@ -239,6 +240,121 @@ class AnalyticsInstrumentationTests(TestCase):
             ):
                 with self.subTest(private_value=private_value):
                     self.assertNotIn(private_value, property_names)
+
+
+@override_settings(
+    OMNILAB_REACTION_RATE_LIMIT_REQUESTS=2,
+    OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS=60,
+)
+class ReactionRateLimitTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        payload = {
+            "effect": "none",
+            "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
+            "explanation": "The selected reactants form sodium chloride.",
+            "safety": (
+                "Wear eye protection. | Keep sodium dry. | "
+                "Use trained supervision."
+            ),
+        }
+        self.provider_create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(content=json.dumps(payload))
+                    )
+                ]
+            )
+        )
+        provider = SimpleNamespace(
+            chat=SimpleNamespace(
+                completions=SimpleNamespace(create=self.provider_create)
+            )
+        )
+        self.client_patcher = patch(
+            "omnilab.views.get_reaction_client", return_value=provider
+        )
+        self.client_patcher.start()
+
+    def tearDown(self):
+        self.client_patcher.stop()
+        cache.clear()
+
+    def post_reaction(
+        self,
+        forwarded_for="203.0.113.10",
+        remote_addr="127.0.0.1",
+    ):
+        request_headers = {"REMOTE_ADDR": remote_addr}
+        if forwarded_for is not None:
+            request_headers["HTTP_X_FORWARDED_FOR"] = forwarded_for
+        return self.client.post(
+            "/ai_insights/", {"query": "Na + Cl2"}, **request_headers
+        )
+
+    def test_normal_reaction_request_reaches_provider(self):
+        with patch("omnilab.views.time.time", return_value=1200):
+            response = self.post_reaction()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "success")
+        self.provider_create.assert_called_once()
+
+    def test_exceeded_limit_returns_retry_guidance_without_provider_call(self):
+        with patch("omnilab.views.time.time", return_value=1200):
+            self.assertEqual(self.post_reaction().status_code, 200)
+            self.assertEqual(self.post_reaction().status_code, 200)
+            response = self.post_reaction()
+
+        self.assertEqual(response.status_code, 429)
+        self.assertEqual(response.json()["status"], "rate_limited")
+        self.assertIn("Try again in 60 seconds", response.json()["message"])
+        self.assertEqual(response.headers["Retry-After"], "60")
+        self.assertEqual(self.provider_create.call_count, 2)
+
+    @override_settings(OMNILAB_REACTION_RATE_LIMIT_REQUESTS=1)
+    def test_reaction_request_recovers_after_window(self):
+        with patch("omnilab.views.time.time", return_value=1200):
+            self.assertEqual(self.post_reaction().status_code, 200)
+            self.assertEqual(self.post_reaction().status_code, 429)
+
+        with patch("omnilab.views.time.time", return_value=1260):
+            response = self.post_reaction()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "success")
+        self.assertEqual(self.provider_create.call_count, 2)
+
+    @override_settings(OMNILAB_REACTION_RATE_LIMIT_REQUESTS=1)
+    def test_appended_forwarded_hops_cannot_rotate_client_key(self):
+        with patch("omnilab.views.time.time", return_value=1200):
+            first_response = self.post_reaction(
+                forwarded_for="203.0.113.10, 198.51.100.20"
+            )
+            blocked_response = self.post_reaction(
+                forwarded_for="203.0.113.10, 192.0.2.30"
+            )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(blocked_response.status_code, 429)
+        self.provider_create.assert_called_once()
+
+    @override_settings(OMNILAB_REACTION_RATE_LIMIT_REQUESTS=1)
+    def test_malformed_forwarded_address_uses_socket_fallback(self):
+        with patch("omnilab.views.time.time", return_value=1200):
+            first_response = self.post_reaction(
+                forwarded_for="not-an-address",
+                remote_addr="198.51.100.40",
+            )
+            blocked_response = self.post_reaction(
+                forwarded_for="still-not-an-address",
+                remote_addr="198.51.100.40",
+            )
+
+        self.assertEqual(first_response.status_code, 200)
+        self.assertEqual(blocked_response.status_code, 429)
+        self.provider_create.assert_called_once()
 
 
 class LabJourneyRepairTests(TestCase):
