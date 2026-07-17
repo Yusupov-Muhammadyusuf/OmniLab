@@ -127,6 +127,18 @@ body {
     transition: background 0.3s, color 0.3s;
 }
 
+.home-page {
+    min-height: 100vh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.home-page .excalidraw-floating-toolbar,
+.home-page .floating-popover-panel {
+    position: absolute;
+}
+
 .excalidraw-floating-toolbar {
     position: fixed;
     top: 20px;
@@ -354,6 +366,113 @@ body {
     color: var(--bg-main);
 }
 
+.faq-section {
+    border-top: 2px solid var(--border-color);
+    background-color: var(--bg-canvas);
+    background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+}
+
+.faq-shell {
+    width: min(1040px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 96px 0 88px;
+    display: grid;
+    grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
+    align-items: start;
+    gap: 72px;
+}
+
+.faq-intro {
+    position: sticky;
+    top: 32px;
+}
+
+.faq-context {
+    margin: 0 0 12px;
+    color: var(--muted-text);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.faq-intro h2 {
+    max-width: 14ch;
+    margin: 0;
+    font-size: clamp(36px, 4.5vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -2px;
+    text-wrap: balance;
+}
+
+.faq-intro > p:last-child {
+    max-width: 38ch;
+    margin: 24px 0 0;
+    color: var(--muted-text);
+    font-size: 16px;
+    line-height: 1.65;
+    text-wrap: pretty;
+}
+
+.faq-list {
+    border-top: 1px solid var(--border-color);
+}
+
+.faq-item {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.faq-item summary {
+    min-height: 72px;
+    padding: 22px 52px 22px 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    color: var(--text-color);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    cursor: pointer;
+    list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary::after {
+    content: "+";
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    right: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.faq-item[open] summary::after {
+    content: "\2212";
+}
+
+.faq-item summary:focus-visible {
+    outline: 3px solid #e3384f;
+    outline-offset: 4px;
+}
+
+.faq-item p {
+    max-width: 60ch;
+    margin: -4px 0 24px;
+    padding-right: 48px;
+    color: var(--muted-text);
+    font-size: 16px;
+    line-height: 1.65;
+    text-wrap: pretty;
+}
+
 .tin-mark {
     width: 1em;
     height: 1em;
@@ -367,6 +486,7 @@ body {
     .ai-sidebar { height: auto; border-left: none; border-top: 2px solid var(--text-color); }
     .excalidraw-floating-toolbar { position: sticky; top: 10px; transform: none; left: 0; margin: 10px auto; }
     .floating-popover-panel { position: absolute; top: 70px; }
+    .home-page .excalidraw-floating-toolbar { position: sticky; }
 }
 
 @media (min-width: 1200px) {
@@ -768,6 +888,9 @@ body {
     .pricing-open-source { grid-template-columns: 1fr; gap: 16px; }
     .info-layout { grid-template-columns: 1fr; gap: 48px; }
     .info-summary { position: static; }
+    .faq-shell { grid-template-columns: 1fr; gap: 48px; }
+    .faq-intro { position: static; }
+    .faq-intro h2 { max-width: 16ch; }
 }
 
 @media (max-width: 991.98px) {
@@ -783,7 +906,8 @@ body {
     .pricing-site-header,
     .pricing-shell,
     .site-footer,
-    .info-shell { width: min(100% - 32px, 1180px); }
+    .info-shell,
+    .faq-shell { width: min(100% - 32px, 1180px); }
     .pricing-site-header { padding: 20px 0; }
     .pricing-shell { margin-top: 8px; }
     .pricing-copy h1 { font-size: 42px; letter-spacing: -1.7px; }
@@ -798,4 +922,8 @@ body {
     .info-hero h1 { font-size: 48px; letter-spacing: -2.2px; }
     .info-lede { font-size: 16px; }
     .info-layout { margin-top: 56px; }
+    .faq-shell { padding: 64px 0 56px; gap: 40px; }
+    .faq-intro h2 { font-size: 38px; letter-spacing: -1.5px; }
+    .faq-item summary { min-height: 68px; padding-right: 44px; font-size: 16px; }
+    .faq-item p { padding-right: 32px; font-size: 15px; }
 }
