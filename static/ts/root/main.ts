@@ -1,7 +1,7 @@
-import * as config from '../configuration/config';
-import * as ui from '../userInterface/ui';
-import * as render from '../rendering/render';
-import * as interactions from '../interactions/interactions';
+import * as config from '../configuration/config.js';
+import * as ui from '../userInterface/ui.js';
+import * as render from '../rendering/render.js';
+import * as interactions from '../interactions/interactions.js';
 import { capture } from '../analytics/analytics.js';
 
 declare global {

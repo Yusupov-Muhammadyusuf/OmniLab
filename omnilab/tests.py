@@ -190,3 +190,16 @@ class AnalyticsInstrumentationTests(TestCase):
 
         self.assertIn("if (labSetupCaptured) return;", analytics)
         self.assertIn("capture('lab_setup_started', properties);", analytics)
+
+    def test_runtime_entry_uses_browser_resolvable_module_imports(self):
+        entry = (settings.BASE_DIR / "static/ts/root/main.ts").read_text()
+
+        for module_path in (
+            "../configuration/config.js",
+            "../userInterface/ui.js",
+            "../rendering/render.js",
+            "../interactions/interactions.js",
+            "../analytics/analytics.js",
+        ):
+            with self.subTest(module_path=module_path):
+                self.assertIn(f"from '{module_path}'", entry)
