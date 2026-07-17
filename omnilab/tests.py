@@ -471,3 +471,38 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("Try a different setup", interactions)
         self.assertIn("localStorage.removeItem('savedReaction')", interactions)
         self.assertIn("stage: 'insufficient_input'", interactions)
+
+    def test_reset_clears_saved_and_visible_reaction_state(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        reset_block = interactions.split(
+            "export function resetLaboratory(): void {", 1
+        )[1].split("\n}\n\nexport function fireAIAnalysis", 1)[0]
+
+        self.assertIn("localStorage.removeItem('savedChemicals')", reset_block)
+        self.assertIn("localStorage.removeItem('savedLiquidColor')", reset_block)
+        self.assertIn("localStorage.removeItem('savedReaction')", reset_block)
+        self.assertIn("activeAnalysisController?.abort()", reset_block)
+        self.assertIn("cancelReactionEffects()", reset_block)
+        self.assertIn("selectedChemicals: []", reset_block)
+        self.assertIn("isBubbling: false", reset_block)
+        self.assertIn("smokeParticles: []", reset_block)
+        self.assertIn("explosionParticles: []", reset_block)
+        self.assertIn("panel.innerHTML = DEFAULT_REACTION_INSTRUCTION", reset_block)
+
+    def test_reset_cancels_stale_analysis_and_thermal_effects(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        rendering = (
+            settings.BASE_DIR / "static/ts/rendering/render.ts"
+        ).read_text()
+
+        self.assertIn("signal: requestController.signal", interactions)
+        self.assertIn(
+            "analysisRunId !== currentAnalysisRunId",
+            interactions,
+        )
+        self.assertIn("export function cancelReactionEffects()", rendering)
+        self.assertIn("clearInterval(thermalBlastTimer)", rendering)

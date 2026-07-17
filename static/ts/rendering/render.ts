@@ -74,6 +74,15 @@ export function updateAndDrawAmbientBubbles(cx: number, cy: number): void {
 }
 
 let currentRenderColor: string | null = null;
+let thermalBlastTimer: ReturnType<typeof setInterval> | null = null;
+
+export function cancelReactionEffects(): void {
+    if (thermalBlastTimer !== null) {
+        clearInterval(thermalBlastTimer);
+        thermalBlastTimer = null;
+    }
+    currentRenderColor = null;
+}
 
 export function drawVesselAndFluid(): void {
     if (!config.canvas || !config.ctx) return;
@@ -392,8 +401,9 @@ export function drawVesselAndFluid(): void {
 }
 
 export function triggerThermalBlast(): void {
+    cancelReactionEffects();
     let iteration = 0;
-    let fire = setInterval(() => {
+    thermalBlastTimer = setInterval(() => {
         if (!config.ctx || !config.canvas) return;
         config.ctx.fillStyle = iteration % 2 === 0 ? 'rgba(255, 61, 61, 0.85)' : 'rgba(255, 213, 0, 0.85)';
         config.ctx.beginPath();
@@ -401,7 +411,10 @@ export function triggerThermalBlast(): void {
         config.ctx.fill();
         iteration++;
         if(iteration > 12) {
-            clearInterval(fire);
+            if (thermalBlastTimer !== null) {
+                clearInterval(thermalBlastTimer);
+                thermalBlastTimer = null;
+            }
             config.updateLabState({ liquidColor: '#424242' });
             drawVesselAndFluid();
         }
