@@ -1,5 +1,6 @@
 import json
 import re
+import struct
 import xml.etree.ElementTree as ET
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -14,6 +15,8 @@ from .views import (
     PUBLIC_CANONICAL_URLS,
     REACTION_API_BASE_URL,
     REACTION_MODEL,
+    SOCIAL_PREVIEW_ALT,
+    SOCIAL_PREVIEW_URL,
     equation_uses_only_selected_reactants,
 )
 
@@ -138,6 +141,71 @@ class SearchDiscoveryTests(TestCase):
         self.assertNotIn("aggregateRating", software_schema)
         self.assertNotIn("publisher", software_schema)
         self.assertNotIn("author", software_schema)
+
+
+class SocialPreviewTests(TestCase):
+    def setUp(self):
+        self.response = self.client.get("/")
+
+    def test_homepage_exposes_absolute_open_graph_metadata(self):
+        tags = (
+            '<meta property="og:type" content="website">',
+            '<meta property="og:site_name" content="OmniLab">',
+            (
+                '<meta property="og:title" content="OmniLab - Test chemical '
+                'reactions in a virtual lab">'
+            ),
+            (
+                '<meta property="og:description" content="Explore predicted '
+                "reactions in a virtual lab built for chemistry students. "
+                "OmniLab is educational and doesn't replace physical lab "
+                'procedures.">'
+            ),
+            f'<meta property="og:url" content="{PUBLIC_CANONICAL_URLS["index"]}">',
+            f'<meta property="og:image" content="{SOCIAL_PREVIEW_URL}">',
+            f'<meta property="og:image:secure_url" content="{SOCIAL_PREVIEW_URL}">',
+            '<meta property="og:image:type" content="image/png">',
+            '<meta property="og:image:width" content="1200">',
+            '<meta property="og:image:height" content="630">',
+            f'<meta property="og:image:alt" content="{SOCIAL_PREVIEW_ALT}">',
+        )
+
+        for tag in tags:
+            with self.subTest(tag=tag):
+                self.assertContains(self.response, tag, html=True)
+
+        self.assertTrue(SOCIAL_PREVIEW_URL.startswith(f"{PRODUCTION_BASE_URL}/"))
+
+    def test_homepage_exposes_large_twitter_card_metadata(self):
+        tags = (
+            '<meta name="twitter:card" content="summary_large_image">',
+            (
+                '<meta name="twitter:title" content="OmniLab - Test chemical '
+                'reactions in a virtual lab">'
+            ),
+            (
+                '<meta name="twitter:description" content="Explore predicted '
+                "reactions in a virtual lab built for chemistry students. "
+                "OmniLab is educational and doesn't replace physical lab "
+                'procedures.">'
+            ),
+            f'<meta name="twitter:image" content="{SOCIAL_PREVIEW_URL}">',
+            f'<meta name="twitter:image:alt" content="{SOCIAL_PREVIEW_ALT}">',
+        )
+
+        for tag in tags:
+            with self.subTest(tag=tag):
+                self.assertContains(self.response, tag, html=True)
+
+    def test_social_preview_asset_is_1200_by_630_and_compressed(self):
+        asset_path = (
+            settings.BASE_DIR / "static/images/omnilab-social-preview.png"
+        )
+        image_bytes = asset_path.read_bytes()
+
+        self.assertEqual(image_bytes[:8], b"\x89PNG\r\n\x1a\n")
+        self.assertEqual(struct.unpack(">II", image_bytes[16:24]), (1200, 630))
+        self.assertLess(len(image_bytes), 200_000)
 
 
 class AnalyticsInstrumentationTests(TestCase):
