@@ -1,0 +1,45 @@
+export const canvas = document.getElementById('lab-canvas');
+export const ctx = canvas ? canvas.getContext('2d') : null;
+let state = {
+    chemicalDatabase: [],
+    selectedChemicals: [],
+    currentVessel: 'flask',
+    theme: 'light',
+    targetLiquidVol: 0,
+    currentLiquidVol: 0,
+    liquidColor: '#3399ff',
+    waveTime: 0,
+    streamActive: false,
+    streamX: 0,
+    streamColor: '#ffffff',
+    splashParticles: [],
+    ambientBubbles: [],
+    isDragging: false,
+    dragStartX: 0,
+    dragStartY: 0,
+    vesselOffsetX: 0,
+    vesselOffsetY: 0,
+    smokeParticles: [],
+    explosionParticles: [],
+    isBubbling: false,
+    burnerActive: false
+};
+export function getLabState() {
+    return state;
+}
+export function updateLabState(newState) {
+    state = { ...state, ...newState };
+}
+export function hexToRgbA(hex, alpha = 1) {
+    let c;
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+        c = hex.substring(1).split('');
+        if (c.length === 3) {
+            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        const num = parseInt(c.join(''), 16);
+        return `rgba(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}, ${alpha})`;
+    }
+    return `rgba(0, 0, 0, ${alpha})`;
+}
+//# sourceMappingURL=config.js.map

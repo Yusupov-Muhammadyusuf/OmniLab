@@ -21,5 +21,6 @@ __pycache__/
 # User Uploaded Media files
 media/
 
-# Compiled TypeScript output
-static/js/**
+# Compiled TypeScript declarations and source maps
+static/js/**/*.d.ts
+static/js/**/*.map

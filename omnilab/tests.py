@@ -146,31 +146,47 @@ class AnalyticsInstrumentationTests(TestCase):
 
         self.assertContains(
             response,
-            '<script type="module" src="/static/js/main.js"></script>',
+            '<script type="module" src="/static/js/root/main.js"></script>',
             html=True,
         )
 
     def test_lab_setup_event_contains_only_coarse_setup_properties(self):
-        interactions = (
-            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
-        ).read_text()
-        setup_capture = re.search(
-            r"capture\('lab_setup_started', \{(.*?)\}\);",
-            interactions,
+        source = "\n".join(
+            (
+                (
+                    settings.BASE_DIR
+                    / "static/ts/interactions/interactions.ts"
+                ).read_text(),
+                (
+                    settings.BASE_DIR / "static/ts/userInterface/ui.ts"
+                ).read_text(),
+            )
+        )
+        setup_captures = re.findall(
+            r"captureLabSetupStarted\(\{(.*?)\}\);",
+            source,
             re.DOTALL,
         )
 
-        self.assertIsNotNone(setup_capture)
-        properties = setup_capture.group(1)
-        self.assertIn("vessel", properties)
-        self.assertIn("burner_active", properties)
+        self.assertEqual(len(setup_captures), 2)
+        for properties in setup_captures:
+            self.assertIn("vessel", properties)
+            self.assertIn("burner_active", properties)
 
-        for private_value in (
-            "selectedChemicals",
-            "chemical",
-            "query",
-            "reaction",
-            "formData",
-        ):
-            with self.subTest(private_value=private_value):
-                self.assertNotIn(private_value, properties)
+            for private_value in (
+                "selectedChemicals",
+                "chemical",
+                "query",
+                "reaction",
+                "formData",
+            ):
+                with self.subTest(private_value=private_value):
+                    self.assertNotIn(private_value, properties)
+
+    def test_lab_setup_event_is_captured_once_per_page(self):
+        analytics = (
+            settings.BASE_DIR / "static/ts/analytics/analytics.ts"
+        ).read_text()
+
+        self.assertIn("if (labSetupCaptured) return;", analytics)
+        self.assertIn("capture('lab_setup_started', properties);", analytics)
