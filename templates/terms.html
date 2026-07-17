@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Read the terms for OmniLab's current public virtual chemistry lab release and its educational reaction predictions.">
+    <title>Terms | OmniLab</title>
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="info-page">
+    <header class="pricing-site-header">
+        <a class="pricing-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="pricing-page-label">Terms</span>
+    </header>
+
+    <main class="info-shell">
+        <header class="info-hero">
+            <p class="pricing-context">Current public release</p>
+            <h1>Use the lab as a learning tool.</h1>
+            <p class="info-lede">These terms describe the current public release of OmniLab, an interactive simulator that generates predicted reaction information.</p>
+            <p class="info-updated">Updated July 17, 2026</p>
+        </header>
+
+        <div class="info-layout">
+            <aside class="info-summary" aria-labelledby="terms-summary-heading">
+                <h2 id="terms-summary-heading">The short version</h2>
+                <ul>
+                    <li>The current public release is free and requires no account.</li>
+                    <li>Generated results are educational predictions, not verified lab results.</li>
+                    <li>The public source code is available under the MIT License.</li>
+                </ul>
+            </aside>
+
+            <div class="info-sections">
+                <section>
+                    <h2>Educational use</h2>
+                    <p>OmniLab lets you explore predicted chemical reactions using a virtual workspace. Generated equations, explanations, effects, and safety guidance can be incomplete or wrong. Verify important information with trusted sources and follow the rules, supervision, and safety procedures of any real laboratory.</p>
+                </section>
+
+                <section>
+                    <h2>Responsible use</h2>
+                    <p>Don't use OmniLab as a substitute for professional judgment or as permission to conduct a real reaction. Don't interfere with the service, attempt to bypass its safeguards, or submit personal, confidential, or identifying information through the chemical input.</p>
+                </section>
+
+                <section>
+                    <h2>Availability and changes</h2>
+                    <p>The current public release is provided without an account or payment flow. Features, generated results, availability, and the terms for a future release may change. The <a href="{% url 'pricing' %}">pricing page</a> states the current public offer.</p>
+                </section>
+
+                <section>
+                    <h2>Open-source software</h2>
+                    <p>OmniLab's public source code is licensed under the <a href="https://github.com/Yusupov-Muhammadyusuf/OmniLab/blob/main/LICENSE">MIT License</a>. That license permits use, copying, modification, and distribution of the software and provides the software "as is," without warranty.</p>
+                </section>
+
+                <section>
+                    <h2>Questions</h2>
+                    <p>For a question about these terms, email <a href="mailto:omnilab-bk8q@mail.tin.computer">omnilab-bk8q@mail.tin.computer</a>.</p>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+</body>
+</html>

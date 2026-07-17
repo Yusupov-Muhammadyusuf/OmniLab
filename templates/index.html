@@ -73,14 +73,7 @@
         </div>
     </main>
 
-    <footer class="site-credit" aria-label="Site information">
-        <a href="{% url 'pricing' %}">Pricing</a>
-        <span class="site-credit-divider" aria-hidden="true">·</span>
-        <a href="https://tin.computer">
-            <span class="tin-mark" aria-hidden="true"></span>
-            Growth by Tin
-        </a>
-    </footer>
+    {% include "partials/site_footer.html" with floating_footer=True %}
 
     <script>
         window.chemicalDataUrl = "{% static 'js/chemicaldata.json' %}";
