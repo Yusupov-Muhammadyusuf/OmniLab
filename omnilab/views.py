@@ -19,6 +19,12 @@ def index(request):
 def pricing(request):
     return render(request, "pricing.html")
 
+def privacy(request):
+    return render(request, "privacy.html")
+
+def terms(request):
+    return render(request, "terms.html")
+
 @csrf_exempt
 def ai_insights(request):
     if request.method == "POST":
