@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ guide.description }}">
+    <title>{{ guide.page_title }}</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="OmniLab">
+    <meta property="og:title" content="{{ guide.title }}">
+    <meta property="og:description" content="{{ guide.description }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ social_preview_url }}">
+    <meta property="og:image:alt" content="{{ social_preview_alt }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ guide.title }}">
+    <meta name="twitter:description" content="{{ guide.description }}">
+    <meta name="twitter:image" content="{{ social_preview_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script type="application/ld+json">{{ page_schema_json|safe }}</script>
+</head>
+<body class="guide-page">
+    <header class="guide-site-header">
+        <a class="guide-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="guide-site-label">Guided chemistry</span>
+    </header>
+
+    <main>
+        <article class="guide-shell">
+            <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+                <a href="{% url 'index' %}">Virtual lab</a>
+                <span aria-hidden="true">/</span>
+                <span>{{ guide.context }}</span>
+            </nav>
+
+            <section class="guide-hero" aria-labelledby="guide-heading">
+                <div class="guide-hero-copy">
+                    <p class="guide-context">For chemistry students · {{ guide.reading_time }}</p>
+                    <h1 id="guide-heading">{{ guide.title }}</h1>
+                    <p class="guide-answer">{{ guide.direct_answer }}</p>
+                    <a class="guide-primary" href="{% url 'sodium_chlorine_demo' %}">
+                        Open the prepared lab
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <p class="guide-cta-note">No account or payment required in the current public release.</p>
+                </div>
+
+                <figure class="guide-preview">
+                    <div class="guide-preview-frame">
+                        <img src="{% static 'images/omnilab-social-preview.png' %}" alt="A completed Sodium and Chlorine prediction in the OmniLab virtual lab">
+                        <span class="guide-preview-label">Real OmniLab workspace</span>
+                    </div>
+                    <figcaption>The prepared lab selects Sodium and Chlorine. You choose whether to request this kind of educational prediction.</figcaption>
+                </figure>
+            </section>
+
+            <section class="guide-equation" aria-labelledby="equation-heading">
+                <div>
+                    <p class="guide-section-label">{{ guide.equation_label }}</p>
+                    <h2 id="equation-heading">{{ guide.equation }}</h2>
+                </div>
+                <p>{{ guide.equation_note }}</p>
+            </section>
+
+            <section class="guide-learning" aria-labelledby="learning-heading">
+                <div class="guide-learning-intro">
+                    <p class="guide-section-label">Worked explanation</p>
+                    <h2 id="learning-heading">{{ guide.section_title }}</h2>
+                    <p>Use this as a study aid, then compare it with your course materials.</p>
+                </div>
+
+                <ol class="guide-steps">
+                    {% for step in guide.steps %}
+                    <li>
+                        <span class="guide-step-number">{{ step.number }}</span>
+                        <div>
+                            <h3>{{ step.title }}</h3>
+                            <p>{{ step.body }}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </section>
+
+            <section class="guide-notes" aria-label="Lab and safety notes">
+                <div class="guide-observe">
+                    <p class="guide-section-label">In the virtual lab</p>
+                    <h2>{{ guide.notice_title }}</h2>
+                    <ul>
+                        {% for point in guide.notice_points %}
+                        <li>{{ point }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <aside class="guide-boundary" aria-labelledby="boundary-heading">
+                    <p class="guide-section-label">Educational boundary</p>
+                    <h2 id="boundary-heading">Predict here. Verify before the physical lab.</h2>
+                    <p>OmniLab generates an educational prediction from the selected chemicals. It can be incomplete or wrong and does not replace instructor supervision, trusted references, or physical-lab safety procedures.</p>
+                    <p class="guide-boundary-warning">Do not attempt the sodium and chlorine reaction outside a properly equipped, supervised laboratory.</p>
+                    <div class="guide-sources">
+                        <span>Check trusted references:</span>
+                        <a href="https://openstax.org/books/chemistry/pages/7-1-ionic-bonding">OpenStax on ionic bonding</a>
+                        <a href="https://www.cdc.gov/niosh/ershdb/emergencyresponsecard_29750024.html">NIOSH chlorine guidance</a>
+                    </div>
+                </aside>
+            </section>
+        </article>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+</body>
+</html>
