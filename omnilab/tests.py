@@ -15,6 +15,8 @@ from .views import (
     PUBLIC_CANONICAL_URLS,
     REACTION_API_BASE_URL,
     REACTION_MODEL,
+    SODIUM_CHLORINE_DEMO,
+    SODIUM_CHLORINE_DEMO_URL,
     SOCIAL_PREVIEW_ALT,
     SOCIAL_PREVIEW_URL,
     equation_uses_only_selected_reactants,
@@ -308,6 +310,107 @@ class AnalyticsInstrumentationTests(TestCase):
             ):
                 with self.subTest(private_value=private_value):
                     self.assertNotIn(private_value, property_names)
+
+    def test_demo_entry_event_contains_only_coarse_properties(self):
+        entry = (settings.BASE_DIR / "static/ts/root/main.ts").read_text()
+        capture_match = re.search(
+            r"capture\('reaction_demo_entered', \{(.*?)\}\);",
+            entry,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(capture_match)
+        properties = capture_match.group(1)
+        property_names = set(
+            re.findall(r"^\s*([a-zA-Z_]+):", properties, re.MULTILINE)
+        )
+        self.assertIn("demo_version", properties)
+        self.assertIn("chemical_count", properties)
+        self.assertIn("vessel", properties)
+        for private_value in (
+            "selectedChemicals:",
+            "chemical_name",
+            "query",
+            "reaction",
+            "equation",
+            "explanation",
+            "safety",
+        ):
+            with self.subTest(private_value=private_value):
+                self.assertNotIn(private_value.rstrip(":"), property_names)
+
+
+class ShareableReactionDemoTests(TestCase):
+    def test_demo_route_prepares_supported_inputs_and_beaker(self):
+        response = self.client.get("/demo/sodium-chlorine/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sodium and chlorine, ready to analyze")
+        self.assertContains(response, "Na + Cl2")
+        self.assertIn(
+            '<div class="apparatus-option-card selected" id="opt-beaker">',
+            response.content.decode(),
+        )
+        self.assertContains(
+            response,
+            f"window.reactionDemo = {json.dumps(SODIUM_CHLORINE_DEMO)};",
+        )
+
+    def test_demo_is_shareable_without_becoming_a_search_page(self):
+        response = self.client.get("/demo/sodium-chlorine/")
+
+        self.assertContains(
+            response,
+            f'<link rel="canonical" href="{PUBLIC_CANONICAL_URLS["index"]}">',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<meta name="robots" content="noindex, follow">',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            f'<meta property="og:url" content="{SODIUM_CHLORINE_DEMO_URL}">',
+            html=True,
+        )
+        sitemap = self.client.get("/sitemap.xml").content.decode()
+        self.assertNotIn(SODIUM_CHLORINE_DEMO_URL, sitemap)
+
+    def test_homepage_keeps_its_empty_unscripted_start(self):
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            "<title>OmniLab - Laboratory Experiments Assistant</title>",
+            html=True,
+        )
+        self.assertContains(response, "Test chemical reactions in a virtual lab")
+        self.assertContains(response, "Empty Vessel")
+        self.assertContains(response, "window.reactionDemo = null;")
+        self.assertNotContains(response, 'name="robots"')
+
+    def test_demo_uses_isolated_storage_and_never_auto_submits(self):
+        configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        entry = (settings.BASE_DIR / "static/ts/root/main.ts").read_text()
+
+        self.assertIn("reactionDemo:${reactionDemo.id}:${baseKey}", configuration)
+        for key in ("savedChemicals", "savedLiquidColor", "savedReaction"):
+            with self.subTest(key=key):
+                self.assertIn(f"config.getLabStorageKey('{key}')", interactions)
+        self.assertIn(
+            "analyzeBtn.addEventListener('click', interactions.fireAIAnalysis)",
+            entry,
+        )
+        demo_initialization = interactions.split(
+            'document.addEventListener("DOMContentLoaded", () => {', 1
+        )[1]
+        self.assertNotIn("fireAIAnalysis", demo_initialization)
 
 
 @override_settings(
@@ -716,7 +819,10 @@ class LabJourneyRepairTests(TestCase):
 
         self.assertIn("resData.status === 'insufficient_input'", interactions)
         self.assertIn("Try a different setup", interactions)
-        self.assertIn("localStorage.removeItem('savedReaction')", interactions)
+        self.assertIn(
+            "localStorage.removeItem(config.getLabStorageKey('savedReaction'))",
+            interactions,
+        )
         self.assertIn("stage: 'insufficient_input'", interactions)
 
     def test_reset_clears_saved_and_visible_reaction_state(self):
@@ -727,9 +833,18 @@ class LabJourneyRepairTests(TestCase):
             "export function resetLaboratory(): void {", 1
         )[1].split("\n}\n\nexport function fireAIAnalysis", 1)[0]
 
-        self.assertIn("localStorage.removeItem('savedChemicals')", reset_block)
-        self.assertIn("localStorage.removeItem('savedLiquidColor')", reset_block)
-        self.assertIn("localStorage.removeItem('savedReaction')", reset_block)
+        self.assertIn(
+            "localStorage.removeItem(config.getLabStorageKey('savedChemicals'))",
+            reset_block,
+        )
+        self.assertIn(
+            "localStorage.removeItem(config.getLabStorageKey('savedLiquidColor'))",
+            reset_block,
+        )
+        self.assertIn(
+            "localStorage.removeItem(config.getLabStorageKey('savedReaction'))",
+            reset_block,
+        )
         self.assertIn("activeAnalysisController?.abort()", reset_block)
         self.assertIn("cancelReactionEffects()", reset_block)
         self.assertIn("selectedChemicals: []", reset_block)

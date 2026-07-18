@@ -5,6 +5,14 @@ import * as interactions from '../interactions/interactions.js';
 import { capture } from '../analytics/analytics.js';
 document.addEventListener("DOMContentLoaded", function () {
     capture('lab_viewed', { route: window.location.pathname });
+    const reactionDemo = config.getReactionDemoConfig();
+    if (reactionDemo) {
+        capture('reaction_demo_entered', {
+            demo_version: reactionDemo.version,
+            chemical_count: reactionDemo.selectedChemicals.length,
+            vessel: reactionDemo.vessel
+        });
+    }
     ui.resizeCanvas();
     requestAnimationFrame(engineLoop);
     interactions.setupCanvasDrag();

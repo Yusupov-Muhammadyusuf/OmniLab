@@ -30,6 +30,15 @@ export function getLabState() {
 export function updateLabState(newState) {
     state = { ...state, ...newState };
 }
+export function getReactionDemoConfig() {
+    return window.reactionDemo || null;
+}
+export function getLabStorageKey(baseKey) {
+    const reactionDemo = getReactionDemoConfig();
+    return reactionDemo
+        ? `reactionDemo:${reactionDemo.id}:${baseKey}`
+        : baseKey;
+}
 export function hexToRgbA(hex, alpha = 1) {
     let c;
     if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {

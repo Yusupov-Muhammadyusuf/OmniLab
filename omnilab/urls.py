@@ -7,5 +7,10 @@ urlpatterns = [
     path('pricing/', views.pricing, name="pricing"),
     path('privacy/', views.privacy, name="privacy"),
     path('terms/', views.terms, name="terms"),
+    path(
+        'demo/sodium-chlorine/',
+        views.sodium_chlorine_demo,
+        name="sodium_chlorine_demo",
+    ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]

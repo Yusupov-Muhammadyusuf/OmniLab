@@ -4,14 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Explore predicted reactions in a virtual lab built for chemistry students. OmniLab is educational and doesn't replace physical lab procedures.">
-    <title>OmniLab - Laboratory Experiments Assistant</title>
+    <meta name="description" content="{{ page_description }}">
+    <title>{{ page_title }}</title>
     <link rel="canonical" href="{{ canonical_url }}">
+    {% if reaction_demo %}<meta name="robots" content="noindex, follow">{% endif %}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="OmniLab">
-    <meta property="og:title" content="OmniLab - Test chemical reactions in a virtual lab">
-    <meta property="og:description" content="Explore predicted reactions in a virtual lab built for chemistry students. OmniLab is educational and doesn't replace physical lab procedures.">
-    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:title" content="{{ social_title }}">
+    <meta property="og:description" content="{{ page_description }}">
+    <meta property="og:url" content="{{ social_url }}">
     <meta property="og:image" content="{{ social_preview_url }}">
     <meta property="og:image:secure_url" content="{{ social_preview_url }}">
     <meta property="og:image:type" content="image/png">
@@ -19,8 +20,8 @@
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="{{ social_preview_alt }}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="OmniLab - Test chemical reactions in a virtual lab">
-    <meta name="twitter:description" content="Explore predicted reactions in a virtual lab built for chemistry students. OmniLab is educational and doesn't replace physical lab procedures.">
+    <meta name="twitter:title" content="{{ social_title }}">
+    <meta name="twitter:description" content="{{ page_description }}">
     <meta name="twitter:image" content="{{ social_preview_url }}">
     <meta name="twitter:image:alt" content="{{ social_preview_alt }}">
     <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
@@ -46,9 +47,15 @@
 </head>
 <body class="home-page">
     <header class="app-title-card">
+        {% if reaction_demo %}
+        <p class="app-wordmark">OmniLab guided demo</p>
+        <h1>Sodium and chlorine, ready to analyze</h1>
+        <p class="app-subheadline">The supported inputs and a beaker are prepared. Select Analyze Chemical Reaction when you want an educational prediction.</p>
+        {% else %}
         <p class="app-wordmark">OmniLab</p>
         <h1>Test chemical reactions in a virtual lab</h1>
         <p class="app-subheadline">For chemistry students to mix compounds, try lab equipment, and understand predicted outcomes before working with real materials.</p>
+        {% endif %}
     </header>
 
     <div class="excalidraw-floating-toolbar" id="floating-toolbar">
@@ -68,9 +75,9 @@
 
     <div class="floating-popover-panel" id="sub-panel-apparatus">
         <div class="apparatus-selector-wrapper">
-            <div class="apparatus-option-card selected" id="opt-flask">Erlenmeyer Flask</div>
+            <div class="apparatus-option-card{% if not reaction_demo %} selected{% endif %}" id="opt-flask">Erlenmeyer Flask</div>
             <div class="apparatus-option-card" id="opt-tube">Graduated Test Tube</div>
-            <div class="apparatus-option-card" id="opt-beaker">Laboratory Beaker</div>
+            <div class="apparatus-option-card{% if reaction_demo %} selected{% endif %}" id="opt-beaker">Laboratory Beaker</div>
             <div class="apparatus-option-card" id="opt-burner">Bunsen Burner</div>
         </div>
     </div>
@@ -87,13 +94,17 @@
                 
                 <div class="border border-2 rounded-3 p-3 mb-3" style="border-color: var(--border-color) !important; background: var(--bg-canvas);">
                     <span class="d-block small fw-bold mb-1" style="color: var(--text-color); opacity: 0.7;">COMPOUNDS MATRIX:</span>
-                    <h3 id="current-mixture" class="m-0 fw-bold text-danger">Empty Vessel</h3>
+                    <h3 id="current-mixture" class="m-0 fw-bold text-danger">{% if reaction_demo %}Na + Cl2{% else %}Empty Vessel{% endif %}</h3>
                     <button class="btn btn-sm action-btn-secondary mt-3 px-3 py-1" id="btn-reset-lab">Reset Setup</button>
                 </div>
 
                 <div class="response-container mb-3">
                     <div id="ai-response-content" style="color: var(--text-color);">
+                        {% if reaction_demo %}
+                        <p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>
+                        {% else %}
                         <p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -128,6 +139,7 @@
 
     <script>
         window.chemicalDataUrl = "{% static 'js/chemicaldata.json' %}";
+        window.reactionDemo = {{ reaction_demo_json|safe }};
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script type="module" src="{% static 'js/root/main.js' %}"></script>

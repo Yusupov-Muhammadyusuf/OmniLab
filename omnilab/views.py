@@ -29,6 +29,14 @@ PUBLIC_CANONICAL_URLS = {
     "privacy": f"{PRODUCTION_BASE_URL}/privacy/",
     "terms": f"{PRODUCTION_BASE_URL}/terms/",
 }
+SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
+SODIUM_CHLORINE_DEMO = {
+    "id": "first-supported-reaction",
+    "version": "v1",
+    "selectedChemicals": ["Na", "Cl2"],
+    "vessel": "beaker",
+    "liquidColor": "#89a83b",
+}
 
 HOMEPAGE_FAQS = [
     {
@@ -205,7 +213,7 @@ def insufficient_input_response(message):
     )
 
 
-def index(request):
+def homepage_context(reaction_demo=None):
     faq_schema = {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -246,17 +254,48 @@ def index(request):
         ),
         "codeRepository": "https://github.com/Yusupov-Muhammadyusuf/OmniLab",
     }
+    context = {
+        "canonical_url": PUBLIC_CANONICAL_URLS["index"],
+        "social_url": PUBLIC_CANONICAL_URLS["index"],
+        "page_title": "OmniLab - Laboratory Experiments Assistant",
+        "social_title": "OmniLab - Test chemical reactions in a virtual lab",
+        "page_description": (
+            "Explore predicted reactions in a virtual lab built for chemistry "
+            "students. OmniLab is educational and doesn't replace physical "
+            "lab procedures."
+        ),
+        "social_preview_url": SOCIAL_PREVIEW_URL,
+        "social_preview_alt": SOCIAL_PREVIEW_ALT,
+        "homepage_faqs": HOMEPAGE_FAQS,
+        "faq_schema_json": json.dumps(faq_schema),
+        "software_schema_json": json.dumps(software_schema),
+        "reaction_demo": reaction_demo,
+        "reaction_demo_json": json.dumps(reaction_demo),
+    }
+    if reaction_demo:
+        context.update(
+            {
+                "social_url": SODIUM_CHLORINE_DEMO_URL,
+                "page_title": "OmniLab - Sodium and chlorine reaction demo",
+                "social_title": "OmniLab - Sodium and chlorine reaction demo",
+                "page_description": (
+                    "Open a prepared Sodium and Chlorine setup, then choose "
+                    "whether to request an educational reaction prediction."
+                ),
+            }
+        )
+    return context
+
+
+def index(request):
+    return render(request, "index.html", homepage_context())
+
+
+def sodium_chlorine_demo(request):
     return render(
         request,
         "index.html",
-        {
-            "canonical_url": PUBLIC_CANONICAL_URLS["index"],
-            "social_preview_url": SOCIAL_PREVIEW_URL,
-            "social_preview_alt": SOCIAL_PREVIEW_ALT,
-            "homepage_faqs": HOMEPAGE_FAQS,
-            "faq_schema_json": json.dumps(faq_schema),
-            "software_schema_json": json.dumps(software_schema),
-        },
+        homepage_context(SODIUM_CHLORINE_DEMO),
     )
 
 def pricing(request):

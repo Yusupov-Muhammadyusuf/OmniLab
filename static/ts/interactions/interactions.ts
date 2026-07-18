@@ -9,6 +9,7 @@ import {
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 
 const DEFAULT_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>';
+const DEMO_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>';
 let activeAnalysisController: AbortController | null = null;
 let currentAnalysisRunId = 0;
 
@@ -204,8 +205,11 @@ export function drop(ev: DragEvent): void {
             });
         }
 
-        localStorage.setItem('savedChemicals', JSON.stringify(updatedChemicals));
-        localStorage.setItem('savedLiquidColor', color);
+        localStorage.setItem(
+            config.getLabStorageKey('savedChemicals'),
+            JSON.stringify(updatedChemicals)
+        );
+        localStorage.setItem(config.getLabStorageKey('savedLiquidColor'), color);
 
         const mixtureEl = document.getElementById('current-mixture');
         if (mixtureEl) {
@@ -216,9 +220,9 @@ export function drop(ev: DragEvent): void {
 }
 
 export function resetLaboratory(): void {
-    localStorage.removeItem('savedChemicals');
-    localStorage.removeItem('savedLiquidColor');
-    localStorage.removeItem('savedReaction');
+    localStorage.removeItem(config.getLabStorageKey('savedChemicals'));
+    localStorage.removeItem(config.getLabStorageKey('savedLiquidColor'));
+    localStorage.removeItem(config.getLabStorageKey('savedReaction'));
 
     currentAnalysisRunId += 1;
     activeAnalysisController?.abort();
@@ -307,7 +311,7 @@ export function fireAIAnalysis(): void {
                 stage: 'insufficient_input',
                 duration_ms: Math.round(performance.now() - analysisStartedAt)
             });
-            localStorage.removeItem('savedReaction');
+            localStorage.removeItem(config.getLabStorageKey('savedReaction'));
             renderStatusMessage(
                 panel,
                 'Try a different setup',
@@ -321,7 +325,10 @@ export function fireAIAnalysis(): void {
                 effect: resData.data.effect,
                 duration_ms: Math.round(performance.now() - analysisStartedAt)
             });
-            localStorage.setItem('savedReaction', JSON.stringify(resData.data));
+            localStorage.setItem(
+                config.getLabStorageKey('savedReaction'),
+                JSON.stringify(resData.data)
+            );
             const reaction = resData.data;
             renderReactionResult(panel, reaction);
 
@@ -335,7 +342,10 @@ export function fireAIAnalysis(): void {
             }
             else if (reaction.effect === 'color_change' && reaction.new_color !== 'none') {
                 config.updateLabState({ liquidColor: reaction.new_color });
-                localStorage.setItem('savedLiquidColor', reaction.new_color);
+                localStorage.setItem(
+                    config.getLabStorageKey('savedLiquidColor'),
+                    reaction.new_color
+                );
             }
             else if (reaction.effect === 'bubble') {
                 const currentState = config.getLabState();
@@ -375,19 +385,36 @@ export function fireAIAnalysis(): void {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const savedChemicals = localStorage.getItem('savedChemicals');
-    const savedLiquidColor = localStorage.getItem('savedLiquidColor');
+    const reactionDemo = config.getReactionDemoConfig();
+    const chemicalsStorageKey = config.getLabStorageKey('savedChemicals');
+    const liquidColorStorageKey = config.getLabStorageKey('savedLiquidColor');
+    const reactionStorageKey = config.getLabStorageKey('savedReaction');
+    const savedChemicals = localStorage.getItem(chemicalsStorageKey);
+    const savedLiquidColor = localStorage.getItem(liquidColorStorageKey);
+    const preparedChemicals = savedChemicals
+        ? JSON.parse(savedChemicals) as string[]
+        : reactionDemo?.selectedChemicals || [];
 
-    if (savedChemicals) {
-        const chemicals = JSON.parse(savedChemicals) as string[];
-        config.updateLabState({ selectedChemicals: chemicals });
+    if (!savedChemicals && reactionDemo) {
+        localStorage.setItem(
+            chemicalsStorageKey,
+            JSON.stringify(reactionDemo.selectedChemicals)
+        );
+        localStorage.setItem(liquidColorStorageKey, reactionDemo.liquidColor);
+    }
+
+    if (preparedChemicals.length > 0) {
+        config.updateLabState({
+            selectedChemicals: preparedChemicals,
+            currentVessel: reactionDemo?.vessel || config.getLabState().currentVessel
+        });
 
         const mixtureEl = document.getElementById('current-mixture');
         if (mixtureEl) {
-            mixtureEl.innerText = chemicals.join(' + ');
+            mixtureEl.innerText = preparedChemicals.join(' + ');
         }
 
-        const vol = Math.min(chemicals.length * 30, 210);
+        const vol = Math.min(preparedChemicals.length * 30, 210);
         config.updateLabState({
             targetLiquidVol: vol,
             currentLiquidVol: vol
@@ -399,15 +426,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    if (savedLiquidColor) {
-        config.updateLabState({ liquidColor: savedLiquidColor });
+    const preparedLiquidColor = savedLiquidColor || reactionDemo?.liquidColor;
+    if (preparedLiquidColor) {
+        config.updateLabState({ liquidColor: preparedLiquidColor });
     }
 
-    if (savedChemicals || savedLiquidColor) {
+    if (preparedChemicals.length > 0 || preparedLiquidColor) {
         drawVesselAndFluid();
     }
 
-    const savedData = localStorage.getItem('savedReaction');
+    const savedData = localStorage.getItem(reactionStorageKey);
     if (savedData) {
         try {
             const reaction = JSON.parse(savedData);
@@ -416,12 +444,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             renderReactionResult(panel, reaction as ReactionResult);
         } catch (e) {
-            localStorage.removeItem('savedReaction');
+            localStorage.removeItem(reactionStorageKey);
         }
     } else {
         const panel = document.getElementById('ai-response-content');
         if (panel) {
-            panel.innerHTML = DEFAULT_REACTION_INSTRUCTION;
+            panel.innerHTML = reactionDemo && preparedChemicals.length > 0
+                ? DEMO_REACTION_INSTRUCTION
+                : DEFAULT_REACTION_INSTRUCTION;
         }
     }
 });
