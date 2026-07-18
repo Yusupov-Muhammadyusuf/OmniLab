@@ -4,8 +4,16 @@ import { cancelReactionEffects, drawVesselAndFluid, triggerSmokeEffect, triggerT
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 const DEFAULT_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>';
 const DEMO_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>';
+const FEEDBACK_EMAIL_ADDRESS = 'omnilab-bk8q@mail.tin.computer';
+const FEEDBACK_PROMPTS = [
+    'What were you trying to predict?',
+    'What do you plan to do next?'
+].join('\n\n');
 let activeAnalysisController = null;
 let currentAnalysisRunId = 0;
+function buildFeedbackMailtoUrl() {
+    return `mailto:${FEEDBACK_EMAIL_ADDRESS}?body=${encodeURIComponent(FEEDBACK_PROMPTS)}`;
+}
 export function renderReactionResult(panel, reaction) {
     panel.innerHTML = `
         <div class="lh-base spectrum-analysis-log animate__animated animate__fadeIn text-body-emphasis" style="font-family: 'UbuntuLocal', sans-serif; font-size: 16px; line-height: 1.6; letter-spacing: 0.3px;">
@@ -32,15 +40,27 @@ export function renderReactionResult(panel, reaction) {
                 <ul class="list-unstyled mb-0 small fw-medium safety-list"></ul>
             </div>
 
+            <aside class="reaction-feedback" aria-labelledby="reaction-feedback-title">
+                <p class="reaction-feedback-label">Optional feedback</p>
+                <h3 class="reaction-feedback-title" id="reaction-feedback-title">Help us understand your goal</h3>
+                <a class="reaction-feedback-link" href="#" aria-label="Answer two quick questions by email">
+                    Answer two quick questions
+                    <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                </a>
+                <p class="reaction-feedback-note">Opens your email app. No lab details are added.</p>
+            </aside>
+
         </div>
     `;
     const equation = panel.querySelector('.reaction-equation');
     const explanation = panel.querySelector('.reaction-explanation');
     const safetyList = panel.querySelector('.safety-list');
-    if (!equation || !explanation || !safetyList)
+    const feedbackLink = panel.querySelector('.reaction-feedback-link');
+    if (!equation || !explanation || !safetyList || !feedbackLink)
         return;
     equation.textContent = reaction.equation;
     explanation.textContent = reaction.explanation;
+    feedbackLink.href = buildFeedbackMailtoUrl();
     const safetyPoints = reaction.safety
         .split('|')
         .map(point => point.trim())
