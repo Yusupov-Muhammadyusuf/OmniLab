@@ -21,6 +21,7 @@
     <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% include "partials/product_analytics.html" %}
     <script type="application/ld+json">{{ page_schema_json|safe }}</script>
 </head>
 <body class="guide-page">
@@ -42,7 +43,7 @@
                     <p class="guide-context">For chemistry students · {{ guide.reading_time }}</p>
                     <h1 id="guide-heading">{{ guide.title }}</h1>
                     <p class="guide-answer">{{ guide.direct_answer }}</p>
-                    <a class="guide-primary" href="{% url 'sodium_chlorine_demo' %}">
+                    <a class="guide-primary" href="{% url 'sodium_chlorine_demo' %}?source={{ guide.visit_source }}">
                         Open the prepared lab
                         <span aria-hidden="true">→</span>
                     </a>
@@ -112,5 +113,9 @@
     </main>
 
     {% include "partials/site_footer.html" %}
+    <script>
+        window.guideVisitSource = "{{ guide.visit_source }}";
+    </script>
+    <script type="module" src="{% static 'js/root/guide.js' %}"></script>
 </body>
 </html>

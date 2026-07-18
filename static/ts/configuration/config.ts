@@ -49,9 +49,23 @@ export interface ReactionDemoConfig {
     liquidColor: string;
 }
 
-export type VisitSource = 'student_invite';
+export type GuideVisitSource =
+    | 'guide_reaction'
+    | 'guide_formula'
+    | 'guide_ionic_bond';
 
-const ALLOWED_VISIT_SOURCES = new Set<VisitSource>(['student_invite']);
+export type VisitSource = 'student_invite' | GuideVisitSource;
+
+const GUIDE_VISIT_SOURCES = new Set<GuideVisitSource>([
+    'guide_reaction',
+    'guide_formula',
+    'guide_ionic_bond'
+]);
+
+const ALLOWED_VISIT_SOURCES = new Set<VisitSource>([
+    'student_invite',
+    ...GUIDE_VISIT_SOURCES
+]);
 
 declare global {
     interface Window {
@@ -94,6 +108,12 @@ export function updateLabState(newState: Partial<LabState>): void {
 
 export function getReactionDemoConfig(): ReactionDemoConfig | null {
     return window.reactionDemo || null;
+}
+
+export function getGuideVisitSource(source: string | null): GuideVisitSource | null {
+    return source && GUIDE_VISIT_SOURCES.has(source as GuideVisitSource)
+        ? source as GuideVisitSource
+        : null;
 }
 
 export function getVisitSource(): VisitSource | null {
