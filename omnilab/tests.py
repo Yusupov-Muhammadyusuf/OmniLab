@@ -10,6 +10,7 @@ from django.core.cache import cache
 from django.test import Client, TestCase, override_settings
 
 from .views import (
+    GUIDED_EXPERIMENT_PAGES,
     HOMEPAGE_FAQS,
     PRODUCTION_BASE_URL,
     PUBLIC_CANONICAL_URLS,
@@ -143,6 +144,98 @@ class SearchDiscoveryTests(TestCase):
         self.assertNotIn("aggregateRating", software_schema)
         self.assertNotIn("publisher", software_schema)
         self.assertNotIn("author", software_schema)
+
+
+class GuidedExperimentPageTests(TestCase):
+    routes = {
+        "/guides/sodium-and-chlorine-reaction/": "reaction",
+        "/guides/sodium-and-chlorine-formula/": "formula",
+        "/guides/sodium-and-chlorine-ionic-bond/": "ionic-bond",
+    }
+
+    def test_exactly_three_guides_answer_distinct_student_questions(self):
+        self.assertEqual(len(GUIDED_EXPERIMENT_PAGES), 3)
+
+        titles = set()
+        for path, guide_key in self.routes.items():
+            with self.subTest(path=path):
+                guide = GUIDED_EXPERIMENT_PAGES[guide_key]
+                response = self.client.get(path)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, f"<h1 id=\"guide-heading\">{guide['title']}</h1>", html=True)
+                self.assertContains(response, guide["direct_answer"])
+                titles.add(guide["title"])
+
+        self.assertEqual(len(titles), 3)
+
+    def test_each_guide_has_one_primary_path_to_the_prepared_lab(self):
+        for path in self.routes:
+            with self.subTest(path=path):
+                html = self.client.get(path).content.decode()
+
+                self.assertEqual(html.count('class="guide-primary"'), 1)
+                self.assertEqual(
+                    html.count('href="/demo/sodium-chlorine/"'),
+                    1,
+                )
+
+    def test_guides_keep_the_educational_and_safety_boundaries_visible(self):
+        for path in self.routes:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+
+                self.assertContains(
+                    response,
+                    "It can be incomplete or wrong and does not replace "
+                    "instructor supervision, trusted references, or "
+                    "physical-lab safety procedures.",
+                )
+                self.assertContains(
+                    response,
+                    "Do not attempt the sodium and chlorine reaction outside "
+                    "a properly equipped, supervised laboratory.",
+                )
+
+    def test_guides_have_unique_canonicals_metadata_and_learning_schema(self):
+        canonical_urls = set()
+        for path, guide_key in self.routes.items():
+            with self.subTest(path=path):
+                guide = GUIDED_EXPERIMENT_PAGES[guide_key]
+                response = self.client.get(path)
+                html = response.content.decode()
+                canonical = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
+
+                self.assertContains(
+                    response,
+                    f'<link rel="canonical" href="{canonical}">',
+                    html=True,
+                )
+                self.assertContains(
+                    response,
+                    f'<meta name="description" content="{guide["description"]}">',
+                    html=True,
+                )
+                schema_match = re.search(
+                    r'<script type="application/ld\+json">(.*?)</script>',
+                    html,
+                    re.DOTALL,
+                )
+                self.assertIsNotNone(schema_match)
+                schema = json.loads(schema_match.group(1))
+                self.assertEqual(schema["@type"], "LearningResource")
+                self.assertEqual(schema["url"], canonical)
+                canonical_urls.add(canonical)
+
+        self.assertEqual(len(canonical_urls), 3)
+
+    def test_sitemap_includes_all_three_guides(self):
+        sitemap = self.client.get("/sitemap.xml").content.decode()
+
+        for guide in GUIDED_EXPERIMENT_PAGES.values():
+            canonical = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
+            with self.subTest(canonical=canonical):
+                self.assertEqual(sitemap.count(canonical), 1)
 
 
 class SocialPreviewTests(TestCase):

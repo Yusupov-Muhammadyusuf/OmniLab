@@ -28,6 +28,15 @@ PUBLIC_CANONICAL_URLS = {
     "pricing": f"{PRODUCTION_BASE_URL}/pricing/",
     "privacy": f"{PRODUCTION_BASE_URL}/privacy/",
     "terms": f"{PRODUCTION_BASE_URL}/terms/",
+    "sodium_chlorine_reaction": (
+        f"{PRODUCTION_BASE_URL}/guides/sodium-and-chlorine-reaction/"
+    ),
+    "sodium_chlorine_formula": (
+        f"{PRODUCTION_BASE_URL}/guides/sodium-and-chlorine-formula/"
+    ),
+    "sodium_chlorine_ionic_bond": (
+        f"{PRODUCTION_BASE_URL}/guides/sodium-and-chlorine-ionic-bond/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 SODIUM_CHLORINE_DEMO = {
@@ -36,6 +45,172 @@ SODIUM_CHLORINE_DEMO = {
     "selectedChemicals": ["Na", "Cl2"],
     "vessel": "beaker",
     "liquidColor": "#89a83b",
+}
+
+GUIDED_EXPERIMENT_PAGES = {
+    "reaction": {
+        "canonical_key": "sodium_chlorine_reaction",
+        "title": "What happens when sodium reacts with chlorine?",
+        "page_title": "Sodium and chlorine reaction | OmniLab student guide",
+        "description": (
+            "See what sodium and chlorine form, read the balanced equation, "
+            "and open the supported reaction in OmniLab's virtual lab."
+        ),
+        "context": "Reaction guide",
+        "reading_time": "4 minute read",
+        "direct_answer": (
+            "Sodium and chlorine form sodium chloride, an ionic solid. "
+            "The balanced equation is 2Na(s) + Cl₂(g) → 2NaCl(s)."
+        ),
+        "equation_label": "Balanced reaction",
+        "equation": "2Na(s) + Cl₂(g) → 2NaCl(s)",
+        "equation_note": (
+            "Two sodium atoms are needed for one chlorine molecule because "
+            "elemental chlorine is written as Cl₂."
+        ),
+        "section_title": "Read the reaction in three moves",
+        "steps": [
+            {
+                "number": "01",
+                "title": "Start with the reactants",
+                "body": (
+                    "The reactant side contains sodium metal, Na, and "
+                    "diatomic chlorine gas, Cl₂."
+                ),
+            },
+            {
+                "number": "02",
+                "title": "Track the electron transfer",
+                "body": (
+                    "Each sodium atom loses one electron and each chlorine "
+                    "atom gains one, producing Na⁺ and Cl⁻ ions."
+                ),
+            },
+            {
+                "number": "03",
+                "title": "Name the product",
+                "body": (
+                    "Oppositely charged ions attract in a crystal lattice, "
+                    "so the product is solid sodium chloride, NaCl."
+                ),
+            },
+        ],
+        "notice_title": "What to notice in OmniLab",
+        "notice_points": [
+            "The prepared setup selects Sodium and Chlorine.",
+            "The prediction uses those selected chemicals only.",
+            "The beaker is a visual aid and does not change the prediction.",
+        ],
+    },
+    "formula": {
+        "canonical_key": "sodium_chlorine_formula",
+        "title": "What formula forms from sodium and chlorine?",
+        "page_title": "Sodium and chlorine formula | OmniLab student guide",
+        "description": (
+            "Learn why sodium and chlorine form NaCl, connect the ion charges "
+            "to the 1:1 formula, and try the supported setup in OmniLab."
+        ),
+        "context": "Formula guide",
+        "reading_time": "3 minute read",
+        "direct_answer": (
+            "The formula is NaCl. Sodium forms Na⁺ and chlorine forms Cl⁻, "
+            "so one ion of each gives an electrically neutral formula unit."
+        ),
+        "equation_label": "Formula and reaction",
+        "equation": "Na⁺ + Cl⁻ → NaCl",
+        "equation_note": (
+            "For the elemental reaction, balance chlorine as Cl₂: "
+            "2Na(s) + Cl₂(g) → 2NaCl(s)."
+        ),
+        "section_title": "Build the formula from the charges",
+        "steps": [
+            {
+                "number": "01",
+                "title": "Write the ions",
+                "body": (
+                    "Sodium is a group 1 metal and forms Na⁺. Chlorine "
+                    "accepts an electron and forms the chloride ion, Cl⁻."
+                ),
+            },
+            {
+                "number": "02",
+                "title": "Make the charge total zero",
+                "body": (
+                    "A +1 sodium ion and a −1 chloride ion balance in a 1:1 "
+                    "ratio. No subscripts are needed in NaCl."
+                ),
+            },
+            {
+                "number": "03",
+                "title": "Use formula-unit language",
+                "body": (
+                    "Solid sodium chloride is a repeating ionic lattice, so "
+                    "NaCl describes its simplest ion ratio rather than one "
+                    "discrete molecule."
+                ),
+            },
+        ],
+        "notice_title": "Use the lab to connect formula and equation",
+        "notice_points": [
+            "The compounds matrix starts with Na + Cl₂.",
+            "The returned equation should use only the selected reactants.",
+            "Check the generated explanation against your course materials.",
+        ],
+    },
+    "ionic-bond": {
+        "canonical_key": "sodium_chlorine_ionic_bond",
+        "title": "Why do sodium and chlorine form an ionic bond?",
+        "page_title": "Sodium and chlorine ionic bond | OmniLab student guide",
+        "description": (
+            "Follow the electron transfer from sodium to chlorine, see how "
+            "Na⁺ and Cl⁻ form an ionic solid, and explore it in OmniLab."
+        ),
+        "context": "Bonding guide",
+        "reading_time": "4 minute read",
+        "direct_answer": (
+            "Sodium transfers an electron to chlorine, creating Na⁺ and Cl⁻. "
+            "Their opposite charges attract, forming an ionic lattice."
+        ),
+        "equation_label": "Electron transfer model",
+        "equation": "Na → Na⁺ + e⁻   |   Cl + e⁻ → Cl⁻",
+        "equation_note": (
+            "In the full elemental reaction, one Cl₂ molecule accepts two "
+            "electrons from two sodium atoms."
+        ),
+        "section_title": "From neutral atoms to an ionic lattice",
+        "steps": [
+            {
+                "number": "01",
+                "title": "Sodium loses one electron",
+                "body": (
+                    "A neutral sodium atom becomes Na⁺ when it gives up its "
+                    "outer electron."
+                ),
+            },
+            {
+                "number": "02",
+                "title": "Chlorine gains that electron",
+                "body": (
+                    "A chlorine atom becomes Cl⁻ after accepting one electron, "
+                    "giving the two ions opposite charges."
+                ),
+            },
+            {
+                "number": "03",
+                "title": "Attraction builds the solid",
+                "body": (
+                    "Electrostatic attraction holds many Na⁺ and Cl⁻ ions in "
+                    "a repeating three-dimensional sodium chloride lattice."
+                ),
+            },
+        ],
+        "notice_title": "What the virtual prediction can show",
+        "notice_points": [
+            "The lab can return an equation and short explanation.",
+            "Its result is generated and may be incomplete or wrong.",
+            "Use a textbook or instructor to verify the bonding model.",
+        ],
+    },
 }
 
 HOMEPAGE_FAQS = [
@@ -298,6 +473,36 @@ def sodium_chlorine_demo(request):
         request,
         "index.html",
         homepage_context(SODIUM_CHLORINE_DEMO),
+    )
+
+
+def guided_experiment(request, guide_key):
+    guide = GUIDED_EXPERIMENT_PAGES[guide_key]
+    canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
+    page_schema = {
+        "@context": "https://schema.org",
+        "@type": "LearningResource",
+        "name": guide["title"],
+        "description": guide["description"],
+        "url": canonical_url,
+        "educationalLevel": "Introductory chemistry",
+        "learningResourceType": "Study guide",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "OmniLab",
+            "url": PUBLIC_CANONICAL_URLS["index"],
+        },
+    }
+    return render(
+        request,
+        "guided_experiment.html",
+        {
+            "guide": guide,
+            "canonical_url": canonical_url,
+            "social_preview_url": SOCIAL_PREVIEW_URL,
+            "social_preview_alt": SOCIAL_PREVIEW_ALT,
+            "page_schema_json": json.dumps(page_schema),
+        },
     )
 
 def pricing(request):
