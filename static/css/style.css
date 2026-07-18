@@ -332,6 +332,33 @@ body {
     color: var(--muted-text);
 }
 
+.lab-empty-state {
+    max-width: 34ch;
+    margin-inline: auto;
+}
+
+.lab-demo-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 700;
+    text-underline-offset: 4px;
+}
+
+.lab-demo-link:hover {
+    color: var(--text-color);
+    text-decoration-thickness: 2px;
+}
+
+.lab-demo-link:focus-visible {
+    border-radius: 4px;
+    outline: 3px solid #e3384f;
+    outline-offset: 3px;
+}
+
 .safety-heading,
 .safety-list {
     color: var(--text-color);

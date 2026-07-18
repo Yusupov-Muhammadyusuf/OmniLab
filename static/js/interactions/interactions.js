@@ -2,7 +2,15 @@ import * as config from '../configuration/config.js';
 import { closeAllPopovers } from '../userInterface/ui.js';
 import { cancelReactionEffects, drawVesselAndFluid, triggerSmokeEffect, triggerThermalBlast } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
-const DEFAULT_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>';
+const DEFAULT_REACTION_INSTRUCTION = `
+    <div class="text-center mt-5 lab-empty-state">
+        <p class="lab-instruction mb-2">Start with <strong>Sodium and Chlorine</strong>, OmniLab's supported pair. Add both from Chemicals.</p>
+        <a class="lab-demo-link" href="/demo/sodium-chlorine/">
+            Open the prepared demo
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+    </div>
+`;
 const DEMO_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>';
 const FEEDBACK_EMAIL_ADDRESS = 'omnilab-bk8q@mail.tin.computer';
 const FEEDBACK_PROMPTS = [
