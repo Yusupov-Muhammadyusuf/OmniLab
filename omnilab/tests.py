@@ -973,7 +973,7 @@ class SavedChemicalRestorationTests(TestCase):
         invalid_guard = (
             "if (storedChemicals !== null && savedChemicals === null) {"
         )
-        remove_invalid = "localStorage.removeItem(chemicalsStorageKey);"
+        remove_invalid = "removeStorageValue(chemicalsStorageKey);"
         prepared_state = "const preparedChemicals = savedChemicals"
 
         self.assertIn(invalid_guard, self.restore_block)
@@ -1005,17 +1005,17 @@ class SavedChemicalRestorationTests(TestCase):
             fallback_block,
         )
         self.assertIn(
-            "localStorage.setItem(liquidColorStorageKey, reactionDemo.liquidColor)",
+            "writeStorageValue(liquidColorStorageKey, reactionDemo.liquidColor)",
             fallback_block,
         )
 
     def test_result_color_and_reset_cleanup_contracts_remain_in_place(self):
         self.assertIn(
-            "localStorage.removeItem(liquidColorStorageKey);",
+            "removeStorageValue(liquidColorStorageKey);",
             self.restore_block,
         )
         self.assertIn(
-            "localStorage.removeItem(reactionStorageKey);",
+            "removeStorageValue(reactionStorageKey);",
             self.restore_block,
         )
         reset_block = self.interactions.split(
@@ -1027,9 +1027,35 @@ class SavedChemicalRestorationTests(TestCase):
             "savedReaction",
         ):
             self.assertIn(
-                f"localStorage.removeItem(config.getLabStorageKey('{storage_name}'))",
+                f"removeStorageValue(config.getLabStorageKey('{storage_name}'))",
                 reset_block,
             )
+
+
+class OptionalBrowserStorageTests(TestCase):
+    def setUp(self):
+        self.storage = (
+            settings.BASE_DIR / "static/ts/storage/storage.ts"
+        ).read_text()
+        self.interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+
+    def test_storage_helpers_turn_browser_failures_into_safe_defaults(self):
+        self.assertIn("return window.localStorage.getItem(key);", self.storage)
+        self.assertIn("window.localStorage.setItem(key, value);", self.storage)
+        self.assertIn("window.localStorage.removeItem(key);", self.storage)
+        self.assertEqual(self.storage.count("try {"), 3)
+        self.assertEqual(self.storage.count("catch {"), 3)
+        self.assertIn("return null;", self.storage)
+
+    def test_lab_routes_every_storage_operation_through_safe_helpers(self):
+        self.assertIn("from '../storage/storage.js';", self.interactions)
+        self.assertIn("readStorageValue(chemicalsStorageKey)", self.interactions)
+        self.assertIn("readStorageValue(reactionStorageKey)", self.interactions)
+        self.assertIn("writeStorageValue(", self.interactions)
+        self.assertIn("removeStorageValue(", self.interactions)
+        self.assertNotIn("localStorage.", self.interactions)
 
 
 @override_settings(
@@ -1369,14 +1395,14 @@ class CompleteReactionResponseTests(TestCase):
         self.assertIn(
             "capture('reaction_analysis_completed', {", success_block
         )
-        self.assertIn("localStorage.setItem(", success_block)
+        self.assertIn("writeStorageValue(", success_block)
         self.assertIn(
             "capture('reaction_analysis_failed', {", failure_block
         )
         self.assertIn("stage: 'response'", failure_block)
         self.assertIn("renderReactionRetry(panel);", failure_block)
         self.assertNotIn("reaction_analysis_completed", failure_block)
-        self.assertNotIn("localStorage.setItem(", failure_block)
+        self.assertNotIn("writeStorageValue(", failure_block)
 
 
 class ReactionCsrfProtectionTests(TestCase):
@@ -1966,7 +1992,7 @@ class LabJourneyRepairTests(TestCase):
             "} else if (resData.status === 'success' && resData.data) {", 1
         )[1].split("} else {", 1)[0]
         restore_block = interactions.split(
-            "const savedData = localStorage.getItem(reactionStorageKey);", 1
+            "const savedData = readStorageValue(reactionStorageKey);", 1
         )[1]
 
         normalization_index = success_block.index(
@@ -1988,7 +2014,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertNotIn("return { ...reaction, effect }", interactions)
         self.assertIn("parseSavedReactionResult(savedData)", restore_block)
         self.assertIn(
-            "localStorage.setItem(reactionStorageKey, JSON.stringify(savedReaction))",
+            "writeStorageValue(reactionStorageKey, JSON.stringify(savedReaction))",
             restore_block,
         )
 
@@ -1997,7 +2023,7 @@ class LabJourneyRepairTests(TestCase):
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
         restore_block = interactions.split(
-            "const savedData = localStorage.getItem(reactionStorageKey);", 1
+            "const savedData = readStorageValue(reactionStorageKey);", 1
         )[1]
 
         validation_index = restore_block.index(
@@ -2008,7 +2034,7 @@ class LabJourneyRepairTests(TestCase):
         )
         self.assertLess(validation_index, render_index)
         self.assertIn("if (savedData !== null) {", restore_block)
-        self.assertIn("localStorage.removeItem(reactionStorageKey);", restore_block)
+        self.assertIn("removeStorageValue(reactionStorageKey);", restore_block)
         self.assertIn("? DEMO_REACTION_INSTRUCTION", restore_block)
         self.assertIn(": DEFAULT_REACTION_INSTRUCTION", restore_block)
         self.assertNotIn("capture('reaction_analysis_completed'", restore_block)
@@ -2026,7 +2052,7 @@ class LabJourneyRepairTests(TestCase):
             interactions,
         )
         self.assertIn(
-            "localStorage.removeItem(liquidColorStorageKey);",
+            "removeStorageValue(liquidColorStorageKey);",
             restore_block,
         )
         self.assertIn(
@@ -2178,7 +2204,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("resData.status === 'insufficient_input'", interactions)
         self.assertIn("Try a different setup", interactions)
         self.assertIn(
-            "localStorage.removeItem(config.getLabStorageKey('savedReaction'))",
+            "removeStorageValue(config.getLabStorageKey('savedReaction'))",
             interactions,
         )
         self.assertIn("stage: 'insufficient_input'", interactions)
@@ -2192,15 +2218,15 @@ class LabJourneyRepairTests(TestCase):
         )[1].split("\n}\n\nexport function fireAIAnalysis", 1)[0]
 
         self.assertIn(
-            "localStorage.removeItem(config.getLabStorageKey('savedChemicals'))",
+            "removeStorageValue(config.getLabStorageKey('savedChemicals'))",
             reset_block,
         )
         self.assertIn(
-            "localStorage.removeItem(config.getLabStorageKey('savedLiquidColor'))",
+            "removeStorageValue(config.getLabStorageKey('savedLiquidColor'))",
             reset_block,
         )
         self.assertIn(
-            "localStorage.removeItem(config.getLabStorageKey('savedReaction'))",
+            "removeStorageValue(config.getLabStorageKey('savedReaction'))",
             reset_block,
         )
         self.assertIn("activeAnalysisController?.abort()", reset_block)
