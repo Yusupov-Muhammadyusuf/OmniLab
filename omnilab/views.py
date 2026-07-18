@@ -47,6 +47,7 @@ SODIUM_CHLORINE_DEMO = {
     "liquidColor": "#89a83b",
 }
 SUPPORTED_REACTION_EFFECTS = frozenset({"explosion", "bubble", "none"})
+SUPPORTED_REACTION_CHEMICALS = frozenset({"Na", "Cl2"})
 
 GUIDED_EXPERIMENT_PAGES = {
     "reaction": {
@@ -347,12 +348,23 @@ def get_reaction_client():
 
 
 def parse_selected_chemicals(user_query):
-    return list(
-        dict.fromkeys(
-            chemical.strip()
-            for chemical in user_query.split("+")
-            if chemical.strip()
-        )
+    return [
+        chemical.strip()
+        for chemical in user_query.split("+")
+        if chemical.strip()
+    ]
+
+
+def is_supported_reaction_setup(selected_chemicals):
+    normalized_chemicals = frozenset(
+        chemical.strip().casefold() for chemical in selected_chemicals
+    )
+    normalized_supported_chemicals = frozenset(
+        chemical.casefold() for chemical in SUPPORTED_REACTION_CHEMICALS
+    )
+    return (
+        len(selected_chemicals) == len(SUPPORTED_REACTION_CHEMICALS)
+        and normalized_chemicals == normalized_supported_chemicals
     )
 
 
@@ -590,14 +602,13 @@ def sitemap_xml(request):
 
 def ai_insights(request):
     if request.method == "POST":
-        user_query = request.POST.get("query", "No chemicals specified.")
+        user_query = request.POST.get("query", "")
         selected_chemicals = parse_selected_chemicals(user_query)
 
-        if len(selected_chemicals) < 2:
+        if not is_supported_reaction_setup(selected_chemicals):
             return insufficient_input_response(
-                "Add at least two chemicals to predict a reaction. "
-                "OmniLab only analyzes the chemicals you select and won't "
-                "introduce another reagent."
+                "OmniLab currently analyzes only Sodium and Chlorine "
+                "together. Add both chemicals, then try again."
             )
 
         rate_limit_response = reaction_rate_limit(request)
