@@ -12,6 +12,15 @@ const ALLOWED_VISIT_SOURCES = new Set([
 const supportedReactionPairs = window.supportedReactionPairs || [['Na', 'Cl2']];
 const supportedReactionPairKeys = new Set(supportedReactionPairs.map(pair => [...pair].sort().join('+')));
 const supportedChemicalIds = new Set(supportedReactionPairs.flat());
+const supportedReactionPartners = new Map();
+for (const [firstChemical, secondChemical] of supportedReactionPairs) {
+    const firstPartners = supportedReactionPartners.get(firstChemical) || new Set();
+    const secondPartners = supportedReactionPartners.get(secondChemical) || new Set();
+    firstPartners.add(secondChemical);
+    secondPartners.add(firstChemical);
+    supportedReactionPartners.set(firstChemical, firstPartners);
+    supportedReactionPartners.set(secondChemical, secondPartners);
+}
 let state = {
     chemicalDatabase: [],
     selectedChemicals: [],
@@ -62,6 +71,9 @@ export function isSupportedReactionSetup(selectedChemicals) {
     if (selectedChemicals.length !== 2)
         return false;
     return supportedReactionPairKeys.has([...selectedChemicals].sort().join('+'));
+}
+export function getCompatibleReactionPartners(chemicalId) {
+    return [...(supportedReactionPartners.get(chemicalId) || [])];
 }
 export function parseSavedChemicals(serializedChemicals) {
     if (serializedChemicals === null)

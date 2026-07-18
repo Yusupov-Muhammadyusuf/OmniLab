@@ -1,5 +1,8 @@
 import * as config from '../configuration/config.js';
-import { closeAllPopovers } from '../userInterface/ui.js';
+import {
+    closeAllPopovers,
+    refreshChemicalMenuGuidance
+} from '../userInterface/ui.js';
 import {
     cancelReactionEffects,
     drawVesselAndFluid,
@@ -36,8 +39,11 @@ function getAnalysisAvailabilityMessage(selectedChemicals: string[]): string {
     if (config.isSupportedReactionSetup(selectedChemicals)) {
         return 'Ready to analyze this supported reaction pair.';
     }
-    if (selectedChemicals.length > 0) {
-        return 'Choose two chemicals from a supported reaction pair.';
+    if (selectedChemicals.length === 1) {
+        return 'Choose a compatible partner marked in Chemicals.';
+    }
+    if (selectedChemicals.length > 1) {
+        return 'This setup is not supported in OmniLab. Reset and choose a marked compatible pair.';
     }
     return 'Add two chemicals from a supported reaction pair.';
 }
@@ -314,6 +320,7 @@ export function addChemicalToLab(
         );
         chemicalCard?.setAttribute('aria-pressed', 'true');
     }
+    refreshChemicalMenuGuidance();
     updateAnalysisAvailability();
     closeAllPopovers();
 }
@@ -362,6 +369,7 @@ export function resetLaboratory(): void {
     document.querySelectorAll('.chemical-card').forEach(card => {
         card.setAttribute('aria-pressed', 'false');
     });
+    refreshChemicalMenuGuidance();
     setAnalysisPending(false);
 
     const mixtureEl = document.getElementById('current-mixture');

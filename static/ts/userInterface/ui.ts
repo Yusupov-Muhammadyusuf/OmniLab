@@ -37,11 +37,100 @@ export function buildChemicalMenu(onSelectChemical: ChemicalSelectionHandler): v
             onSelectChemical(chem.id, chem.color);
         });
         
-        card.innerHTML = `
-            <span class="chemical-symbol" style="color:${chem.color}">${chem.id}</span>
-            <span class="chemical-name" style="color:var(--text-color)">${chem.name}</span>
-        `;
+        const symbol = document.createElement('span');
+        symbol.className = 'chemical-symbol';
+        symbol.style.color = chem.color;
+        symbol.textContent = chem.id;
+
+        const chemicalName = document.createElement('span');
+        chemicalName.className = 'chemical-name';
+        chemicalName.textContent = chem.name;
+
+        const status = document.createElement('span');
+        status.className = 'chemical-card-status';
+        status.setAttribute('aria-hidden', 'true');
+        status.hidden = true;
+
+        card.append(symbol, chemicalName, status);
         container.appendChild(card);
+    });
+
+    refreshChemicalMenuGuidance();
+}
+
+function chemicalDisplayName(chemicalId: string): string {
+    const chemical = config.getLabState().chemicalDatabase.find(
+        item => item.id === chemicalId
+    );
+    return chemical?.name || chemicalId;
+}
+
+function chemicalMenuMessage(selectedChemicals: string[]): string {
+    if (selectedChemicals.length === 0) {
+        return 'Select one chemical. OmniLab will mark every supported partner.';
+    }
+
+    if (selectedChemicals.length === 1) {
+        const selectedName = chemicalDisplayName(selectedChemicals[0]);
+        const partnerCount = config.getCompatibleReactionPartners(
+            selectedChemicals[0]
+        ).length;
+        const optionLabel = partnerCount === 1 ? 'option is' : 'options are';
+        return `Choose a partner for ${selectedName}. ${partnerCount} supported ${optionLabel} marked below.`;
+    }
+
+    if (selectedChemicals.length === 2) {
+        if (config.isSupportedReactionSetup(selectedChemicals)) {
+            return 'This pair is supported and ready to analyze.';
+        }
+        return "This pair isn't in OmniLab's supported set. Reset and choose a marked partner. That doesn't mean the combination is chemically impossible.";
+    }
+
+    return 'OmniLab analyzes two chemicals at a time. Reset and choose one marked pair.';
+}
+
+export function refreshChemicalMenuGuidance(): void {
+    const state = config.getLabState();
+    const selectedChemicals = state.selectedChemicals;
+    const selectedChemical = selectedChemicals.length === 1
+        ? selectedChemicals[0]
+        : null;
+    const compatiblePartners = new Set(
+        selectedChemical
+            ? config.getCompatibleReactionPartners(selectedChemical)
+            : []
+    );
+    const selectedName = selectedChemical
+        ? chemicalDisplayName(selectedChemical)
+        : '';
+
+    const guidance = document.getElementById('chemical-partner-guidance');
+    if (guidance) {
+        guidance.textContent = chemicalMenuMessage(selectedChemicals);
+    }
+
+    document.querySelectorAll<HTMLButtonElement>('.chemical-card').forEach(card => {
+        const chemicalId = card.getAttribute('data-name') || '';
+        const isSelected = selectedChemicals.includes(chemicalId);
+        const isCompatible = compatiblePartners.has(chemicalId);
+        const chemical = state.chemicalDatabase.find(item => item.id === chemicalId);
+        const status = card.querySelector<HTMLElement>('.chemical-card-status');
+
+        card.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+        card.classList.toggle('compatible-partner', isCompatible);
+        card.setAttribute(
+            'aria-label',
+            isCompatible
+                ? `Add ${chemical?.name || chemicalId} (${chemicalId}) to the lab. Compatible with ${selectedName}.`
+                : isSelected
+                    ? `${chemical?.name || chemicalId} (${chemicalId}) is selected.`
+                    : `Add ${chemical?.name || chemicalId} (${chemicalId}) to the lab`
+        );
+
+        if (status) {
+            status.hidden = !isSelected && !isCompatible;
+            status.textContent = isSelected ? 'Selected' : isCompatible ? 'Compatible' : '';
+        }
     });
 }
 

@@ -891,6 +891,47 @@ class SupportedSetupAnalysisStateTests(TestCase):
         self.assertIn("[...selectedChemicals].sort().join('+')", support_rule)
         self.assertIn("supportedReactionPairKeys.has", support_rule)
 
+    def test_catalog_marks_compatible_partners_from_the_server_pair_list(self):
+        response = self.client.get("/")
+        configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+        ui = (
+            settings.BASE_DIR / "static/ts/userInterface/ui.ts"
+        ).read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        add_block = interactions.split(
+            "export function addChemicalToLab(", 1
+        )[1].split("\n}\n\nexport function drop", 1)[0]
+
+        self.assertContains(response, 'id="chemical-partner-guidance"')
+        self.assertContains(response, 'aria-live="polite"')
+        self.assertIn("supportedReactionPartners", configuration)
+        self.assertIn("getCompatibleReactionPartners", configuration)
+        self.assertIn("compatible-partner", ui)
+        self.assertIn("Compatible with ${selectedName}", ui)
+        self.assertIn("refreshChemicalMenuGuidance();", ui)
+        self.assertIn("refreshChemicalMenuGuidance();", add_block)
+        self.assertLess(
+            add_block.index("refreshChemicalMenuGuidance();"),
+            add_block.index("updateAnalysisAvailability();"),
+        )
+
+    def test_unsupported_pair_guidance_is_specific_and_honest(self):
+        ui = (
+            settings.BASE_DIR / "static/ts/userInterface/ui.ts"
+        ).read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+
+        self.assertIn("isn't in OmniLab's supported set", ui)
+        self.assertIn("doesn't mean the combination is chemically impossible", ui)
+        self.assertIn("not supported in OmniLab", interactions)
+        self.assertIn("marked compatible pair", interactions)
+
     def test_disabled_setup_stops_before_analytics_and_network(self):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
