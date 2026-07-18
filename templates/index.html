@@ -91,9 +91,9 @@
                         <p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>
                         {% else %}
                         <div class="text-center mt-5 lab-empty-state">
-                            <p class="lab-instruction mb-2">Start with <strong>Sodium and Chlorine</strong>, OmniLab's supported pair. Add both from Chemicals.</p>
+                            <p class="lab-instruction mb-2">Choose a supported pair from Chemicals. Try <strong>Hydrogen and Oxygen</strong> or <strong>Hydrochloric acid and Sodium hydroxide</strong>.</p>
                             <a class="lab-demo-link" href="{% url 'sodium_chlorine_demo' %}">
-                                Open the prepared demo
+                                Open the prepared Sodium and Chlorine demo
                                 <span class="lab-control-arrow" aria-hidden="true">&rarr;</span>
                             </a>
                         </div>
@@ -103,7 +103,7 @@
 
                 <p class="prediction-input-note" id="prediction-input-note">
                     <span class="analysis-availability-message" id="analysis-availability-message">
-                        {% if reaction_demo %}Ready to analyze the supported Sodium and Chlorine pair.{% else %}Add Sodium and Chlorine to enable analysis.{% endif %}
+                        {% if reaction_demo %}Ready to analyze this supported reaction pair.{% else %}Add two chemicals from a supported reaction pair.{% endif %}
                     </span>
                     <span class="prediction-input-boundary"><strong>Prediction inputs:</strong> Selected chemicals only. Vessel and burner choices are visual setup aids.</span>
                 </p>
@@ -179,6 +179,7 @@
     <script>
         window.chemicalDataUrl = "{% static 'js/chemicaldata.json' %}";
         window.reactionDemo = {{ reaction_demo_json|safe }};
+        window.supportedReactionPairs = {{ supported_reaction_pairs_json|safe }};
     </script>
     <script type="module" src="{% static 'js/root/main.js' %}"></script>
 </body>

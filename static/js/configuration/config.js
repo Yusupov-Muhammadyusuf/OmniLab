@@ -9,7 +9,9 @@ const ALLOWED_VISIT_SOURCES = new Set([
     'student_invite',
     ...GUIDE_VISIT_SOURCES
 ]);
-const SUPPORTED_REACTION_CHEMICALS = new Set(['Na', 'Cl2']);
+const supportedReactionPairs = window.supportedReactionPairs || [['Na', 'Cl2']];
+const supportedReactionPairKeys = new Set(supportedReactionPairs.map(pair => [...pair].sort().join('+')));
+const supportedChemicalIds = new Set(supportedReactionPairs.flat());
 let state = {
     chemicalDatabase: [],
     selectedChemicals: [],
@@ -57,8 +59,9 @@ export function getVisitSource() {
         : null;
 }
 export function isSupportedReactionSetup(selectedChemicals) {
-    return selectedChemicals.length === SUPPORTED_REACTION_CHEMICALS.size
-        && selectedChemicals.every(chemical => SUPPORTED_REACTION_CHEMICALS.has(chemical));
+    if (selectedChemicals.length !== 2)
+        return false;
+    return supportedReactionPairKeys.has([...selectedChemicals].sort().join('+'));
 }
 export function parseSavedChemicals(serializedChemicals) {
     if (serializedChemicals === null)
@@ -68,7 +71,7 @@ export function parseSavedChemicals(serializedChemicals) {
         if (!Array.isArray(parsedChemicals))
             return null;
         if (!parsedChemicals.every((chemical) => typeof chemical === 'string'
-            && SUPPORTED_REACTION_CHEMICALS.has(chemical)))
+            && supportedChemicalIds.has(chemical)))
             return null;
         if (new Set(parsedChemicals).size !== parsedChemicals.length)
             return null;
