@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -287,10 +287,12 @@ def homepage_context(reaction_demo=None):
     return context
 
 
+@ensure_csrf_cookie
 def index(request):
     return render(request, "index.html", homepage_context())
 
 
+@ensure_csrf_cookie
 def sodium_chlorine_demo(request):
     return render(
         request,
@@ -347,7 +349,6 @@ def sitemap_xml(request):
     )
     return HttpResponse(content, content_type="application/xml; charset=utf-8")
 
-@csrf_exempt
 def ai_insights(request):
     if request.method == "POST":
         user_query = request.POST.get("query", "No chemicals specified.")

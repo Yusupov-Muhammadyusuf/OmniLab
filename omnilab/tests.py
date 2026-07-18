@@ -7,7 +7,7 @@ from unittest.mock import Mock, patch
 
 from django.conf import settings
 from django.core.cache import cache
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 
 from .views import (
     HOMEPAGE_FAQS,
@@ -526,6 +526,110 @@ class ReactionRateLimitTests(TestCase):
         self.assertEqual(first_response.status_code, 200)
         self.assertEqual(blocked_response.status_code, 429)
         self.provider_create.assert_called_once()
+
+
+class ReactionCsrfProtectionTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        payload = {
+            "effect": "none",
+            "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
+            "explanation": "The selected reactants form sodium chloride.",
+            "safety": (
+                "Wear eye protection. | Keep sodium dry. | "
+                "Use trained supervision."
+            ),
+        }
+        self.provider_create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(content=json.dumps(payload))
+                    )
+                ]
+            )
+        )
+        provider = SimpleNamespace(
+            chat=SimpleNamespace(
+                completions=SimpleNamespace(create=self.provider_create)
+            )
+        )
+        self.client_patcher = patch(
+            "omnilab.views.get_reaction_client", return_value=provider
+        )
+        self.client_patcher.start()
+
+    def tearDown(self):
+        self.client_patcher.stop()
+
+    def post_reaction(self, token=None, origin="https://testserver"):
+        headers = {"HTTP_ORIGIN": origin}
+        if token is not None:
+            headers["HTTP_X_CSRFTOKEN"] = token
+        return self.client.post(
+            "/ai_insights/",
+            {"query": "Na + Cl2"},
+            secure=True,
+            **headers,
+        )
+
+    def get_token(self, path="/"):
+        response = self.client.get(path, secure=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("csrftoken", response.cookies)
+        return response.cookies["csrftoken"].value
+
+    def test_tokenless_request_is_rejected_before_provider(self):
+        response = self.post_reaction()
+
+        self.assertEqual(response.status_code, 403)
+        self.provider_create.assert_not_called()
+
+    def test_invalid_token_is_rejected_before_provider(self):
+        self.get_token()
+
+        response = self.post_reaction("a" * 32)
+
+        self.assertEqual(response.status_code, 403)
+        self.provider_create.assert_not_called()
+
+    def test_cross_origin_request_is_rejected_before_provider(self):
+        token = self.get_token()
+
+        response = self.post_reaction(token, origin="https://example.net")
+
+        self.assertEqual(response.status_code, 403)
+        self.provider_create.assert_not_called()
+
+    def test_valid_homepage_token_keeps_reaction_contract(self):
+        token = self.get_token()
+
+        response = self.post_reaction(token)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "success")
+        self.assertEqual(
+            response.json()["data"]["equation"],
+            "2Na(s) + Cl2(g) -> 2NaCl(s)",
+        )
+        self.provider_create.assert_called_once()
+
+    def test_demo_page_sets_token_for_the_same_browser_client(self):
+        token = self.get_token("/demo/sodium-chlorine/")
+
+        response = self.post_reaction(token)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "success")
+        self.provider_create.assert_called_once()
+
+    def test_browser_client_sends_same_origin_token(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+
+        self.assertIn("'X-CSRFToken': getCsrfToken()", interactions)
+        self.assertIn("credentials: 'same-origin'", interactions)
 
 
 class LabJourneyRepairTests(TestCase):

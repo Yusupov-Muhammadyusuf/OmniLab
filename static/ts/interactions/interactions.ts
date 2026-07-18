@@ -257,6 +257,18 @@ export function resetLaboratory(): void {
     drawVesselAndFluid();
 }
 
+function getCsrfToken(): string {
+    const cookiePrefix = 'csrftoken=';
+    const csrfCookie = document.cookie
+        .split(';')
+        .map(cookie => cookie.trim())
+        .find(cookie => cookie.startsWith(cookiePrefix));
+
+    return csrfCookie
+        ? decodeURIComponent(csrfCookie.slice(cookiePrefix.length))
+        : '';
+}
+
 export function fireAIAnalysis(): void {
     const state = config.getLabState();
     if (state.selectedChemicals.length === 0) {
@@ -285,7 +297,11 @@ export function fireAIAnalysis(): void {
 
     fetch('/ai_insights/', {
         method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken()
+        },
         body: formData,
+        credentials: 'same-origin',
         signal: requestController.signal
     })
     .then(res => res.text())
