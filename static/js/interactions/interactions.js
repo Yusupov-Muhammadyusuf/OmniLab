@@ -1,6 +1,6 @@
 import * as config from '../configuration/config.js';
 import { closeAllPopovers } from '../userInterface/ui.js';
-import { cancelReactionEffects, drawVesselAndFluid, triggerSmokeEffect, triggerThermalBlast } from '../rendering/render.js';
+import { cancelReactionEffects, drawVesselAndFluid, triggerThermalBlast } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 import { buildFeedbackMailtoUrl } from './feedback.js';
 const DEFAULT_REACTION_INSTRUCTION = `
@@ -49,6 +49,25 @@ function setAnalysisPending(pending) {
         return;
     analyzeBtn.setAttribute('aria-busy', pending ? 'true' : 'false');
     updateAnalysisAvailability();
+}
+function normalizeReactionResult(reaction) {
+    const supportedEffects = new Set([
+        'explosion',
+        'bubble',
+        'none'
+    ]);
+    const effect = supportedEffects.has(reaction.effect)
+        ? reaction.effect
+        : 'none';
+    return {
+        equation: reaction.equation,
+        explanation: reaction.explanation,
+        safety: reaction.safety,
+        effect
+    };
+}
+function isSupportedLiquidColor(color) {
+    return color !== null && /^#[0-9a-f]{6}$/i.test(color);
 }
 export function renderReactionResult(panel, reaction) {
     panel.innerHTML = `
@@ -356,27 +375,20 @@ export function fireAIAnalysis() {
             renderStatusMessage(panel, 'Try a different setup', resData.message || 'Add another selected chemical and try again.', 'info');
         }
         else if (resData.status === 'success' && resData.data) {
+            const reaction = normalizeReactionResult(resData.data);
             const visitSource = config.getVisitSource();
             capture('reaction_analysis_completed', {
                 chemical_count: state.selectedChemicals.length,
                 vessel: state.currentVessel,
-                effect: resData.data.effect,
+                effect: reaction.effect,
                 duration_ms: Math.round(performance.now() - analysisStartedAt),
                 ...(visitSource ? { visit_source: visitSource } : {})
             });
-            localStorage.setItem(config.getLabStorageKey('savedReaction'), JSON.stringify(resData.data));
-            const reaction = resData.data;
+            localStorage.setItem(config.getLabStorageKey('savedReaction'), JSON.stringify(reaction));
             renderReactionResult(panel, reaction);
             config.updateLabState({ isBubbling: false });
             if (reaction.effect === 'explosion') {
                 triggerThermalBlast();
-            }
-            else if (reaction.effect === 'smoke') {
-                triggerSmokeEffect();
-            }
-            else if (reaction.effect === 'color_change' && reaction.new_color !== 'none') {
-                config.updateLabState({ liquidColor: reaction.new_color });
-                localStorage.setItem(config.getLabStorageKey('savedLiquidColor'), reaction.new_color);
             }
             else if (reaction.effect === 'bubble') {
                 const currentState = config.getLabState();
@@ -416,7 +428,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const liquidColorStorageKey = config.getLabStorageKey('savedLiquidColor');
     const reactionStorageKey = config.getLabStorageKey('savedReaction');
     const savedChemicals = localStorage.getItem(chemicalsStorageKey);
-    const savedLiquidColor = localStorage.getItem(liquidColorStorageKey);
+    const storedLiquidColor = localStorage.getItem(liquidColorStorageKey);
+    const savedLiquidColor = isSupportedLiquidColor(storedLiquidColor)
+        ? storedLiquidColor
+        : null;
+    if (storedLiquidColor && !savedLiquidColor) {
+        localStorage.removeItem(liquidColorStorageKey);
+    }
     const preparedChemicals = savedChemicals
         ? JSON.parse(savedChemicals)
         : reactionDemo?.selectedChemicals || [];
@@ -456,10 +474,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedData = localStorage.getItem(reactionStorageKey);
     if (savedData) {
         try {
-            const reaction = JSON.parse(savedData);
+            const reaction = normalizeReactionResult(JSON.parse(savedData));
             const panel = document.getElementById('ai-response-content');
             if (!panel)
                 return;
+            localStorage.setItem(reactionStorageKey, JSON.stringify(reaction));
             renderReactionResult(panel, reaction);
         }
         catch (e) {

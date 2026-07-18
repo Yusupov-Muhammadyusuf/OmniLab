@@ -1534,9 +1534,156 @@ class LabJourneyRepairTests(TestCase):
             "complete set of reactants",
             create.call_args.kwargs["messages"][0]["content"],
         )
+        prompt = create.call_args.kwargs["messages"][0]["content"]
+        self.assertIn(
+            "['explosion', 'bubble', 'none']",
+            prompt,
+        )
+        self.assertNotIn("'smoke'", prompt)
+        self.assertNotIn("'color_change'", prompt)
         self.assertEqual(
             create.call_args.kwargs["response_format"],
             {"type": "json_object"},
+        )
+
+    @patch("omnilab.views.get_reaction_client")
+    def test_unsupported_provider_effects_normalize_to_none(self, get_client):
+        for provider_effect in (
+            None,
+            "smoke",
+            "color_change",
+            "unknown",
+            {"unexpected": "shape"},
+        ):
+            with self.subTest(provider_effect=provider_effect):
+                payload = {
+                    "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
+                    "explanation": "The selected reactants form sodium chloride.",
+                    "safety": (
+                        "Wear eye protection. | Keep sodium dry. | "
+                        "Use trained supervision."
+                    ),
+                }
+                if provider_effect is not None:
+                    payload["effect"] = provider_effect
+                create = Mock(
+                    return_value=SimpleNamespace(
+                        choices=[
+                            SimpleNamespace(
+                                message=SimpleNamespace(
+                                    content=json.dumps(payload)
+                                )
+                            )
+                        ]
+                    )
+                )
+                get_client.return_value = SimpleNamespace(
+                    chat=SimpleNamespace(
+                        completions=SimpleNamespace(create=create)
+                    )
+                )
+
+                response = self.client.post(
+                    "/ai_insights/", {"query": "Na + Cl2"}
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json()["status"], "success")
+                self.assertEqual(response.json()["data"]["effect"], "none")
+
+    @patch("omnilab.views.get_reaction_client")
+    def test_supported_provider_effects_are_preserved(self, get_client):
+        for provider_effect in ("explosion", "bubble", "none"):
+            with self.subTest(provider_effect=provider_effect):
+                payload = {
+                    "effect": provider_effect,
+                    "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
+                    "explanation": "The selected reactants form sodium chloride.",
+                    "safety": (
+                        "Wear eye protection. | Keep sodium dry. | "
+                        "Use trained supervision."
+                    ),
+                }
+                create = Mock(
+                    return_value=SimpleNamespace(
+                        choices=[
+                            SimpleNamespace(
+                                message=SimpleNamespace(
+                                    content=json.dumps(payload)
+                                )
+                            )
+                        ]
+                    )
+                )
+                get_client.return_value = SimpleNamespace(
+                    chat=SimpleNamespace(
+                        completions=SimpleNamespace(create=create)
+                    )
+                )
+
+                response = self.client.post(
+                    "/ai_insights/", {"query": "Na + Cl2"}
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    response.json()["data"]["effect"],
+                    provider_effect,
+                )
+
+    def test_browser_normalizes_effects_before_measurement_storage_and_rendering(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        success_block = interactions.split(
+            "} else if (resData.status === 'success' && resData.data) {", 1
+        )[1].split("} else {", 1)[0]
+        restore_block = interactions.split(
+            "const savedData = localStorage.getItem(reactionStorageKey);", 1
+        )[1]
+
+        normalization_index = success_block.index(
+            "const reaction = normalizeReactionResult(resData.data);"
+        )
+        capture_index = success_block.index(
+            "capture('reaction_analysis_completed', {"
+        )
+        storage_index = success_block.index("JSON.stringify(reaction)")
+        render_index = success_block.index(
+            "renderReactionResult(panel, reaction);"
+        )
+        self.assertLess(normalization_index, capture_index)
+        self.assertLess(normalization_index, storage_index)
+        self.assertLess(normalization_index, render_index)
+        self.assertIn("effect: reaction.effect", success_block)
+        self.assertNotIn("new_color", interactions)
+        self.assertNotIn("triggerSmokeEffect", interactions)
+        self.assertNotIn("return { ...reaction, effect }", interactions)
+        self.assertIn("normalizeReactionResult(", restore_block)
+        self.assertIn(
+            "localStorage.setItem(reactionStorageKey, JSON.stringify(reaction))",
+            restore_block,
+        )
+
+    def test_browser_discards_invalid_saved_liquid_colors(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        restore_block = interactions.split(
+            'document.addEventListener("DOMContentLoaded", () => {', 1
+        )[1]
+
+        self.assertIn(
+            "return color !== null && /^#[0-9a-f]{6}$/i.test(color);",
+            interactions,
+        )
+        self.assertIn(
+            "localStorage.removeItem(liquidColorStorageKey);",
+            restore_block,
+        )
+        self.assertIn(
+            "const preparedLiquidColor = savedLiquidColor || reactionDemo?.liquidColor;",
+            restore_block,
         )
 
     @patch("omnilab.views.get_reaction_client")
