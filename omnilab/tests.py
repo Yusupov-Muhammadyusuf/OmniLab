@@ -696,7 +696,7 @@ class ShareableReactionDemoTests(TestCase):
             response,
             '<a class="lab-demo-link" href="/demo/sodium-chlorine/">'
             ' Open the prepared demo '
-            '<i class="bi bi-arrow-right" aria-hidden="true"></i>'
+            '<span class="lab-control-arrow" aria-hidden="true">&rarr;</span>'
             '</a>',
             html=True,
         )
@@ -717,7 +717,25 @@ class ShareableReactionDemoTests(TestCase):
 
         self.assertIn("Sodium and Chlorine", default_instruction)
         self.assertIn('href="/demo/sodium-chlorine/"', default_instruction)
+        self.assertIn(
+            '<span class="lab-control-arrow" aria-hidden="true">&rarr;</span>',
+            default_instruction,
+        )
         self.assertNotIn("window.reactionDemo", default_instruction)
+
+    def test_lab_pages_do_not_request_unused_icon_or_three_dimensional_assets(self):
+        for path in ("/", "/demo/sodium-chlorine/"):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(
+                    response,
+                    "bootstrap@5.3.0/dist/css/bootstrap.min.css",
+                )
+                self.assertNotContains(response, "bootstrap-icons")
+                self.assertNotContains(response, "three.min.js")
+                self.assertNotContains(response, "cdnjs.cloudflare.com/ajax/libs/three")
 
     def test_demo_uses_isolated_storage_and_never_auto_submits(self):
         configuration = (
@@ -1181,6 +1199,28 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn(".safety-heading", css)
         self.assertIn(".safety-list", css)
         self.assertIn("color: var(--text-color);", css)
+
+    def test_reaction_result_marks_do_not_require_an_icon_font(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+        render_block = interactions.split(
+            "export function renderReactionResult", 1
+        )[1].split("\n}\n\nfunction renderStatusMessage", 1)[0]
+
+        self.assertNotIn('class="bi ', interactions)
+        self.assertNotIn("document.createElement('i')", interactions)
+        self.assertEqual(render_block.count('class="result-heading-mark'), 3)
+        self.assertIn(
+            '<span class="lab-control-arrow" aria-hidden="true">&nearr;</span>',
+            render_block,
+        )
+        self.assertIn("document.createElement('span')", render_block)
+        self.assertIn("icon.className = 'safety-rule-mark me-2'", render_block)
+        self.assertIn("icon.textContent = '!'", render_block)
+        self.assertIn(".result-heading-mark", css)
+        self.assertIn(".safety-rule-mark", css)
 
     def test_reaction_results_render_provider_fields_as_text(self):
         interactions = (

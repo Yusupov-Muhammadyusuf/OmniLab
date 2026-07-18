@@ -26,7 +26,6 @@
     <meta name="twitter:image:alt" content="{{ social_preview_alt }}">
     <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% include "partials/product_analytics.html" %}
@@ -95,7 +94,7 @@
                             <p class="lab-instruction mb-2">Start with <strong>Sodium and Chlorine</strong>, OmniLab's supported pair. Add both from Chemicals.</p>
                             <a class="lab-demo-link" href="{% url 'sodium_chlorine_demo' %}">
                                 Open the prepared demo
-                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                <span class="lab-control-arrow" aria-hidden="true">&rarr;</span>
                             </a>
                         </div>
                         {% endif %}
@@ -181,7 +180,6 @@
         window.chemicalDataUrl = "{% static 'js/chemicaldata.json' %}";
         window.reactionDemo = {{ reaction_demo_json|safe }};
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script type="module" src="{% static 'js/root/main.js' %}"></script>
 </body>
 </html>

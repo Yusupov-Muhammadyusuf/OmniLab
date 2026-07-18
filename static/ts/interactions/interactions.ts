@@ -14,7 +14,7 @@ const DEFAULT_REACTION_INSTRUCTION = `
         <p class="lab-instruction mb-2">Start with <strong>Sodium and Chlorine</strong>, OmniLab's supported pair. Add both from Chemicals.</p>
         <a class="lab-demo-link" href="/demo/sodium-chlorine/">
             Open the prepared demo
-            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            <span class="lab-control-arrow" aria-hidden="true">&rarr;</span>
         </a>
     </div>
 `;
@@ -80,7 +80,7 @@ export function renderReactionResult(panel: HTMLElement, reaction: ReactionResul
 
             <div class="mb-4 core-equation-block p-3 bg-dark text-white rounded-4 shadow-lg border border-secondary border-opacity-25">
                 <h3 class="h6 text-white-50 text-uppercase small fw-bold mb-2" style="letter-spacing: 1.5px;">
-                    <i class="bi bi-mortar-pestle me-2 text-info"></i>Chemical Equation Formula
+                    <span class="result-heading-mark me-2 text-info" aria-hidden="true">=</span>Chemical Equation Formula
                 </h3>
                 <div class="fs-5 text-center py-2 px-2 text-white border border-secondary border-opacity-50 rounded-3 reaction-equation"
                     style="font-family: 'Fira Code', monospace; font-weight: 500; background-color: #1e1e24; letter-spacing: 1.5px;"></div>
@@ -88,14 +88,14 @@ export function renderReactionResult(panel: HTMLElement, reaction: ReactionResul
 
             <div class="mb-4 conceptual-breakdown px-2">
                 <h3 class="h6 text-body-secondary text-uppercase small fw-bold mb-2">
-                    <i class="bi bi-file-earmark-text me-2 text-info"></i>Analysis
+                    <span class="result-heading-mark me-2 text-info" aria-hidden="true">&equiv;</span>Analysis
                 </h3>
                 <div class="text-body-emphasis reaction-explanation" style="text-align: justify; text-justify: inter-word;"></div>
             </div>
 
             <div class="alert alert-warning bg-warning-subtle border-warning border-start border-5 shadow-sm p-3 safety-matrix-block rounded-end">
                 <h3 class="h6 text-uppercase small fw-bold mb-2 safety-heading">
-                    <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>Safety rules
+                    <span class="result-heading-mark me-2 text-warning" aria-hidden="true">!</span>Safety rules
                 </h3>
                 <ul class="list-unstyled mb-0 small fw-medium safety-list"></ul>
             </div>
@@ -124,7 +124,7 @@ export function renderReactionResult(panel: HTMLElement, reaction: ReactionResul
                 <h3 class="reaction-feedback-title" id="reaction-feedback-title">Help us understand your goal</h3>
                 <a class="reaction-feedback-link" href="#" aria-label="Answer two quick questions by email">
                     Answer two quick questions
-                    <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                    <span class="lab-control-arrow" aria-hidden="true">&nearr;</span>
                 </a>
                 <p class="reaction-feedback-note">Opens your email app. No lab details are added.</p>
             </aside>
@@ -152,9 +152,10 @@ export function renderReactionResult(panel: HTMLElement, reaction: ReactionResul
         const item = document.createElement('li');
         item.className = 'mb-2';
 
-        const icon = document.createElement('i');
-        icon.className = 'bi bi-shield-exclamation me-2';
+        const icon = document.createElement('span');
+        icon.className = 'safety-rule-mark me-2';
         icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = '!';
 
         item.append(icon, document.createTextNode(point));
         safetyList.append(item);

@@ -359,6 +359,29 @@ body {
     outline-offset: 3px;
 }
 
+.lab-control-arrow {
+    display: inline-block;
+    font-family: inherit;
+    font-size: 1.05em;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.result-heading-mark,
+.safety-rule-mark {
+    width: 1.1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.safety-rule-mark {
+    color: var(--text-color);
+}
+
 .safety-heading,
 .safety-list {
     color: var(--text-color);
