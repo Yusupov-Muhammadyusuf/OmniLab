@@ -225,6 +225,44 @@ class GuidedExperimentPageTests(TestCase):
                     1,
                 )
 
+    def test_each_guide_links_to_the_other_two_student_questions(self):
+        route_by_key = {
+            guide_key: path for path, guide_key in self.routes.items()
+        }
+
+        for path, guide_key in self.routes.items():
+            with self.subTest(path=path):
+                html = self.client.get(path).content.decode()
+                related_block = html.split(
+                    'class="guide-related"', 1
+                )[1].split("</nav>", 1)[0]
+
+                self.assertEqual(related_block.count("<a href="), 2)
+                self.assertNotIn(
+                    GUIDED_EXPERIMENT_PAGES[guide_key]["title"],
+                    related_block,
+                )
+                for related_key, related_guide in GUIDED_EXPERIMENT_PAGES.items():
+                    if related_key == guide_key:
+                        continue
+                    self.assertIn(
+                        f'href="{route_by_key[related_key]}"',
+                        related_block,
+                    )
+                    self.assertIn(related_guide["title"], related_block)
+
+    def test_related_questions_stay_secondary_to_the_lab_action(self):
+        for path in self.routes:
+            with self.subTest(path=path):
+                html = self.client.get(path).content.decode()
+                related_block = html.split(
+                    'class="guide-related"', 1
+                )[1].split("</nav>", 1)[0]
+
+                self.assertEqual(html.count('class="guide-primary"'), 1)
+                self.assertNotIn('class="guide-primary"', related_block)
+                self.assertNotIn('class="btn', related_block)
+
     def test_each_guide_uses_one_fixed_privacy_safe_analytics_source(self):
         expected_sources = {
             "reaction": "guide_reaction",
@@ -1196,6 +1234,47 @@ class LabJourneyRepairTests(TestCase):
         self.assertNotIn("reaction-feedback", status_block)
         self.assertIn(".reaction-feedback-link", css)
         self.assertIn("min-height: 44px;", css)
+
+    def test_successful_result_links_all_three_guides_as_secondary_study_paths(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        render_block = interactions.split(
+            "export function renderReactionResult", 1
+        )[1].split("\n}\n\nfunction renderStatusMessage", 1)[0]
+
+        self.assertEqual(render_block.count('class="reaction-study"'), 1)
+        for path, guide in (
+            (
+                "/guides/sodium-and-chlorine-reaction/",
+                GUIDED_EXPERIMENT_PAGES["reaction"],
+            ),
+            (
+                "/guides/sodium-and-chlorine-formula/",
+                GUIDED_EXPERIMENT_PAGES["formula"],
+            ),
+            (
+                "/guides/sodium-and-chlorine-ionic-bond/",
+                GUIDED_EXPERIMENT_PAGES["ionic-bond"],
+            ),
+        ):
+            with self.subTest(path=path):
+                self.assertIn(f'href="{path}"', render_block)
+                self.assertIn(guide["title"], render_block)
+        self.assertNotIn('class="btn', render_block)
+        self.assertNotIn("action-btn-primary", render_block)
+        self.assertNotIn("guide-primary", render_block)
+
+    def test_reset_removes_the_result_only_study_block(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        reset_block = interactions.split(
+            "export function resetLaboratory(): void {", 1
+        )[1].split("\n}\n\nfunction getCsrfToken", 1)[0]
+
+        self.assertIn("panel.innerHTML = DEFAULT_REACTION_INSTRUCTION", reset_block)
+        self.assertNotIn("reaction-study", reset_block)
 
     @patch("omnilab.views.get_reaction_client")
     def test_malicious_provider_markup_stays_data_for_safe_browser_rendering(

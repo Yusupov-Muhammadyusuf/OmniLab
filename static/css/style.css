@@ -415,6 +415,60 @@ body {
     line-height: 1.5;
 }
 
+.reaction-study {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.reaction-study-label {
+    margin: 0 0 6px;
+    color: var(--muted-text);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.reaction-study-title {
+    margin: 0 0 12px;
+    color: var(--text-color);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.reaction-study-links {
+    display: grid;
+    border-top: 1px solid var(--border-color);
+}
+
+.reaction-study-links a {
+    min-height: 44px;
+    padding: 9px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+    text-decoration: none;
+}
+
+.reaction-study-links a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
+.reaction-study-links a:focus-visible {
+    border-radius: 4px;
+    outline: 3px solid #e3384f;
+    outline-offset: 3px;
+}
+
 .response-container {
     flex-grow: 1;
     border: 2px solid var(--text-color);
@@ -1355,7 +1409,7 @@ body {
 
 .guide-notes {
     margin-top: 104px;
-    margin-bottom: 80px;
+    margin-bottom: 64px;
     display: grid;
     grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
     gap: 64px;
@@ -1442,10 +1496,55 @@ body {
     text-underline-offset: 3px;
 }
 
+.guide-related {
+    margin-bottom: 80px;
+    padding-top: 28px;
+    display: grid;
+    grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
+    gap: 64px;
+    border-top: 2px solid var(--border-color);
+}
+
+.guide-related h2 {
+    max-width: 12ch;
+    margin: 0;
+    font-size: clamp(26px, 3vw, 38px);
+    line-height: 1.08;
+    letter-spacing: -1.3px;
+    text-wrap: balance;
+}
+
+.guide-related-links {
+    display: grid;
+    border-top: 1px solid rgba(30, 30, 30, 0.22);
+}
+
+.guide-related-links a {
+    min-height: 56px;
+    padding: 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border-bottom: 1px solid rgba(30, 30, 30, 0.22);
+    color: var(--text-color);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
+    text-decoration: none;
+}
+
+.guide-related-links a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+}
+
 .guide-primary:focus-visible,
 .guide-brand:focus-visible,
 .guide-breadcrumb a:focus-visible,
-.guide-sources a:focus-visible {
+.guide-sources a:focus-visible,
+.guide-related-links a:focus-visible {
     outline: 3px solid #e3384f;
     outline-offset: 3px;
 }
@@ -1469,6 +1568,7 @@ body {
     .guide-learning { grid-template-columns: 1fr; gap: 48px; }
     .guide-learning-intro { position: static; }
     .guide-notes { grid-template-columns: 1fr; gap: 48px; }
+    .guide-related { grid-template-columns: 1fr; gap: 28px; }
 }
 
 @media (max-width: 991.98px) {
