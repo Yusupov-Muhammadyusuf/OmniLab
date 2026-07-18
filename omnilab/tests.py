@@ -1135,6 +1135,155 @@ class SupportedReactionBoundaryTests(TestCase):
                 provider_create.assert_called_once()
 
 
+class CompleteReactionResponseTests(TestCase):
+    retry_body = {
+        "status": "error",
+        "message": (
+            "OmniLab couldn't complete this prediction. Please try again."
+        ),
+    }
+
+    def valid_payload(self, **updates):
+        payload = {
+            "effect": "none",
+            "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
+            "explanation": "The selected reactants form sodium chloride.",
+            "safety": (
+                "Wear eye protection. | Keep sodium dry. | "
+                "Use trained supervision."
+            ),
+        }
+        payload.update(updates)
+        return payload
+
+    def post_provider_payload(self, payload):
+        provider_create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(content=json.dumps(payload))
+                    )
+                ]
+            )
+        )
+        provider = SimpleNamespace(
+            chat=SimpleNamespace(
+                completions=SimpleNamespace(create=provider_create)
+            )
+        )
+        with patch(
+            "omnilab.views.get_reaction_client", return_value=provider
+        ):
+            response = self.client.post(
+                "/ai_insights/", {"query": "Na + Cl2"}
+            )
+
+        provider_create.assert_called_once()
+        return response
+
+    def assert_safe_retry(self, response):
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(response.json(), self.retry_body)
+        self.assertNotIn("data", response.json())
+
+    def test_missing_provider_fields_return_safe_retry(self):
+        for missing_key in ("effect", "equation", "explanation", "safety"):
+            with self.subTest(missing_key=missing_key):
+                payload = self.valid_payload()
+                del payload[missing_key]
+
+                self.assert_safe_retry(
+                    self.post_provider_payload(payload)
+                )
+
+    def test_wrong_type_top_level_response_returns_safe_retry(self):
+        for payload in (None, [], "not an object", 42):
+            with self.subTest(payload=payload):
+                self.assert_safe_retry(
+                    self.post_provider_payload(payload)
+                )
+
+    def test_null_wrong_type_and_empty_fields_return_safe_retry(self):
+        invalid_values = {
+            "effect": (None, {}, ""),
+            "equation": (None, [], "   "),
+            "explanation": (None, 42, "\t"),
+            "safety": (None, True, ""),
+        }
+
+        for field, values in invalid_values.items():
+            for value in values:
+                with self.subTest(field=field, value=value):
+                    self.assert_safe_retry(
+                        self.post_provider_payload(
+                            self.valid_payload(**{field: value})
+                        )
+                    )
+
+    def test_wrong_safety_rule_counts_return_safe_retry(self):
+        for safety in (
+            "Wear goggles. | Keep sodium dry.",
+            "Wear goggles. | Keep sodium dry. | Use supervision. | Stand back.",
+            "Wear goggles. | | Use supervision.",
+            "| Wear goggles. | Keep sodium dry.",
+        ):
+            with self.subTest(safety=safety):
+                self.assert_safe_retry(
+                    self.post_provider_payload(
+                        self.valid_payload(safety=safety)
+                    )
+                )
+
+    def test_invalid_equation_and_unsupported_effect_return_safe_retry(self):
+        for updates in (
+            {"equation": "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g)"},
+            {"equation": "not an equation"},
+            {"effect": "smoke"},
+        ):
+            with self.subTest(updates=updates):
+                self.assert_safe_retry(
+                    self.post_provider_payload(
+                        self.valid_payload(**updates)
+                    )
+                )
+
+    def test_complete_response_normalizes_supported_effect_and_succeeds(self):
+        response = self.post_provider_payload(
+            self.valid_payload(effect=" Explosion ")
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "success")
+        self.assertEqual(response.json()["data"]["effect"], "explosion")
+        self.assertEqual(
+            response.json()["data"]["safety"].count("|"),
+            2,
+        )
+
+    def test_browser_error_response_cannot_complete_or_save_result(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        response_tail = interactions.split(
+            "} else if (resData.status === 'success' && resData.data) {",
+            1,
+        )[1]
+        success_block, failure_tail = response_tail.split("} else {", 1)
+        failure_block = failure_tail.split("\n        }", 1)[0]
+
+        self.assertIn(
+            "capture('reaction_analysis_completed', {", success_block
+        )
+        self.assertIn("localStorage.setItem(", success_block)
+        self.assertIn(
+            "capture('reaction_analysis_failed', {", failure_block
+        )
+        self.assertIn("stage: 'response'", failure_block)
+        self.assertIn("renderReactionRetry(panel);", failure_block)
+        self.assertNotIn("reaction_analysis_completed", failure_block)
+        self.assertNotIn("localStorage.setItem(", failure_block)
+
+
 class ReactionCsrfProtectionTests(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=True)
@@ -1630,7 +1779,7 @@ class LabJourneyRepairTests(TestCase):
         )
 
     @patch("omnilab.views.get_reaction_client")
-    def test_unsupported_provider_effects_normalize_to_none(self, get_client):
+    def test_unsupported_provider_effects_return_safe_retry(self, get_client):
         for provider_effect in (
             None,
             "smoke",
@@ -1670,9 +1819,9 @@ class LabJourneyRepairTests(TestCase):
                     "/ai_insights/", {"query": "Na + Cl2"}
                 )
 
-                self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.json()["status"], "success")
-                self.assertEqual(response.json()["data"]["effect"], "none")
+                self.assertEqual(response.status_code, 502)
+                self.assertEqual(response.json()["status"], "error")
+                self.assertNotIn("data", response.json())
 
     @patch("omnilab.views.get_reaction_client")
     def test_supported_provider_effects_are_preserved(self, get_client):
@@ -1901,8 +2050,8 @@ class LabJourneyRepairTests(TestCase):
             "/ai_insights/", {"query": "Na + Cl2"}
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], "insufficient_input")
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(response.json()["status"], "error")
         self.assertNotIn("equation", response.content.decode().lower())
 
     def test_browser_renders_insufficient_input_as_an_educational_state(self):
