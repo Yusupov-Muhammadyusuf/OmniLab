@@ -49,6 +49,10 @@ export interface ReactionDemoConfig {
     liquidColor: string;
 }
 
+export type VisitSource = 'student_invite';
+
+const ALLOWED_VISIT_SOURCES = new Set<VisitSource>(['student_invite']);
+
 declare global {
     interface Window {
         reactionDemo?: ReactionDemoConfig | null;
@@ -90,6 +94,15 @@ export function updateLabState(newState: Partial<LabState>): void {
 
 export function getReactionDemoConfig(): ReactionDemoConfig | null {
     return window.reactionDemo || null;
+}
+
+export function getVisitSource(): VisitSource | null {
+    if (!getReactionDemoConfig()) return null;
+
+    const source = new URLSearchParams(window.location.search).get('source');
+    return source && ALLOWED_VISIT_SOURCES.has(source as VisitSource)
+        ? source as VisitSource
+        : null;
 }
 
 export function getLabStorageKey(baseKey: string): string {

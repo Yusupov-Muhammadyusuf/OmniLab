@@ -339,6 +339,43 @@ class AnalyticsInstrumentationTests(TestCase):
             with self.subTest(private_value=private_value):
                 self.assertNotIn(private_value.rstrip(":"), property_names)
 
+    def test_student_invitation_source_is_allowlisted_for_demo_measurement(self):
+        configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+        entry = (settings.BASE_DIR / "static/ts/root/main.ts").read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+
+        self.assertIn(
+            "const ALLOWED_VISIT_SOURCES = new Set<VisitSource>("
+            "['student_invite']",
+            configuration,
+        )
+        self.assertIn(
+            "new URLSearchParams(window.location.search).get('source')",
+            configuration,
+        )
+        self.assertIn("if (!getReactionDemoConfig()) return null;", configuration)
+        self.assertEqual(entry.count("visit_source: visitSource"), 1)
+
+        completed_capture = interactions.split(
+            "capture('reaction_analysis_completed', {", 1
+        )[1].split("});", 1)[0]
+        self.assertEqual(completed_capture.count("visit_source: visitSource"), 1)
+        for private_value in (
+            "selectedChemicals:",
+            "chemical_name",
+            "email",
+            "query:",
+            "equation",
+            "explanation",
+            "safety",
+        ):
+            with self.subTest(private_value=private_value):
+                self.assertNotIn(private_value, completed_capture)
+
 
 class ShareableReactionDemoTests(TestCase):
     def test_demo_route_prepares_supported_inputs_and_beaker(self):

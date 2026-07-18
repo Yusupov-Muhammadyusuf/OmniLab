@@ -374,11 +374,13 @@ export function fireAIAnalysis(): void {
                 'info'
             );
         } else if (resData.status === 'success' && resData.data) {
+            const visitSource = config.getVisitSource();
             capture('reaction_analysis_completed', {
                 chemical_count: state.selectedChemicals.length,
                 vessel: state.currentVessel,
                 effect: resData.data.effect,
-                duration_ms: Math.round(performance.now() - analysisStartedAt)
+                duration_ms: Math.round(performance.now() - analysisStartedAt),
+                ...(visitSource ? { visit_source: visitSource } : {})
             });
             localStorage.setItem(
                 config.getLabStorageKey('savedReaction'),

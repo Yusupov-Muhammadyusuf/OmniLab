@@ -21,10 +21,12 @@ document.addEventListener("DOMContentLoaded", function(): void {
     capture('lab_viewed', { route: window.location.pathname });
     const reactionDemo = config.getReactionDemoConfig();
     if (reactionDemo) {
+        const visitSource = config.getVisitSource();
         capture('reaction_demo_entered', {
             demo_version: reactionDemo.version,
             chemical_count: reactionDemo.selectedChemicals.length,
-            vessel: reactionDemo.vessel
+            vessel: reactionDemo.vessel,
+            ...(visitSource ? { visit_source: visitSource } : {})
         });
     }
     ui.resizeCanvas();
