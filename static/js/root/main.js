@@ -21,10 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ui.setupSearchFunction();
     const burnerOpt = document.getElementById('opt-burner');
     if (burnerOpt) {
-        burnerOpt.addEventListener('click', () => {
-            ui.selectVessel('burner');
-            config.updateLabState({ burnerActive: true });
-        });
+        burnerOpt.addEventListener('click', () => ui.selectVessel('burner'));
     }
     const jsonUrl = window.chemicalDataUrl || "/static/js/chemicaldata.json";
     fetch(jsonUrl)
@@ -35,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
         .then((data) => {
         config.updateLabState({ chemicalDatabase: data });
-        ui.buildChemicalMenu();
+        ui.buildChemicalMenu(interactions.addChemicalToLab);
     })
         .catch((error) => console.error("Error loading json:", error));
     if (config.canvas) {

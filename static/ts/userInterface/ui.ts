@@ -1,7 +1,9 @@
 import * as config from '../configuration/config.js';
 import { captureLabSetupStarted } from '../analytics/analytics.js';
 
-export function buildChemicalMenu(): void {
+type ChemicalSelectionHandler = (name: string, color: string) => void;
+
+export function buildChemicalMenu(onSelectChemical: ChemicalSelectionHandler): void {
     const container = document.getElementById('chem-matrix-target');
     if(!container) return;
     container.innerHTML = '';
@@ -9,17 +11,30 @@ export function buildChemicalMenu(): void {
     const state = config.getLabState();
     
     state.chemicalDatabase.forEach(chem => {
-        const card = document.createElement('div');
+        const card = document.createElement('button');
+        card.type = 'button';
         card.className = 'chemical-card';
         card.setAttribute('draggable', 'true');
         card.setAttribute('id', `chem-item-${chem.id}`);
         card.setAttribute('data-name', chem.id);
         card.setAttribute('data-color', chem.color);
+        card.setAttribute('aria-label', `Add ${chem.name} (${chem.id}) to the lab`);
+        card.setAttribute(
+            'aria-pressed',
+            state.selectedChemicals.includes(chem.id) ? 'true' : 'false'
+        );
         card.style.borderColor = chem.color;
         card.addEventListener('dragstart', (ev: DragEvent) => {
-            if (ev.dataTransfer && ev.target) {
-                ev.dataTransfer.setData("text", (ev.target as HTMLElement).id);
+            if (ev.dataTransfer && ev.currentTarget) {
+                ev.dataTransfer.setData(
+                    "text",
+                    (ev.currentTarget as HTMLElement).id
+                );
             }
+        });
+        card.addEventListener('click', (ev: MouseEvent) => {
+            ev.stopPropagation();
+            onSelectChemical(chem.id, chem.color);
         });
         
         card.innerHTML = `
@@ -69,10 +84,18 @@ export function toggleCustomPopover(event: MouseEvent, panelId: string): void {
     if (!isAlreadyOpen) {
         target.style.display = 'block';
         trigger.classList.add('active');
+        trigger.setAttribute('aria-expanded', 'true');
         if(panelId === 'chemicals') {
             setTimeout(() => { 
                 const input = document.getElementById('chem-search-input') as HTMLInputElement | null;
                 if (input) input.focus(); 
+            }, 50);
+        } else if (panelId === 'apparatus') {
+            setTimeout(() => {
+                const option = target.querySelector<HTMLButtonElement>(
+                    '.apparatus-option-card.selected, .apparatus-option-card'
+                );
+                option?.focus();
             }, 50);
         }
     }
@@ -84,6 +107,7 @@ export function closeAllPopovers(): void {
     });
     document.querySelectorAll('.toolbar-trigger-btn').forEach(b => {
         (b as HTMLElement).classList.remove('active');
+        b.setAttribute('aria-expanded', 'false');
     });
 }
 
@@ -96,16 +120,22 @@ export function selectVessel(type: 'flask' | 'beaker' | 'tube' | 'burner'): void
         
         const burnerCard = document.getElementById('opt-burner');
         if (burnerCard) {
-            if (isActive) burnerCard.classList.add('selected');
-            else burnerCard.classList.remove('selected');
+            burnerCard.classList.toggle('selected', isActive);
+            burnerCard.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         }
     } else {
         config.updateLabState({ currentVessel: type });
         document.querySelectorAll('.apparatus-option-card').forEach(c => {
-            if (c.id !== 'opt-burner') (c as HTMLElement).classList.remove('selected');
+            if (c.id !== 'opt-burner') {
+                (c as HTMLElement).classList.remove('selected');
+                c.setAttribute('aria-pressed', 'false');
+            }
         });
         const targetCard = document.getElementById(`opt-${type}`);
-        if (targetCard) targetCard.classList.add('selected');
+        if (targetCard) {
+            targetCard.classList.add('selected');
+            targetCard.setAttribute('aria-pressed', 'true');
+        }
     }
 
     const updatedState = config.getLabState();

@@ -208,20 +208,7 @@ export function setupCanvasDrag() {
 export function allowDrop(ev) {
     ev.preventDefault();
 }
-export function drop(ev) {
-    ev.preventDefault();
-    if (!config.canvas || !ev.dataTransfer)
-        return;
-    const rect = config.canvas.getBoundingClientRect();
-    config.updateLabState({ streamX: ev.clientX - rect.left });
-    const id = ev.dataTransfer.getData("text");
-    const element = document.getElementById(id);
-    if (!element)
-        return;
-    const name = element.getAttribute('data-name');
-    const color = element.getAttribute('data-color');
-    if (!name || !color)
-        return;
+export function addChemicalToLab(name, color, streamX = config.canvas ? config.canvas.width / 2 : 0) {
     const state = config.getLabState();
     if (!state.selectedChemicals.includes(name)) {
         const updatedChemicals = [...state.selectedChemicals, name];
@@ -231,6 +218,7 @@ export function drop(ev) {
             liquidColor: color,
             streamColor: color,
             streamActive: true,
+            streamX,
             targetLiquidVol: targetVol
         });
         if (updatedChemicals.length === 1) {
@@ -245,9 +233,26 @@ export function drop(ev) {
         if (mixtureEl) {
             mixtureEl.innerText = updatedChemicals.join(' + ');
         }
+        const chemicalCard = document.querySelector(`.chemical-card[data-name="${name}"]`);
+        chemicalCard?.setAttribute('aria-pressed', 'true');
     }
     updateAnalysisAvailability();
     closeAllPopovers();
+}
+export function drop(ev) {
+    ev.preventDefault();
+    if (!config.canvas || !ev.dataTransfer)
+        return;
+    const id = ev.dataTransfer.getData("text");
+    const element = document.getElementById(id);
+    if (!element)
+        return;
+    const name = element.getAttribute('data-name');
+    const color = element.getAttribute('data-color');
+    if (!name || !color)
+        return;
+    const rect = config.canvas.getBoundingClientRect();
+    addChemicalToLab(name, color, ev.clientX - rect.left);
 }
 export function resetLaboratory() {
     localStorage.removeItem(config.getLabStorageKey('savedChemicals'));
@@ -271,6 +276,9 @@ export function resetLaboratory() {
         streamActive: false,
         vesselOffsetX: 0,
         vesselOffsetY: 0
+    });
+    document.querySelectorAll('.chemical-card').forEach(card => {
+        card.setAttribute('aria-pressed', 'false');
     });
     setAnalysisPending(false);
     const mixtureEl = document.getElementById('current-mixture');
