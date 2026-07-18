@@ -762,6 +762,42 @@ class LabJourneyRepairTests(TestCase):
         self.assertNotIn("${reaction.explanation}", render_block)
         self.assertNotIn("${reaction.safety}", render_block)
 
+    def test_successful_result_offers_optional_content_free_feedback_email(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+        render_block = interactions.split(
+            "export function renderReactionResult", 1
+        )[1].split("\n}\n\nfunction renderStatusMessage", 1)[0]
+        mailto_block = interactions.split(
+            "function buildFeedbackMailtoUrl", 1
+        )[1].split("\n}\n\nexport function renderReactionResult", 1)[0]
+        status_block = interactions.split(
+            "function renderStatusMessage", 1
+        )[1].split("\n}\n\nexport function setupCanvasDrag", 1)[0]
+
+        self.assertIn("reaction-feedback", render_block)
+        self.assertIn("Optional feedback", render_block)
+        self.assertIn("feedbackLink.href = buildFeedbackMailtoUrl()", render_block)
+        self.assertIn(
+            "const FEEDBACK_EMAIL_ADDRESS = 'omnilab-bk8q@mail.tin.computer'",
+            interactions,
+        )
+        self.assertIn("'What were you trying to predict?'", interactions)
+        self.assertIn("'What do you plan to do next?'", interactions)
+        self.assertIn("encodeURIComponent(FEEDBACK_PROMPTS)", mailto_block)
+        for private_value in (
+            "selectedChemicals",
+            "reaction.equation",
+            "reaction.explanation",
+            "reaction.safety",
+        ):
+            self.assertNotIn(private_value, mailto_block)
+        self.assertNotIn("reaction-feedback", status_block)
+        self.assertIn(".reaction-feedback-link", css)
+        self.assertIn("min-height: 44px;", css)
+
     @patch("omnilab.views.get_reaction_client")
     def test_malicious_provider_markup_stays_data_for_safe_browser_rendering(
         self, get_client
