@@ -13,6 +13,7 @@ const DEFAULT_REACTION_INSTRUCTION = `
     </div>
 `;
 const DEMO_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>';
+const REACTION_RETRY_MESSAGE = "OmniLab couldn't complete this prediction. Please try again.";
 let activeAnalysisController = null;
 let currentAnalysisRunId = 0;
 function getAnalysisAvailabilityMessage(selectedChemicals) {
@@ -152,6 +153,9 @@ function renderStatusMessage(panel, title, message, kind) {
     const body = panel.querySelector('[role="alert"]');
     if (body)
         body.textContent = `${title}: ${message}`;
+}
+function renderReactionRetry(panel) {
+    renderStatusMessage(panel, 'Reaction unavailable', REACTION_RETRY_MESSAGE, 'danger');
 }
 export function setupCanvasDrag() {
     if (!config.canvas)
@@ -379,17 +383,17 @@ export function fireAIAnalysis() {
                 stage: 'response',
                 duration_ms: Math.round(performance.now() - analysisStartedAt)
             });
-            renderStatusMessage(panel, 'Processing Fault', resData.message || 'The reaction response could not be displayed.', 'danger');
+            renderReactionRetry(panel);
         }
     })
-        .catch(err => {
+        .catch(() => {
         if (requestController.signal.aborted || analysisRunId !== currentAnalysisRunId)
             return;
         capture('reaction_analysis_failed', {
             stage: 'network_or_parse',
             duration_ms: Math.round(performance.now() - analysisStartedAt)
         });
-        renderStatusMessage(panel, 'Network Runtime Error', err instanceof Error ? err.message : 'The reaction request failed.', 'danger');
+        renderReactionRetry(panel);
     })
         .finally(() => {
         if (analysisRunId !== currentAnalysisRunId)
