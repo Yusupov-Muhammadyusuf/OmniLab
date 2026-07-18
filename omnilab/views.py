@@ -1,7 +1,6 @@
 import hashlib
 import ipaddress
 import json
-import os
 import re
 import time
 
@@ -10,10 +9,8 @@ from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
-from openai import OpenAI
-from dotenv import load_dotenv
 
-load_dotenv()
+from .reactions import get_reaction, supported_reaction_pairs
 
 PRODUCTION_BASE_URL = "https://omnilab-bk8q.onrender.com"
 SOCIAL_PREVIEW_URL = (
@@ -47,7 +44,6 @@ SODIUM_CHLORINE_DEMO = {
     "liquidColor": "#89a83b",
 }
 SUPPORTED_REACTION_EFFECTS = frozenset({"explosion", "bubble", "none"})
-SUPPORTED_REACTION_CHEMICALS = frozenset({"Na", "Cl2"})
 
 GUIDED_EXPERIMENT_PAGES = {
     "reaction": {
@@ -244,9 +240,9 @@ HOMEPAGE_FAQS = [
     {
         "question": "How accurate are the reaction results?",
         "answer": (
-            "OmniLab generates predicted equations, explanations, visual "
-            "effects, and safety guidance from the chemical names you select. "
-            "Generated results can be incomplete or wrong, so check important "
+            "OmniLab returns educational equations, explanations, visual "
+            "effects, and safety guidance for supported chemical pairs. "
+            "Results can be incomplete or wrong, so check important "
             "information against trusted chemistry sources and follow your "
             "instructor's guidance."
         ),
@@ -271,11 +267,6 @@ HOMEPAGE_FAQS = [
     },
 ]
 
-REACTION_API_BASE_URL = os.getenv(
-    "OMNILAB_AI_BASE_URL",
-    "https://models.github.ai/inference",
-)
-REACTION_MODEL = os.getenv("OMNILAB_AI_MODEL", "openai/gpt-4o-mini")
 REACTION_RETRY_MESSAGE = (
     "OmniLab couldn't complete this prediction. Please try again."
 )
@@ -337,16 +328,6 @@ def reaction_rate_limit(request):
     return response
 
 
-def get_reaction_client():
-    api_key = os.getenv("GITHUB_MODELS_API_KEY") or os.getenv(
-        "FEATHERLESS_AI_API"
-    )
-    if not api_key:
-        raise RuntimeError("Reaction provider is not configured.")
-
-    return OpenAI(base_url=REACTION_API_BASE_URL, api_key=api_key)
-
-
 def parse_selected_chemicals(user_query):
     return [
         chemical.strip()
@@ -356,16 +337,7 @@ def parse_selected_chemicals(user_query):
 
 
 def is_supported_reaction_setup(selected_chemicals):
-    normalized_chemicals = frozenset(
-        chemical.strip().casefold() for chemical in selected_chemicals
-    )
-    normalized_supported_chemicals = frozenset(
-        chemical.casefold() for chemical in SUPPORTED_REACTION_CHEMICALS
-    )
-    return (
-        len(selected_chemicals) == len(SUPPORTED_REACTION_CHEMICALS)
-        and normalized_chemicals == normalized_supported_chemicals
-    )
+    return get_reaction(selected_chemicals) is not None
 
 
 def normalize_reactant(reactant):
@@ -529,6 +501,9 @@ def homepage_context(reaction_demo=None):
         "software_schema_json": json.dumps(software_schema),
         "reaction_demo": reaction_demo,
         "reaction_demo_json": json.dumps(reaction_demo),
+        "supported_reaction_pairs_json": json.dumps(
+            supported_reaction_pairs()
+        ),
     }
     if reaction_demo:
         context.update(
@@ -647,65 +622,24 @@ def ai_insights(request):
     if request.method == "POST":
         user_query = request.POST.get("query", "")
         selected_chemicals = parse_selected_chemicals(user_query)
+        reaction = get_reaction(selected_chemicals)
 
-        if not is_supported_reaction_setup(selected_chemicals):
+        if reaction is None:
             return insufficient_input_response(
-                "OmniLab currently analyzes only Sodium and Chlorine "
-                "together. Add both chemicals, then try again."
+                "Choose two chemicals from a supported reaction pair, "
+                "then try again."
             )
 
         rate_limit_response = reaction_rate_limit(request)
         if rate_limit_response is not None:
             return rate_limit_response
 
-        system_prompt = (
-            "You are an advanced academic chemistry simulator engine for OmniLab. "
-            "Analyze the mixture of provided chemicals thoroughly.\n\n"
-            "Treat the user's selected chemical list as the complete set of "
-            "reactants. Never add water, air, acid, a solvent, or any other "
-            "unselected reagent to the reactant side of an equation or describe "
-            "it as part of the chosen setup. If the selected chemicals do not "
-            "support a meaningful reaction, return effect 'none' and an equation "
-            "that contains only the selected chemicals.\n\n"
-            "You MUST return strictly a single valid JSON object containing these exact keys:\n"
-            "{\n"
-            "  \"effect\": \"explosion\",\n"
-            "  \"equation\": \"detailed balanced molecular equations with states\",\n"
-            "  \"explanation\": \"clear educational explanation\",\n"
-            "  \"safety\": \"detailed guidelines\"\n"
-            "}\n\n"
-            "Instructions for output tuning:\n"
-            "1. 'effect': Choose exactly one value from ['explosion', 'bubble', 'none']. Set to 'explosion' only when the selected chemicals support a visible thermal blast, 'bubble' only when they support visible gas evolution, and otherwise use 'none'.\n"
-            "2. 'equation': Provide ONLY the balanced chemical molecular equations with states (e.g., '2NaOH(aq) + H2SO4(aq) -> Na2SO4(aq) + 2H2O(l)'). Do NOT include any nested JSON, step-by-step text descriptions, explanations, spectator ions text, or words inside this field. Just raw chemical equations separated by ' | ' if there are multiple steps.\n"        
-            "3. 'explanation': Provide a concise, clear, and high-density academic explanation (strictly 3-4 sentences maximum). Do NOT generate random text, messy paragraphs, or long historical essays. Focus exclusively on the main chemical reaction, thermodynamics (exothermic/endothermic), and its core behavior.\n"
-            "4. 'safety': Provide exactly three short, practical laboratory safety rules tailored to these reagents. Format them as a single string separated by ' | ' (e.g., 'Wear heavy-duty nitrile gloves. | Avoid inhaling any evolved gases. | Keep the reaction flask away from open flames.'). Start each rule with a strong action verb. Keep them simple, logical, and chemical-focused."
+        data = validate_complete_reaction_response(
+            reaction, selected_chemicals
         )
+        if data is None:
+            return reaction_retry_response()
 
-        try:
-            response = get_reaction_client().chat.completions.create(
-                model=REACTION_MODEL,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_query}
-                ],
-                response_format={"type": "json_object"},
-                temperature=0.0,  
-                max_tokens=3000
-            )
-            
-            ai_raw_text = response.choices[0].message.content.strip()
-            data = json.loads(ai_raw_text)
-            data = validate_complete_reaction_response(
-                data, selected_chemicals
-            )
-            if data is None:
-                return reaction_retry_response()
-            
-            return JsonResponse({"status": "success", "data": data})
-            
-        except (json.JSONDecodeError, ValueError):
-            return reaction_retry_response()
-        except Exception:
-            return reaction_retry_response()
-        
+        return JsonResponse({"status": "success", "data": data})
+
     return JsonResponse({"status": "error", "message": "Only POST requests are accepted."})

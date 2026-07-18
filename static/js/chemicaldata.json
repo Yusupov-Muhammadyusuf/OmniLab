@@ -8,5 +8,55 @@
     "id": "Cl2",
     "name": "Chlorine",
     "color": "#89a83b"
+  },
+  {
+    "id": "H2",
+    "name": "Hydrogen",
+    "color": "#3f7fbf"
+  },
+  {
+    "id": "O2",
+    "name": "Oxygen",
+    "color": "#2f6fd0"
+  },
+  {
+    "id": "H2O",
+    "name": "Water",
+    "color": "#2b9ed8"
+  },
+  {
+    "id": "C",
+    "name": "Carbon",
+    "color": "#454545"
+  },
+  {
+    "id": "CO2",
+    "name": "Carbon dioxide",
+    "color": "#6d7782"
+  },
+  {
+    "id": "HCl",
+    "name": "Hydrochloric acid",
+    "color": "#d0a22f"
+  },
+  {
+    "id": "NaOH",
+    "name": "Sodium hydroxide",
+    "color": "#7c55c7"
+  },
+  {
+    "id": "NaCl",
+    "name": "Sodium chloride",
+    "color": "#aab5bf"
+  },
+  {
+    "id": "Fe",
+    "name": "Iron",
+    "color": "#8b5b42"
+  },
+  {
+    "id": "Cu",
+    "name": "Copper",
+    "color": "#b86938"
   }
 ]

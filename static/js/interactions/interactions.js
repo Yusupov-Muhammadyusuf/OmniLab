@@ -7,9 +7,9 @@ import { normalizeReactionEffect, parseSavedReactionResult } from './reactionRes
 import { readStorageValue, removeStorageValue, writeStorageValue } from '../storage/storage.js';
 const DEFAULT_REACTION_INSTRUCTION = `
     <div class="text-center mt-5 lab-empty-state">
-        <p class="lab-instruction mb-2">Start with <strong>Sodium and Chlorine</strong>, OmniLab's supported pair. Add both from Chemicals.</p>
+        <p class="lab-instruction mb-2">Choose a supported pair from Chemicals. Try <strong>Hydrogen and Oxygen</strong> or <strong>Hydrochloric acid and Sodium hydroxide</strong>.</p>
         <a class="lab-demo-link" href="/demo/sodium-chlorine/">
-            Open the prepared demo
+            Open the prepared Sodium and Chlorine demo
             <span class="lab-control-arrow" aria-hidden="true">&rarr;</span>
         </a>
     </div>
@@ -20,18 +20,12 @@ let activeAnalysisController = null;
 let currentAnalysisRunId = 0;
 function getAnalysisAvailabilityMessage(selectedChemicals) {
     if (config.isSupportedReactionSetup(selectedChemicals)) {
-        return 'Ready to analyze the supported Sodium and Chlorine pair.';
-    }
-    if (selectedChemicals.includes('Na') && !selectedChemicals.includes('Cl2')) {
-        return 'Add Chlorine to enable analysis.';
-    }
-    if (selectedChemicals.includes('Cl2') && !selectedChemicals.includes('Na')) {
-        return 'Add Sodium to enable analysis.';
+        return 'Ready to analyze this supported reaction pair.';
     }
     if (selectedChemicals.length > 0) {
-        return 'Use the supported Sodium and Chlorine pair to enable analysis.';
+        return 'Choose two chemicals from a supported reaction pair.';
     }
-    return 'Add Sodium and Chlorine to enable analysis.';
+    return 'Add two chemicals from a supported reaction pair.';
 }
 function updateAnalysisAvailability() {
     const selectedChemicals = config.getLabState().selectedChemicals;

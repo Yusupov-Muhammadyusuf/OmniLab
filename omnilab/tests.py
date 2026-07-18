@@ -2,8 +2,7 @@ import json
 import re
 import struct
 import xml.etree.ElementTree as ET
-from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core.cache import cache
@@ -14,13 +13,17 @@ from .views import (
     HOMEPAGE_FAQS,
     PRODUCTION_BASE_URL,
     PUBLIC_CANONICAL_URLS,
-    REACTION_API_BASE_URL,
-    REACTION_MODEL,
     SODIUM_CHLORINE_DEMO,
     SODIUM_CHLORINE_DEMO_URL,
     SOCIAL_PREVIEW_ALT,
     SOCIAL_PREVIEW_URL,
     equation_uses_only_selected_reactants,
+)
+from .reactions import (
+    REACTION_MATRIX,
+    SUPPORTED_CHEMICAL_IDS,
+    get_reaction,
+    supported_reaction_pairs,
 )
 
 
@@ -690,14 +693,15 @@ class ShareableReactionDemoTests(TestCase):
         self.assertContains(response, "window.reactionDemo = null;")
         self.assertContains(
             response,
-            "Start with <strong>Sodium and Chlorine</strong>, "
-            "OmniLab's supported pair. Add both from Chemicals.",
+            "Choose a supported pair from Chemicals. Try "
+            "<strong>Hydrogen and Oxygen</strong> or "
+            "<strong>Hydrochloric acid and Sodium hydroxide</strong>.",
             html=True,
         )
         self.assertContains(
             response,
             '<a class="lab-demo-link" href="/demo/sodium-chlorine/">'
-            ' Open the prepared demo '
+            ' Open the prepared Sodium and Chlorine demo '
             '<span class="lab-control-arrow" aria-hidden="true">&rarr;</span>'
             '</a>',
             html=True,
@@ -853,7 +857,10 @@ class SupportedSetupAnalysisStateTests(TestCase):
         response = self.client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Add Sodium and Chlorine to enable analysis.")
+        self.assertContains(
+            response,
+            "Add two chemicals from a supported reaction pair.",
+        )
         self.assertContains(
             response,
             'id="btn-fire-analysis" aria-describedby="prediction-input-note" disabled',
@@ -867,7 +874,7 @@ class SupportedSetupAnalysisStateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "Ready to analyze the supported Sodium and Chlorine pair.",
+            "Ready to analyze this supported reaction pair.",
         )
         self.assertNotIn("disabled", button)
 
@@ -879,16 +886,10 @@ class SupportedSetupAnalysisStateTests(TestCase):
             "export function isSupportedReactionSetup", 1
         )[1].split("\n}\n", 1)[0]
 
-        self.assertIn("new Set(['Na', 'Cl2'])", configuration)
-        self.assertIn(
-            "selectedChemicals.length === SUPPORTED_REACTION_CHEMICALS.size",
-            support_rule,
-        )
-        self.assertIn(
-            "selectedChemicals.every(chemical => "
-            "SUPPORTED_REACTION_CHEMICALS.has(chemical))",
-            support_rule,
-        )
+        self.assertIn("supportedReactionPairKeys", configuration)
+        self.assertIn("selectedChemicals.length !== 2", support_rule)
+        self.assertIn("[...selectedChemicals].sort().join('+')", support_rule)
+        self.assertIn("supportedReactionPairKeys.has", support_rule)
 
     def test_disabled_setup_stops_before_analytics_and_network(self):
         interactions = (
@@ -957,7 +958,7 @@ class SavedChemicalRestorationTests(TestCase):
         self.assertIn("try {", parser)
         self.assertIn("JSON.parse(serializedChemicals)", parser)
         self.assertIn("Array.isArray(parsedChemicals)", parser)
-        self.assertIn("SUPPORTED_REACTION_CHEMICALS.has(chemical)", parser)
+        self.assertIn("supportedChemicalIds.has(chemical)", parser)
         self.assertIn(
             "new Set(parsedChemicals).size !== parsedChemicals.length",
             parser,
@@ -1065,36 +1066,8 @@ class OptionalBrowserStorageTests(TestCase):
 class ReactionRateLimitTests(TestCase):
     def setUp(self):
         cache.clear()
-        payload = {
-            "effect": "none",
-            "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
-            "explanation": "The selected reactants form sodium chloride.",
-            "safety": (
-                "Wear eye protection. | Keep sodium dry. | "
-                "Use trained supervision."
-            ),
-        }
-        self.provider_create = Mock(
-            return_value=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(content=json.dumps(payload))
-                    )
-                ]
-            )
-        )
-        provider = SimpleNamespace(
-            chat=SimpleNamespace(
-                completions=SimpleNamespace(create=self.provider_create)
-            )
-        )
-        self.client_patcher = patch(
-            "omnilab.views.get_reaction_client", return_value=provider
-        )
-        self.client_patcher.start()
 
     def tearDown(self):
-        self.client_patcher.stop()
         cache.clear()
 
     def post_reaction(
@@ -1109,15 +1082,18 @@ class ReactionRateLimitTests(TestCase):
             "/ai_insights/", {"query": "Na + Cl2"}, **request_headers
         )
 
-    def test_normal_reaction_request_reaches_provider(self):
+    def test_normal_reaction_request_returns_matrix_result(self):
         with patch("omnilab.views.time.time", return_value=1200):
             response = self.post_reaction()
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "success")
-        self.provider_create.assert_called_once()
+        self.assertEqual(
+            response.json()["data"]["equation"],
+            "2Na(s) + Cl2(g) -> 2NaCl(s)",
+        )
 
-    def test_exceeded_limit_returns_retry_guidance_without_provider_call(self):
+    def test_exceeded_limit_returns_retry_guidance(self):
         with patch("omnilab.views.time.time", return_value=1200):
             self.assertEqual(self.post_reaction().status_code, 200)
             self.assertEqual(self.post_reaction().status_code, 200)
@@ -1127,7 +1103,6 @@ class ReactionRateLimitTests(TestCase):
         self.assertEqual(response.json()["status"], "rate_limited")
         self.assertIn("Try again in 60 seconds", response.json()["message"])
         self.assertEqual(response.headers["Retry-After"], "60")
-        self.assertEqual(self.provider_create.call_count, 2)
 
     @override_settings(OMNILAB_REACTION_RATE_LIMIT_REQUESTS=1)
     def test_reaction_request_recovers_after_window(self):
@@ -1140,7 +1115,6 @@ class ReactionRateLimitTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "success")
-        self.assertEqual(self.provider_create.call_count, 2)
 
     @override_settings(OMNILAB_REACTION_RATE_LIMIT_REQUESTS=1)
     def test_appended_forwarded_hops_cannot_rotate_client_key(self):
@@ -1154,7 +1128,6 @@ class ReactionRateLimitTests(TestCase):
 
         self.assertEqual(first_response.status_code, 200)
         self.assertEqual(blocked_response.status_code, 429)
-        self.provider_create.assert_called_once()
 
     @override_settings(OMNILAB_REACTION_RATE_LIMIT_REQUESTS=1)
     def test_malformed_forwarded_address_uses_socket_fallback(self):
@@ -1170,7 +1143,6 @@ class ReactionRateLimitTests(TestCase):
 
         self.assertEqual(first_response.status_code, 200)
         self.assertEqual(blocked_response.status_code, 429)
-        self.provider_create.assert_called_once()
 
 
 class SupportedReactionBoundaryTests(TestCase):
@@ -1178,19 +1150,17 @@ class SupportedReactionBoundaryTests(TestCase):
         ("missing", ""),
         ("single input", "Na"),
         ("duplicate input", "Na + Na"),
-        ("unknown input", "Na + H2O"),
-        ("unknown pair", "H2 + O2"),
+        ("unknown input", "Na + Xe"),
+        ("unknown pair", "Cu + H2O"),
         ("additional input", "Na + Cl2 + H2O"),
     )
 
     @patch("omnilab.views.reaction_rate_limit")
-    @patch("omnilab.views.get_reaction_client")
-    def test_rejected_setups_do_not_reach_throttle_or_provider(
-        self, get_client, reaction_rate_limit
+    def test_rejected_setups_do_not_reach_throttle(
+        self, reaction_rate_limit
     ):
         for label, query in self.rejection_cases:
             with self.subTest(label=label, query=query):
-                get_client.reset_mock()
                 reaction_rate_limit.reset_mock()
 
                 response = self.client.post(
@@ -1203,47 +1173,19 @@ class SupportedReactionBoundaryTests(TestCase):
                     {
                         "status": "insufficient_input",
                         "message": (
-                            "OmniLab currently analyzes only Sodium and "
-                            "Chlorine together. Add both chemicals, then "
-                            "try again."
+                            "Choose two chemicals from a supported reaction "
+                            "pair, then try again."
                         ),
                     },
                 )
                 reaction_rate_limit.assert_not_called()
-                get_client.assert_not_called()
 
     @patch("omnilab.views.reaction_rate_limit", return_value=None)
-    @patch("omnilab.views.get_reaction_client")
-    def test_both_supported_orders_reach_throttle_and_provider(
-        self, get_client, reaction_rate_limit
+    def test_both_supported_orders_return_the_same_matrix_result(
+        self, reaction_rate_limit
     ):
-        payload = {
-            "effect": "none",
-            "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
-            "explanation": "The selected reactants form sodium chloride.",
-            "safety": (
-                "Wear eye protection. | Keep sodium dry. | "
-                "Use trained supervision."
-            ),
-        }
-        provider_create = Mock(
-            return_value=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(content=json.dumps(payload))
-                    )
-                ]
-            )
-        )
-        get_client.return_value = SimpleNamespace(
-            chat=SimpleNamespace(
-                completions=SimpleNamespace(create=provider_create)
-            )
-        )
-
         for query in ("Na + Cl2", "Cl2 + Na"):
             with self.subTest(query=query):
-                provider_create.reset_mock()
                 reaction_rate_limit.reset_mock()
 
                 response = self.client.post(
@@ -1253,191 +1195,86 @@ class SupportedReactionBoundaryTests(TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.json()["status"], "success")
                 reaction_rate_limit.assert_called_once()
-                provider_create.assert_called_once()
 
 
-class CompleteReactionResponseTests(TestCase):
-    retry_body = {
-        "status": "error",
-        "message": (
-            "OmniLab couldn't complete this prediction. Please try again."
-        ),
+class DeterministicReactionMatrixTests(TestCase):
+    requested_chemical_ids = {
+        "H2",
+        "O2",
+        "H2O",
+        "C",
+        "CO2",
+        "HCl",
+        "NaOH",
+        "NaCl",
+        "Fe",
+        "Cu",
     }
 
-    def valid_payload(self, **updates):
-        payload = {
-            "effect": "none",
-            "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
-            "explanation": "The selected reactants form sodium chloride.",
-            "safety": (
-                "Wear eye protection. | Keep sodium dry. | "
-                "Use trained supervision."
+    def test_catalog_contains_all_requested_substances_once(self):
+        catalog = json.loads(
+            (settings.BASE_DIR / "static/js/chemicaldata.json").read_text()
+        )
+        catalog_ids = [chemical["id"] for chemical in catalog]
+
+        self.assertTrue(self.requested_chemical_ids.issubset(catalog_ids))
+        self.assertEqual(len(catalog_ids), len(set(catalog_ids)))
+        self.assertEqual(len(catalog_ids), 12)
+
+    def test_matrix_preserves_existing_pair_and_required_reactions(self):
+        expected_equations = {
+            frozenset({"Na", "Cl2"}): "2Na(s) + Cl2(g) -> 2NaCl(s)",
+            frozenset({"H2", "O2"}): "2H2(g) + O2(g) -> 2H2O(l)",
+            frozenset({"HCl", "NaOH"}): (
+                "HCl(aq) + NaOH(aq) -> NaCl(aq) + H2O(l)"
             ),
         }
-        payload.update(updates)
-        return payload
 
-    def post_provider_payload(self, payload):
-        provider_create = Mock(
-            return_value=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(content=json.dumps(payload))
-                    )
-                ]
-            )
-        )
-        provider = SimpleNamespace(
-            chat=SimpleNamespace(
-                completions=SimpleNamespace(create=provider_create)
-            )
-        )
-        with patch(
-            "omnilab.views.get_reaction_client", return_value=provider
-        ):
-            response = self.client.post(
-                "/ai_insights/", {"query": "Na + Cl2"}
-            )
+        for pair, equation in expected_equations.items():
+            with self.subTest(pair=pair):
+                self.assertEqual(REACTION_MATRIX[pair]["equation"], equation)
 
-        provider_create.assert_called_once()
-        return response
+    def test_every_matrix_entry_has_a_complete_safe_contract(self):
+        self.assertEqual(len(REACTION_MATRIX), 12)
 
-    def assert_safe_retry(self, response):
-        self.assertEqual(response.status_code, 502)
-        self.assertEqual(response.json(), self.retry_body)
-        self.assertNotIn("data", response.json())
-
-    def test_missing_provider_fields_return_safe_retry(self):
-        for missing_key in ("effect", "equation", "explanation", "safety"):
-            with self.subTest(missing_key=missing_key):
-                payload = self.valid_payload()
-                del payload[missing_key]
-
-                self.assert_safe_retry(
-                    self.post_provider_payload(payload)
-                )
-
-    def test_wrong_type_top_level_response_returns_safe_retry(self):
-        for payload in (None, [], "not an object", 42):
-            with self.subTest(payload=payload):
-                self.assert_safe_retry(
-                    self.post_provider_payload(payload)
-                )
-
-    def test_null_wrong_type_and_empty_fields_return_safe_retry(self):
-        invalid_values = {
-            "effect": (None, {}, ""),
-            "equation": (None, [], "   "),
-            "explanation": (None, 42, "\t"),
-            "safety": (None, True, ""),
-        }
-
-        for field, values in invalid_values.items():
-            for value in values:
-                with self.subTest(field=field, value=value):
-                    self.assert_safe_retry(
-                        self.post_provider_payload(
-                            self.valid_payload(**{field: value})
-                        )
-                    )
-
-    def test_wrong_safety_rule_counts_return_safe_retry(self):
-        for safety in (
-            "Wear goggles. | Keep sodium dry.",
-            "Wear goggles. | Keep sodium dry. | Use supervision. | Stand back.",
-            "Wear goggles. | | Use supervision.",
-            "| Wear goggles. | Keep sodium dry.",
-        ):
-            with self.subTest(safety=safety):
-                self.assert_safe_retry(
-                    self.post_provider_payload(
-                        self.valid_payload(safety=safety)
+        for pair, reaction in REACTION_MATRIX.items():
+            with self.subTest(pair=pair):
+                self.assertEqual(len(pair), 2)
+                self.assertTrue(pair.issubset(SUPPORTED_CHEMICAL_IDS))
+                self.assertIn(reaction["effect"], {"explosion", "bubble", "none"})
+                self.assertTrue(reaction["explanation"].strip())
+                self.assertEqual(len(reaction["safety"].split("|")), 3)
+                self.assertTrue(
+                    equation_uses_only_selected_reactants(
+                        reaction["equation"], list(pair)
                     )
                 )
 
-    def test_invalid_equation_and_unsupported_effect_return_safe_retry(self):
-        for updates in (
-            {"equation": "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g)"},
-            {"equation": "not an equation"},
-            {"effect": "smoke"},
-        ):
-            with self.subTest(updates=updates):
-                self.assert_safe_retry(
-                    self.post_provider_payload(
-                        self.valid_payload(**updates)
-                    )
+    def test_every_matrix_pair_is_order_independent_at_the_endpoint(self):
+        for first, second in supported_reaction_pairs():
+            with self.subTest(pair=(first, second)):
+                forward = self.client.post(
+                    "/ai_insights/", {"query": f"{first} + {second}"}
+                )
+                reverse = self.client.post(
+                    "/ai_insights/", {"query": f"{second} + {first}"}
                 )
 
-    def test_complete_response_normalizes_supported_effect_and_succeeds(self):
-        response = self.post_provider_payload(
-            self.valid_payload(effect=" Explosion ")
-        )
+                self.assertEqual(forward.status_code, 200)
+                self.assertEqual(reverse.status_code, 200)
+                self.assertEqual(forward.json(), reverse.json())
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], "success")
-        self.assertEqual(response.json()["data"]["effect"], "explosion")
-        self.assertEqual(
-            response.json()["data"]["safety"].count("|"),
-            2,
-        )
+    def test_matrix_lookup_returns_defensive_copies(self):
+        first = get_reaction(["H2", "O2"])
+        second = get_reaction(["O2", "H2"])
 
-    def test_browser_error_response_cannot_complete_or_save_result(self):
-        interactions = (
-            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
-        ).read_text()
-        response_tail = interactions.split(
-            "} else if (resData.status === 'success' && resData.data) {",
-            1,
-        )[1]
-        success_block, failure_tail = response_tail.split("} else {", 1)
-        failure_block = failure_tail.split("\n        }", 1)[0]
-
-        self.assertIn(
-            "capture('reaction_analysis_completed', {", success_block
-        )
-        self.assertIn("writeStorageValue(", success_block)
-        self.assertIn(
-            "capture('reaction_analysis_failed', {", failure_block
-        )
-        self.assertIn("stage: 'response'", failure_block)
-        self.assertIn("renderReactionRetry(panel);", failure_block)
-        self.assertNotIn("reaction_analysis_completed", failure_block)
-        self.assertNotIn("writeStorageValue(", failure_block)
+        first["equation"] = "changed"
+        self.assertEqual(second["equation"], "2H2(g) + O2(g) -> 2H2O(l)")
 
 
 class ReactionCsrfProtectionTests(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=True)
-        payload = {
-            "effect": "none",
-            "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
-            "explanation": "The selected reactants form sodium chloride.",
-            "safety": (
-                "Wear eye protection. | Keep sodium dry. | "
-                "Use trained supervision."
-            ),
-        }
-        self.provider_create = Mock(
-            return_value=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(content=json.dumps(payload))
-                    )
-                ]
-            )
-        )
-        provider = SimpleNamespace(
-            chat=SimpleNamespace(
-                completions=SimpleNamespace(create=self.provider_create)
-            )
-        )
-        self.client_patcher = patch(
-            "omnilab.views.get_reaction_client", return_value=provider
-        )
-        self.client_patcher.start()
-
-    def tearDown(self):
-        self.client_patcher.stop()
 
     def post_reaction(self, token=None, origin="https://testserver"):
         headers = {"HTTP_ORIGIN": origin}
@@ -1456,27 +1293,24 @@ class ReactionCsrfProtectionTests(TestCase):
         self.assertIn("csrftoken", response.cookies)
         return response.cookies["csrftoken"].value
 
-    def test_tokenless_request_is_rejected_before_provider(self):
+    def test_tokenless_request_is_rejected(self):
         response = self.post_reaction()
 
         self.assertEqual(response.status_code, 403)
-        self.provider_create.assert_not_called()
 
-    def test_invalid_token_is_rejected_before_provider(self):
+    def test_invalid_token_is_rejected(self):
         self.get_token()
 
         response = self.post_reaction("a" * 32)
 
         self.assertEqual(response.status_code, 403)
-        self.provider_create.assert_not_called()
 
-    def test_cross_origin_request_is_rejected_before_provider(self):
+    def test_cross_origin_request_is_rejected(self):
         token = self.get_token()
 
         response = self.post_reaction(token, origin="https://example.net")
 
         self.assertEqual(response.status_code, 403)
-        self.provider_create.assert_not_called()
 
     def test_valid_homepage_token_keeps_reaction_contract(self):
         token = self.get_token()
@@ -1489,7 +1323,6 @@ class ReactionCsrfProtectionTests(TestCase):
             response.json()["data"]["equation"],
             "2Na(s) + Cl2(g) -> 2NaCl(s)",
         )
-        self.provider_create.assert_called_once()
 
     def test_demo_page_sets_token_for_the_same_browser_client(self):
         token = self.get_token("/demo/sodium-chlorine/")
@@ -1498,7 +1331,6 @@ class ReactionCsrfProtectionTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "success")
-        self.provider_create.assert_called_once()
 
     def test_browser_client_sends_same_origin_token(self):
         interactions = (
@@ -1510,19 +1342,17 @@ class ReactionCsrfProtectionTests(TestCase):
 
 
 class LabJourneyRepairTests(TestCase):
-    def test_catalog_exposes_the_repository_evidenced_reaction_pair(self):
+    def test_catalog_exposes_the_supported_reaction_substances(self):
         catalog = json.loads(
             (settings.BASE_DIR / "static/js/chemicaldata.json").read_text()
         )
 
-        self.assertEqual(
-            catalog,
-            [
-                {"id": "Na", "name": "Sodium", "color": "#e09f25"},
-                {"id": "Cl2", "name": "Chlorine", "color": "#89a83b"},
-            ],
+        self.assertEqual(len(catalog), 12)
+        self.assertEqual(len({chemical["id"] for chemical in catalog}), 12)
+        self.assertTrue(
+            {"Na", "Cl2", "H2", "O2", "HCl", "NaOH", "Fe", "Cu"}
+            .issubset(chemical["id"] for chemical in catalog)
         )
-        self.assertEqual(len({chemical["id"] for chemical in catalog}), 2)
 
     def test_homepage_and_runtime_use_the_same_canvas_identifier(self):
         response = self.client.get("/")
@@ -1569,9 +1399,10 @@ class LabJourneyRepairTests(TestCase):
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
 
-        self.assertEqual(
+        self.assertEqual(len(catalog), 12)
+        self.assertIn(
+            ("HCl", "Hydrochloric acid"),
             [(chemical["id"], chemical["name"]) for chemical in catalog],
-            [("Na", "Sodium"), ("Cl2", "Chlorine")],
         )
         self.assertIn("card.setAttribute('data-name', chem.id)", menu)
         self.assertIn("state.selectedChemicals.join(' + ')", interactions)
@@ -1644,7 +1475,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn(".result-heading-mark", css)
         self.assertIn(".safety-rule-mark", css)
 
-    def test_reaction_results_render_provider_fields_as_text(self):
+    def test_reaction_results_render_matrix_fields_as_text(self):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
@@ -1788,202 +1619,6 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("panel.innerHTML = DEFAULT_REACTION_INSTRUCTION", reset_block)
         self.assertNotIn("reaction-study", reset_block)
 
-    @patch("omnilab.views.get_reaction_client")
-    def test_malicious_provider_markup_stays_data_for_safe_browser_rendering(
-        self, get_client
-    ):
-        payload = {
-            "effect": "none",
-            "equation": (
-                "2Na(s) + Cl2(g) -> 2NaCl(s)"
-                '<img src=x onerror="window.__providerMarkupRan=true">'
-            ),
-            "explanation": (
-                '<svg onload="window.__providerMarkupRan=true"></svg>'
-                "The selected reactants form sodium chloride."
-            ),
-            "safety": (
-                '<script>window.__providerMarkupRan=true</script>Wear goggles. | '
-                '<img src=x onerror="window.__providerMarkupRan=true">Keep sodium dry. | '
-                "Use trained supervision."
-            ),
-        }
-        create = Mock(
-            return_value=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(content=json.dumps(payload))
-                    )
-                ]
-            )
-        )
-        get_client.return_value = SimpleNamespace(
-            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
-        )
-
-        response = self.client.post("/ai_insights/", {"query": "Na + Cl2"})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], "success")
-        self.assertEqual(response.json()["data"], payload)
-
-    @patch("omnilab.views.get_reaction_client")
-    def test_reaction_endpoint_uses_current_provider_defaults(self, get_client):
-        create = Mock(
-            return_value=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(
-                            content=json.dumps(
-                                {
-                                    "effect": "none",
-                                    "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
-                                    "explanation": "The selected reactants form sodium chloride.",
-                                    "safety": (
-                                        "Wear eye protection. | Keep sodium dry. | "
-                                        "Use trained supervision."
-                                    ),
-                                }
-                            )
-                        )
-                    )
-                ]
-            )
-        )
-        get_client.return_value = SimpleNamespace(
-            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
-        )
-
-        response = self.client.post(
-            "/ai_insights/", {"query": "Na + Cl2"}
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], "success")
-        reaction = response.json()["data"]
-        self.assertTrue(
-            equation_uses_only_selected_reactants(
-                reaction["equation"], ["Na", "Cl2"]
-            )
-        )
-        self.assertTrue(reaction["explanation"])
-        self.assertEqual(
-            len(
-                [
-                    rule.strip()
-                    for rule in reaction["safety"].split("|")
-                    if rule.strip()
-                ]
-            ),
-            3,
-        )
-        self.assertEqual(
-            REACTION_API_BASE_URL,
-            "https://models.github.ai/inference",
-        )
-        self.assertEqual(REACTION_MODEL, "openai/gpt-4o-mini")
-        self.assertEqual(create.call_args.kwargs["model"], REACTION_MODEL)
-        self.assertIn(
-            "complete set of reactants",
-            create.call_args.kwargs["messages"][0]["content"],
-        )
-        prompt = create.call_args.kwargs["messages"][0]["content"]
-        self.assertIn(
-            "['explosion', 'bubble', 'none']",
-            prompt,
-        )
-        self.assertNotIn("'smoke'", prompt)
-        self.assertNotIn("'color_change'", prompt)
-        self.assertEqual(
-            create.call_args.kwargs["response_format"],
-            {"type": "json_object"},
-        )
-
-    @patch("omnilab.views.get_reaction_client")
-    def test_unsupported_provider_effects_return_safe_retry(self, get_client):
-        for provider_effect in (
-            None,
-            "smoke",
-            "color_change",
-            "unknown",
-            {"unexpected": "shape"},
-        ):
-            with self.subTest(provider_effect=provider_effect):
-                payload = {
-                    "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
-                    "explanation": "The selected reactants form sodium chloride.",
-                    "safety": (
-                        "Wear eye protection. | Keep sodium dry. | "
-                        "Use trained supervision."
-                    ),
-                }
-                if provider_effect is not None:
-                    payload["effect"] = provider_effect
-                create = Mock(
-                    return_value=SimpleNamespace(
-                        choices=[
-                            SimpleNamespace(
-                                message=SimpleNamespace(
-                                    content=json.dumps(payload)
-                                )
-                            )
-                        ]
-                    )
-                )
-                get_client.return_value = SimpleNamespace(
-                    chat=SimpleNamespace(
-                        completions=SimpleNamespace(create=create)
-                    )
-                )
-
-                response = self.client.post(
-                    "/ai_insights/", {"query": "Na + Cl2"}
-                )
-
-                self.assertEqual(response.status_code, 502)
-                self.assertEqual(response.json()["status"], "error")
-                self.assertNotIn("data", response.json())
-
-    @patch("omnilab.views.get_reaction_client")
-    def test_supported_provider_effects_are_preserved(self, get_client):
-        for provider_effect in ("explosion", "bubble", "none"):
-            with self.subTest(provider_effect=provider_effect):
-                payload = {
-                    "effect": provider_effect,
-                    "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
-                    "explanation": "The selected reactants form sodium chloride.",
-                    "safety": (
-                        "Wear eye protection. | Keep sodium dry. | "
-                        "Use trained supervision."
-                    ),
-                }
-                create = Mock(
-                    return_value=SimpleNamespace(
-                        choices=[
-                            SimpleNamespace(
-                                message=SimpleNamespace(
-                                    content=json.dumps(payload)
-                                )
-                            )
-                        ]
-                    )
-                )
-                get_client.return_value = SimpleNamespace(
-                    chat=SimpleNamespace(
-                        completions=SimpleNamespace(create=create)
-                    )
-                )
-
-                response = self.client.post(
-                    "/ai_insights/", {"query": "Na + Cl2"}
-                )
-
-                self.assertEqual(response.status_code, 200)
-                self.assertEqual(
-                    response.json()["data"]["effect"],
-                    provider_effect,
-                )
-
     def test_browser_normalizes_effects_before_measurement_storage_and_rendering(self):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
@@ -2060,71 +1695,6 @@ class LabJourneyRepairTests(TestCase):
             restore_block,
         )
 
-    @patch("omnilab.views.get_reaction_client")
-    def test_malformed_provider_output_returns_safe_retry_response(
-        self, get_client
-    ):
-        create = Mock(
-            return_value=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(
-                            content="not-json: provider formatting detail"
-                        )
-                    )
-                ]
-            )
-        )
-        get_client.return_value = SimpleNamespace(
-            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
-        )
-
-        response = self.client.post(
-            "/ai_insights/", {"query": "Na + Cl2"}
-        )
-
-        self.assertEqual(response.status_code, 502)
-        self.assertEqual(
-            response.json(),
-            {
-                "status": "error",
-                "message": (
-                    "OmniLab couldn't complete this prediction. "
-                    "Please try again."
-                ),
-            },
-        )
-        self.assertNotIn("data", response.json())
-        self.assertNotIn("equation", response.content.decode().lower())
-        self.assertNotIn("provider formatting detail", response.content.decode())
-
-    @patch("omnilab.views.get_reaction_client")
-    def test_provider_exception_returns_same_safe_retry_response(
-        self, get_client
-    ):
-        internal_error = "provider-secret-connection-detail"
-        create = Mock(side_effect=RuntimeError(internal_error))
-        get_client.return_value = SimpleNamespace(
-            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
-        )
-
-        response = self.client.post(
-            "/ai_insights/", {"query": "Na + Cl2"}
-        )
-
-        self.assertEqual(response.status_code, 502)
-        self.assertEqual(
-            response.json(),
-            {
-                "status": "error",
-                "message": (
-                    "OmniLab couldn't complete this prediction. "
-                    "Please try again."
-                ),
-            },
-        )
-        self.assertNotIn(internal_error, response.content.decode())
-
     def test_browser_uses_one_retry_state_without_completion_measurement(self):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
@@ -2142,59 +1712,6 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("stage: 'response'", interactions)
         self.assertIn("stage: 'network_or_parse'", interactions)
         self.assertNotIn("err instanceof Error ? err.message", interactions)
-
-    @patch("omnilab.views.get_reaction_client")
-    def test_single_selected_chemical_returns_insufficient_input(self, get_client):
-        response = self.client.post("/ai_insights/", {"query": "Na"})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["status"], "insufficient_input")
-        self.assertIn(
-            "only Sodium and Chlorine together",
-            response.json()["message"],
-        )
-        self.assertNotIn("water", response.content.decode().lower())
-        get_client.assert_not_called()
-
-    @patch("omnilab.views.get_reaction_client")
-    def test_unselected_reactant_is_not_returned_to_the_browser(self, get_client):
-        create = Mock(
-            return_value=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(
-                            content=json.dumps(
-                                {
-                                    "effect": "explosion",
-                                    "equation": (
-                                        "2Na(s) + 2H2O(l) -> "
-                                        "2NaOH(aq) + H2(g)"
-                                    ),
-                                    "explanation": (
-                                        "Water was introduced by the model."
-                                    ),
-                                    "safety": (
-                                        "Wear eye protection. | Keep sodium dry. | "
-                                        "Use trained supervision."
-                                    ),
-                                }
-                            )
-                        )
-                    )
-                ]
-            )
-        )
-        get_client.return_value = SimpleNamespace(
-            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
-        )
-
-        response = self.client.post(
-            "/ai_insights/", {"query": "Na + Cl2"}
-        )
-
-        self.assertEqual(response.status_code, 502)
-        self.assertEqual(response.json()["status"], "error")
-        self.assertNotIn("equation", response.content.decode().lower())
 
     def test_browser_renders_insufficient_input_as_an_educational_state(self):
         interactions = (

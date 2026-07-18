@@ -130,7 +130,7 @@ STATICFILES_DIRS = [
 ]
 
 
-# Keep the anonymous reaction provider available to a typical shared classroom
+# Keep the reaction endpoint available to a typical shared classroom
 # while bounding automated traffic from one network address.
 OMNILAB_REACTION_RATE_LIMIT_REQUESTS = int(
     os.getenv("OMNILAB_REACTION_RATE_LIMIT_REQUESTS", "60")
