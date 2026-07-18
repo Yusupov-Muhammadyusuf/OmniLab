@@ -49,6 +49,7 @@ SODIUM_CHLORINE_DEMO = {
 
 GUIDED_EXPERIMENT_PAGES = {
     "reaction": {
+        "route_name": "guide_sodium_chlorine_reaction",
         "canonical_key": "sodium_chlorine_reaction",
         "visit_source": "guide_reaction",
         "title": "What happens when sodium reacts with chlorine?",
@@ -104,6 +105,7 @@ GUIDED_EXPERIMENT_PAGES = {
         ],
     },
     "formula": {
+        "route_name": "guide_sodium_chlorine_formula",
         "canonical_key": "sodium_chlorine_formula",
         "visit_source": "guide_formula",
         "title": "What formula forms from sodium and chlorine?",
@@ -160,6 +162,7 @@ GUIDED_EXPERIMENT_PAGES = {
         ],
     },
     "ionic-bond": {
+        "route_name": "guide_sodium_chlorine_ionic_bond",
         "canonical_key": "sodium_chlorine_ionic_bond",
         "visit_source": "guide_ionic_bond",
         "title": "Why do sodium and chlorine form an ionic bond?",
@@ -481,6 +484,11 @@ def sodium_chlorine_demo(request):
 
 def guided_experiment(request, guide_key):
     guide = GUIDED_EXPERIMENT_PAGES[guide_key]
+    related_guides = [
+        related_guide
+        for related_key, related_guide in GUIDED_EXPERIMENT_PAGES.items()
+        if related_key != guide_key
+    ]
     canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
     page_schema = {
         "@context": "https://schema.org",
@@ -501,6 +509,7 @@ def guided_experiment(request, guide_key):
         "guided_experiment.html",
         {
             "guide": guide,
+            "related_guides": related_guides,
             "canonical_url": canonical_url,
             "social_preview_url": SOCIAL_PREVIEW_URL,
             "social_preview_alt": SOCIAL_PREVIEW_ALT,

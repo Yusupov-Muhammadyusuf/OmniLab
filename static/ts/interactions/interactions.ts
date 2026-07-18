@@ -108,6 +108,25 @@ export function renderReactionResult(panel: HTMLElement, reaction: ReactionResul
                 <ul class="list-unstyled mb-0 small fw-medium safety-list"></ul>
             </div>
 
+            <nav class="reaction-study" aria-labelledby="reaction-study-title">
+                <p class="reaction-study-label">Study this result</p>
+                <h3 class="reaction-study-title" id="reaction-study-title">Follow the chemistry behind the prediction</h3>
+                <div class="reaction-study-links">
+                    <a href="/guides/sodium-and-chlorine-reaction/">
+                        <span>What happens when sodium reacts with chlorine?</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <a href="/guides/sodium-and-chlorine-formula/">
+                        <span>What formula forms from sodium and chlorine?</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <a href="/guides/sodium-and-chlorine-ionic-bond/">
+                        <span>Why do sodium and chlorine form an ionic bond?</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </nav>
+
             <aside class="reaction-feedback" aria-labelledby="reaction-feedback-title">
                 <p class="reaction-feedback-label">Optional feedback</p>
                 <h3 class="reaction-feedback-title" id="reaction-feedback-title">Help us understand your goal</h3>
