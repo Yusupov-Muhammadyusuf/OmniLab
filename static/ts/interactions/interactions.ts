@@ -7,6 +7,11 @@ import {
 } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 import { buildFeedbackMailtoUrl } from './feedback.js';
+import {
+    normalizeReactionEffect,
+    parseSavedReactionResult,
+    type ReactionResult
+} from './reactionResult.js';
 
 const DEFAULT_REACTION_INSTRUCTION = `
     <div class="text-center mt-5 lab-empty-state">
@@ -60,15 +65,6 @@ function setAnalysisPending(pending: boolean): void {
     updateAnalysisAvailability();
 }
 
-type SupportedReactionEffect = 'explosion' | 'bubble' | 'none';
-
-interface ReactionResult {
-    equation: string;
-    explanation: string;
-    safety: string;
-    effect: SupportedReactionEffect;
-}
-
 interface IncomingReactionResult extends Omit<ReactionResult, 'effect'> {
     effect?: unknown;
 }
@@ -80,20 +76,11 @@ interface ReactionData {
 }
 
 function normalizeReactionResult(reaction: IncomingReactionResult): ReactionResult {
-    const supportedEffects = new Set<SupportedReactionEffect>([
-        'explosion',
-        'bubble',
-        'none'
-    ]);
-    const effect = supportedEffects.has(reaction.effect as SupportedReactionEffect)
-        ? reaction.effect as SupportedReactionEffect
-        : 'none';
-
     return {
         equation: reaction.equation,
         explanation: reaction.explanation,
         safety: reaction.safety,
-        effect
+        effect: normalizeReactionEffect(reaction.effect)
     };
 }
 
@@ -582,26 +569,20 @@ document.addEventListener("DOMContentLoaded", () => {
         drawVesselAndFluid();
     }
 
-    const savedData = localStorage.getItem(reactionStorageKey);
-    if (savedData) {
-        try {
-            const reaction = normalizeReactionResult(
-                JSON.parse(savedData) as IncomingReactionResult
-            );
-            const panel = document.getElementById('ai-response-content');
-            if (!panel) return;
+    const panel = document.getElementById('ai-response-content');
+    if (!panel) return;
 
-            localStorage.setItem(reactionStorageKey, JSON.stringify(reaction));
-            renderReactionResult(panel, reaction);
-        } catch (e) {
+    const savedData = localStorage.getItem(reactionStorageKey);
+    const savedReaction = parseSavedReactionResult(savedData);
+    if (savedReaction) {
+        localStorage.setItem(reactionStorageKey, JSON.stringify(savedReaction));
+        renderReactionResult(panel, savedReaction);
+    } else {
+        if (savedData !== null) {
             localStorage.removeItem(reactionStorageKey);
         }
-    } else {
-        const panel = document.getElementById('ai-response-content');
-        if (panel) {
-            panel.innerHTML = reactionDemo && preparedChemicals.length > 0
-                ? DEMO_REACTION_INSTRUCTION
-                : DEFAULT_REACTION_INSTRUCTION;
-        }
+        panel.innerHTML = reactionDemo && preparedChemicals.length > 0
+            ? DEMO_REACTION_INSTRUCTION
+            : DEFAULT_REACTION_INSTRUCTION;
     }
 });

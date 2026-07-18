@@ -3,6 +3,7 @@ import { closeAllPopovers } from '../userInterface/ui.js';
 import { cancelReactionEffects, drawVesselAndFluid, triggerThermalBlast } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 import { buildFeedbackMailtoUrl } from './feedback.js';
+import { normalizeReactionEffect, parseSavedReactionResult } from './reactionResult.js';
 const DEFAULT_REACTION_INSTRUCTION = `
     <div class="text-center mt-5 lab-empty-state">
         <p class="lab-instruction mb-2">Start with <strong>Sodium and Chlorine</strong>, OmniLab's supported pair. Add both from Chemicals.</p>
@@ -51,19 +52,11 @@ function setAnalysisPending(pending) {
     updateAnalysisAvailability();
 }
 function normalizeReactionResult(reaction) {
-    const supportedEffects = new Set([
-        'explosion',
-        'bubble',
-        'none'
-    ]);
-    const effect = supportedEffects.has(reaction.effect)
-        ? reaction.effect
-        : 'none';
     return {
         equation: reaction.equation,
         explanation: reaction.explanation,
         safety: reaction.safety,
-        effect
+        effect: normalizeReactionEffect(reaction.effect)
     };
 }
 function isSupportedLiquidColor(color) {
@@ -475,27 +468,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (preparedChemicals.length > 0 || preparedLiquidColor) {
         drawVesselAndFluid();
     }
+    const panel = document.getElementById('ai-response-content');
+    if (!panel)
+        return;
     const savedData = localStorage.getItem(reactionStorageKey);
-    if (savedData) {
-        try {
-            const reaction = normalizeReactionResult(JSON.parse(savedData));
-            const panel = document.getElementById('ai-response-content');
-            if (!panel)
-                return;
-            localStorage.setItem(reactionStorageKey, JSON.stringify(reaction));
-            renderReactionResult(panel, reaction);
-        }
-        catch (e) {
-            localStorage.removeItem(reactionStorageKey);
-        }
+    const savedReaction = parseSavedReactionResult(savedData);
+    if (savedReaction) {
+        localStorage.setItem(reactionStorageKey, JSON.stringify(savedReaction));
+        renderReactionResult(panel, savedReaction);
     }
     else {
-        const panel = document.getElementById('ai-response-content');
-        if (panel) {
-            panel.innerHTML = reactionDemo && preparedChemicals.length > 0
-                ? DEMO_REACTION_INSTRUCTION
-                : DEFAULT_REACTION_INSTRUCTION;
+        if (savedData !== null) {
+            localStorage.removeItem(reactionStorageKey);
         }
+        panel.innerHTML = reactionDemo && preparedChemicals.length > 0
+            ? DEMO_REACTION_INSTRUCTION
+            : DEFAULT_REACTION_INSTRUCTION;
     }
 });
 //# sourceMappingURL=interactions.js.map
