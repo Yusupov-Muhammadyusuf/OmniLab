@@ -125,6 +125,45 @@
 
         </section>
 
+        {% if not reaction_demo %}
+        <section class="guide-library" aria-labelledby="guide-library-title">
+            <div class="guide-library-shell">
+                <div class="guide-library-intro">
+                    <p class="guide-library-context">Study the supported pair</p>
+                    <h2 id="guide-library-title">Understand sodium and chlorine from three angles</h2>
+                    <p>Start with the reaction, then connect its balanced equation to the ionic bond that forms sodium chloride.</p>
+                </div>
+
+                <nav class="guide-library-list" aria-label="Sodium and chlorine study guides">
+                    <a class="guide-library-link" href="{% url 'guide_sodium_chlorine_reaction' %}">
+                        <span class="guide-library-number" aria-hidden="true">01</span>
+                        <span class="guide-library-copy">
+                            <strong>What happens when sodium reacts with chlorine?</strong>
+                            <span>Follow the reactants, electron transfer, and product.</span>
+                        </span>
+                        <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
+                    </a>
+                    <a class="guide-library-link" href="{% url 'guide_sodium_chlorine_formula' %}">
+                        <span class="guide-library-number" aria-hidden="true">02</span>
+                        <span class="guide-library-copy">
+                            <strong>What formula forms from sodium and chlorine?</strong>
+                            <span>Connect the ion charges to NaCl and the balanced equation.</span>
+                        </span>
+                        <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
+                    </a>
+                    <a class="guide-library-link" href="{% url 'guide_sodium_chlorine_ionic_bond' %}">
+                        <span class="guide-library-number" aria-hidden="true">03</span>
+                        <span class="guide-library-copy">
+                            <strong>Why do sodium and chlorine form an ionic bond?</strong>
+                            <span>Trace the electron transfer from atoms to an ionic lattice.</span>
+                        </span>
+                        <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
+                    </a>
+                </nav>
+            </div>
+        </section>
+        {% endif %}
+
         <section class="faq-section" aria-labelledby="faq-title">
             <div class="faq-shell">
                 <div class="faq-intro">

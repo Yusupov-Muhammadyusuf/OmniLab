@@ -57,6 +57,47 @@ class HomepageFaqTests(TestCase):
             self.assertEqual(entity["acceptedAnswer"]["text"], faq["answer"])
 
 
+class HomepageGuideLinksTests(TestCase):
+    guide_links = {
+        "/guides/sodium-and-chlorine-reaction/": (
+            "What happens when sodium reacts with chlorine?"
+        ),
+        "/guides/sodium-and-chlorine-formula/": (
+            "What formula forms from sodium and chlorine?"
+        ),
+        "/guides/sodium-and-chlorine-ionic-bond/": (
+            "Why do sodium and chlorine form an ionic bond?"
+        ),
+    }
+
+    def test_homepage_links_all_three_guides_with_descriptive_text(self):
+        response = self.client.get("/")
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Study the supported pair")
+        self.assertEqual(html.count('class="guide-library-link"'), 3)
+        for path, title in self.guide_links.items():
+            with self.subTest(path=path):
+                self.assertContains(response, f'href="{path}"')
+                self.assertContains(response, title)
+
+    def test_guide_links_are_secondary_to_the_single_analyze_action(self):
+        response = self.client.get("/")
+        html = response.content.decode()
+
+        self.assertEqual(html.count('class="btn action-btn-primary'), 1)
+        self.assertNotContains(response, 'class="guide-primary"')
+        self.assertNotContains(response, 'class="btn guide-library-link"')
+
+    def test_demo_stays_focused_on_the_prepared_reaction(self):
+        response = self.client.get("/demo/sodium-chlorine/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Study the supported pair")
+        self.assertNotContains(response, 'class="guide-library-link"')
+
+
 class SearchDiscoveryTests(TestCase):
     def test_homepage_description_states_audience_action_and_boundary(self):
         response = self.client.get("/")
