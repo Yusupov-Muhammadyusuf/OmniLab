@@ -388,7 +388,38 @@ class ShareableReactionDemoTests(TestCase):
         self.assertContains(response, "Test chemical reactions in a virtual lab")
         self.assertContains(response, "Empty Vessel")
         self.assertContains(response, "window.reactionDemo = null;")
+        self.assertContains(
+            response,
+            "Start with <strong>Sodium and Chlorine</strong>, "
+            "OmniLab's supported pair. Add both from Chemicals.",
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<a class="lab-demo-link" href="/demo/sodium-chlorine/">'
+            ' Open the prepared demo '
+            '<i class="bi bi-arrow-right" aria-hidden="true"></i>'
+            '</a>',
+            html=True,
+        )
+        self.assertNotContains(
+            response,
+            '<meta name="robots" content="noindex, follow">',
+            html=True,
+        )
         self.assertNotContains(response, 'name="robots"')
+
+    def test_default_instruction_keeps_demo_link_after_normal_lab_reset(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        default_instruction = interactions.split(
+            "const DEFAULT_REACTION_INSTRUCTION =", 1
+        )[1].split("const DEMO_REACTION_INSTRUCTION =", 1)[0]
+
+        self.assertIn("Sodium and Chlorine", default_instruction)
+        self.assertIn('href="/demo/sodium-chlorine/"', default_instruction)
+        self.assertNotIn("window.reactionDemo", default_instruction)
 
     def test_demo_uses_isolated_storage_and_never_auto_submits(self):
         configuration = (

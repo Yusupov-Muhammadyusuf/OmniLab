@@ -103,7 +103,13 @@
                         {% if reaction_demo %}
                         <p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>
                         {% else %}
-                        <p class="text-center mt-5 lab-instruction">Introduce elements into the vessel from the floating core menu, then trigger predictive analytical mapping.</p>
+                        <div class="text-center mt-5 lab-empty-state">
+                            <p class="lab-instruction mb-2">Start with <strong>Sodium and Chlorine</strong>, OmniLab's supported pair. Add both from Chemicals.</p>
+                            <a class="lab-demo-link" href="{% url 'sodium_chlorine_demo' %}">
+                                Open the prepared demo
+                                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                            </a>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
