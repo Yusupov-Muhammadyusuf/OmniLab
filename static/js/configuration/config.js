@@ -60,6 +60,24 @@ export function isSupportedReactionSetup(selectedChemicals) {
     return selectedChemicals.length === SUPPORTED_REACTION_CHEMICALS.size
         && selectedChemicals.every(chemical => SUPPORTED_REACTION_CHEMICALS.has(chemical));
 }
+export function parseSavedChemicals(serializedChemicals) {
+    if (serializedChemicals === null)
+        return null;
+    try {
+        const parsedChemicals = JSON.parse(serializedChemicals);
+        if (!Array.isArray(parsedChemicals))
+            return null;
+        if (!parsedChemicals.every((chemical) => typeof chemical === 'string'
+            && SUPPORTED_REACTION_CHEMICALS.has(chemical)))
+            return null;
+        if (new Set(parsedChemicals).size !== parsedChemicals.length)
+            return null;
+        return parsedChemicals;
+    }
+    catch {
+        return null;
+    }
+}
 export function getLabStorageKey(baseKey) {
     const reactionDemo = getReactionDemoConfig();
     return reactionDemo
