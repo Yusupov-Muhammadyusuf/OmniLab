@@ -433,9 +433,15 @@ body {
     text-wrap: pretty;
 }
 
-.prediction-input-note span {
+.analysis-availability-message,
+.prediction-input-boundary {
+    display: block;
+}
+
+.analysis-availability-message {
     color: var(--text-color);
     font-weight: 700;
+    margin-bottom: 3px;
 }
 
 .action-btn-primary {
@@ -452,6 +458,15 @@ body {
     border: 1px solid var(--text-color);
     border-width: 2px;
     opacity: 0.9;
+}
+
+.action-btn-primary:disabled,
+.action-btn-primary:disabled:hover {
+    background: var(--bg-canvas);
+    border-color: var(--border-color);
+    color: var(--muted-text);
+    cursor: not-allowed;
+    opacity: 1;
 }
 
 .action-btn-secondary {

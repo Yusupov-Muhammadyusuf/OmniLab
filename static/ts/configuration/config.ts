@@ -66,6 +66,7 @@ const ALLOWED_VISIT_SOURCES = new Set<VisitSource>([
     'student_invite',
     ...GUIDE_VISIT_SOURCES
 ]);
+const SUPPORTED_REACTION_CHEMICALS = new Set(['Na', 'Cl2']);
 
 declare global {
     interface Window {
@@ -123,6 +124,11 @@ export function getVisitSource(): VisitSource | null {
     return source && ALLOWED_VISIT_SOURCES.has(source as VisitSource)
         ? source as VisitSource
         : null;
+}
+
+export function isSupportedReactionSetup(selectedChemicals: string[]): boolean {
+    return selectedChemicals.length === SUPPORTED_REACTION_CHEMICALS.size
+        && selectedChemicals.every(chemical => SUPPORTED_REACTION_CHEMICALS.has(chemical));
 }
 
 export function getLabStorageKey(baseKey: string): string {

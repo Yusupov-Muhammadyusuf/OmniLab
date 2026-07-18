@@ -103,10 +103,13 @@
                 </div>
 
                 <p class="prediction-input-note" id="prediction-input-note">
-                    <span>Prediction inputs:</span> Selected chemicals only. Vessel and burner choices are visual setup aids.
+                    <span class="analysis-availability-message" id="analysis-availability-message">
+                        {% if reaction_demo %}Ready to analyze the supported Sodium and Chlorine pair.{% else %}Add Sodium and Chlorine to enable analysis.{% endif %}
+                    </span>
+                    <span class="prediction-input-boundary"><strong>Prediction inputs:</strong> Selected chemicals only. Vessel and burner choices are visual setup aids.</span>
                 </p>
 
-                <button class="btn action-btn-primary w-100 py-3" id="btn-fire-analysis" aria-describedby="prediction-input-note">
+                <button class="btn action-btn-primary w-100 py-3" id="btn-fire-analysis" aria-describedby="prediction-input-note"{% if not reaction_demo %} disabled{% endif %}>
                     Analyze Chemical Reaction
                 </button>
             </div>

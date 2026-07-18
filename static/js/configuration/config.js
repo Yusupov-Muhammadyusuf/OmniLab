@@ -9,6 +9,7 @@ const ALLOWED_VISIT_SOURCES = new Set([
     'student_invite',
     ...GUIDE_VISIT_SOURCES
 ]);
+const SUPPORTED_REACTION_CHEMICALS = new Set(['Na', 'Cl2']);
 let state = {
     chemicalDatabase: [],
     selectedChemicals: [],
@@ -54,6 +55,10 @@ export function getVisitSource() {
     return source && ALLOWED_VISIT_SOURCES.has(source)
         ? source
         : null;
+}
+export function isSupportedReactionSetup(selectedChemicals) {
+    return selectedChemicals.length === SUPPORTED_REACTION_CHEMICALS.size
+        && selectedChemicals.every(chemical => SUPPORTED_REACTION_CHEMICALS.has(chemical));
 }
 export function getLabStorageKey(baseKey) {
     const reactionDemo = getReactionDemoConfig();
