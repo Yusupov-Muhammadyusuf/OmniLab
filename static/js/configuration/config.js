@@ -1,5 +1,6 @@
 export const canvas = document.getElementById('lab-canvas');
 export const ctx = canvas ? canvas.getContext('2d') : null;
+const ALLOWED_VISIT_SOURCES = new Set(['student_invite']);
 let state = {
     chemicalDatabase: [],
     selectedChemicals: [],
@@ -32,6 +33,14 @@ export function updateLabState(newState) {
 }
 export function getReactionDemoConfig() {
     return window.reactionDemo || null;
+}
+export function getVisitSource() {
+    if (!getReactionDemoConfig())
+        return null;
+    const source = new URLSearchParams(window.location.search).get('source');
+    return source && ALLOWED_VISIT_SOURCES.has(source)
+        ? source
+        : null;
 }
 export function getLabStorageKey(baseKey) {
     const reactionDemo = getReactionDemoConfig();
