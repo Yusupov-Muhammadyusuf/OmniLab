@@ -211,15 +211,64 @@ class GuidedExperimentPageTests(TestCase):
         self.assertEqual(len(titles), 3)
 
     def test_each_guide_has_one_primary_path_to_the_prepared_lab(self):
-        for path in self.routes:
+        for path, guide_key in self.routes.items():
             with self.subTest(path=path):
                 html = self.client.get(path).content.decode()
+                visit_source = GUIDED_EXPERIMENT_PAGES[guide_key]["visit_source"]
 
                 self.assertEqual(html.count('class="guide-primary"'), 1)
                 self.assertEqual(
-                    html.count('href="/demo/sodium-chlorine/"'),
+                    html.count(
+                        'href="/demo/sodium-chlorine/'
+                        f'?source={visit_source}"'
+                    ),
                     1,
                 )
+
+    def test_each_guide_uses_one_fixed_privacy_safe_analytics_source(self):
+        expected_sources = {
+            "reaction": "guide_reaction",
+            "formula": "guide_formula",
+            "ionic-bond": "guide_ionic_bond",
+        }
+
+        self.assertEqual(
+            {
+                key: guide["visit_source"]
+                for key, guide in GUIDED_EXPERIMENT_PAGES.items()
+            },
+            expected_sources,
+        )
+        for path, guide_key in self.routes.items():
+            with self.subTest(path=path):
+                visit_source = expected_sources[guide_key]
+                response = self.client.get(f"{path}?source=arbitrary-private-value")
+                html = response.content.decode()
+
+                self.assertContains(
+                    response,
+                    f'window.guideVisitSource = "{visit_source}";',
+                )
+                self.assertContains(
+                    response,
+                    '<script type="module" src="/static/js/root/guide.js"></script>',
+                    html=True,
+                )
+                self.assertNotContains(response, "arbitrary-private-value")
+
+    def test_guides_use_privacy_limited_product_analytics(self):
+        for path in self.routes:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+
+                for setting in (
+                    "autocapture: false",
+                    "capture_pageview: false",
+                    "capture_pageleave: false",
+                    "capture_performance: false",
+                    "disable_session_recording: true",
+                ):
+                    self.assertContains(response, setting)
 
     def test_guides_keep_the_educational_and_safety_boundaries_visible(self):
         for path in self.routes:
@@ -483,10 +532,17 @@ class AnalyticsInstrumentationTests(TestCase):
         ).read_text()
 
         self.assertIn(
-            "const ALLOWED_VISIT_SOURCES = new Set<VisitSource>("
-            "['student_invite']",
+            "export type VisitSource = 'student_invite' | GuideVisitSource;",
             configuration,
         )
+        for visit_source in (
+            "student_invite",
+            "guide_reaction",
+            "guide_formula",
+            "guide_ionic_bond",
+        ):
+            with self.subTest(visit_source=visit_source):
+                self.assertIn(f"'{visit_source}'", configuration)
         self.assertIn(
             "new URLSearchParams(window.location.search).get('source')",
             configuration,
@@ -509,6 +565,39 @@ class AnalyticsInstrumentationTests(TestCase):
         ):
             with self.subTest(private_value=private_value):
                 self.assertNotIn(private_value, completed_capture)
+
+    def test_guide_entry_event_contains_only_the_fixed_source(self):
+        entry = (settings.BASE_DIR / "static/ts/root/guide.ts").read_text()
+        capture_match = re.search(
+            r"capture\('chemistry_guide_entered', \{(.*?)\}\);",
+            entry,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(capture_match)
+        property_names = set(
+            re.findall(
+                r"(?:^|\s)([a-zA-Z_]+):",
+                capture_match.group(1),
+            )
+        )
+        self.assertEqual(property_names, {"visit_source"})
+        self.assertIn("getGuideVisitSource", entry)
+        for private_value in (
+            "name",
+            "email",
+            "chemical",
+            "query",
+            "equation",
+            "explanation",
+            "safety",
+            "location",
+            "href",
+            "pathname",
+            "title",
+        ):
+            with self.subTest(private_value=private_value):
+                self.assertNotIn(private_value, capture_match.group(1))
 
 
 class ShareableReactionDemoTests(TestCase):
