@@ -1471,6 +1471,89 @@ class LabJourneyRepairTests(TestCase):
         )
 
     @patch("omnilab.views.get_reaction_client")
+    def test_malformed_provider_output_returns_safe_retry_response(
+        self, get_client
+    ):
+        create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(
+                            content="not-json: provider formatting detail"
+                        )
+                    )
+                ]
+            )
+        )
+        get_client.return_value = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
+        )
+
+        response = self.client.post(
+            "/ai_insights/", {"query": "Na + Cl2"}
+        )
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(
+            response.json(),
+            {
+                "status": "error",
+                "message": (
+                    "OmniLab couldn't complete this prediction. "
+                    "Please try again."
+                ),
+            },
+        )
+        self.assertNotIn("data", response.json())
+        self.assertNotIn("equation", response.content.decode().lower())
+        self.assertNotIn("provider formatting detail", response.content.decode())
+
+    @patch("omnilab.views.get_reaction_client")
+    def test_provider_exception_returns_same_safe_retry_response(
+        self, get_client
+    ):
+        internal_error = "provider-secret-connection-detail"
+        create = Mock(side_effect=RuntimeError(internal_error))
+        get_client.return_value = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=create))
+        )
+
+        response = self.client.post(
+            "/ai_insights/", {"query": "Na + Cl2"}
+        )
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(
+            response.json(),
+            {
+                "status": "error",
+                "message": (
+                    "OmniLab couldn't complete this prediction. "
+                    "Please try again."
+                ),
+            },
+        )
+        self.assertNotIn(internal_error, response.content.decode())
+
+    def test_browser_uses_one_retry_state_without_completion_measurement(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+
+        self.assertIn(
+            "OmniLab couldn't complete this prediction. Please try again.",
+            interactions,
+        )
+        self.assertEqual(interactions.count("renderReactionRetry(panel);"), 2)
+        self.assertEqual(
+            interactions.count("capture('reaction_analysis_completed', {"),
+            1,
+        )
+        self.assertIn("stage: 'response'", interactions)
+        self.assertIn("stage: 'network_or_parse'", interactions)
+        self.assertNotIn("err instanceof Error ? err.message", interactions)
+
+    @patch("omnilab.views.get_reaction_client")
     def test_single_selected_chemical_returns_insufficient_input(self, get_client):
         response = self.client.post("/ai_insights/", {"query": "Na"})
 

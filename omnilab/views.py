@@ -274,6 +274,9 @@ REACTION_API_BASE_URL = os.getenv(
     "https://models.github.ai/inference",
 )
 REACTION_MODEL = os.getenv("OMNILAB_AI_MODEL", "openai/gpt-4o-mini")
+REACTION_RETRY_MESSAGE = (
+    "OmniLab couldn't complete this prediction. Please try again."
+)
 
 
 def get_client_network_address(request):
@@ -391,6 +394,16 @@ def insufficient_input_response(message):
             "status": "insufficient_input",
             "message": message,
         }
+    )
+
+
+def reaction_retry_response():
+    return JsonResponse(
+        {
+            "status": "error",
+            "message": REACTION_RETRY_MESSAGE,
+        },
+        status=502,
     )
 
 
@@ -631,16 +644,8 @@ def ai_insights(request):
             return JsonResponse({"status": "success", "data": data})
             
         except (json.JSONDecodeError, ValueError):
-            return JsonResponse({
-                "status": "success", 
-                "data": {
-                    "effect": "none",
-                    "equation": "Reaction data refreshed.",
-                    "explanation": "The simulator was unable to fully load the response due to data formatting. Please try again.",
-                    "safety": "Standard lab safety protocols apply. | Wear goggles. | Work in a ventilated area."
-                }
-            })
-        except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)})
+            return reaction_retry_response()
+        except Exception:
+            return reaction_retry_response()
         
     return JsonResponse({"status": "error", "message": "Only POST requests are accepted."})
