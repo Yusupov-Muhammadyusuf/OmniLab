@@ -46,6 +46,7 @@ SODIUM_CHLORINE_DEMO = {
     "vessel": "beaker",
     "liquidColor": "#89a83b",
 }
+SUPPORTED_REACTION_EFFECTS = frozenset({"explosion", "bubble", "none"})
 
 GUIDED_EXPERIMENT_PAGES = {
     "reaction": {
@@ -388,6 +389,14 @@ def equation_uses_only_selected_reactants(equation, selected_chemicals):
     return True
 
 
+def normalize_reaction_effect(effect):
+    return (
+        effect
+        if isinstance(effect, str) and effect in SUPPORTED_REACTION_EFFECTS
+        else "none"
+    )
+
+
 def insufficient_input_response(message):
     return JsonResponse(
         {
@@ -612,7 +621,7 @@ def ai_insights(request):
             "  \"safety\": \"detailed guidelines\"\n"
             "}\n\n"
             "Instructions for output tuning:\n"
-            "1. 'effect': Choose exactly one value from ['explosion', 'smoke', 'color_change', 'bubble', 'none']. Set to 'explosion' if highly reactive metals (Na, K, Mg) meet water/acids. Set to 'smoke' for strong neutralization or gas evolution. Otherwise choose 'color_change' or 'bubble' based on the properties.\n"
+            "1. 'effect': Choose exactly one value from ['explosion', 'bubble', 'none']. Set to 'explosion' only when the selected chemicals support a visible thermal blast, 'bubble' only when they support visible gas evolution, and otherwise use 'none'.\n"
             "2. 'equation': Provide ONLY the balanced chemical molecular equations with states (e.g., '2NaOH(aq) + H2SO4(aq) -> Na2SO4(aq) + 2H2O(l)'). Do NOT include any nested JSON, step-by-step text descriptions, explanations, spectator ions text, or words inside this field. Just raw chemical equations separated by ' | ' if there are multiple steps.\n"        
             "3. 'explanation': Provide a concise, clear, and high-density academic explanation (strictly 3-4 sentences maximum). Do NOT generate random text, messy paragraphs, or long historical essays. Focus exclusively on the main chemical reaction, thermodynamics (exothermic/endothermic), and its core behavior.\n"
             "4. 'safety': Provide exactly three short, practical laboratory safety rules tailored to these reagents. Format them as a single string separated by ' | ' (e.g., 'Wear heavy-duty nitrile gloves. | Avoid inhaling any evolved gases. | Keep the reaction flask away from open flames.'). Start each rule with a strong action verb. Keep them simple, logical, and chemical-focused."
@@ -640,6 +649,8 @@ def ai_insights(request):
                     "OmniLab couldn't produce a prediction using only your "
                     "selected chemicals. Try a different combination."
                 )
+
+            data["effect"] = normalize_reaction_effect(data.get("effect"))
             
             return JsonResponse({"status": "success", "data": data})
             
