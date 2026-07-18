@@ -1203,37 +1203,87 @@ class LabJourneyRepairTests(TestCase):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
+        feedback = (
+            settings.BASE_DIR / "static/ts/interactions/feedback.ts"
+        ).read_text()
         css = (settings.BASE_DIR / "static/css/style.css").read_text()
         render_block = interactions.split(
             "export function renderReactionResult", 1
         )[1].split("\n}\n\nfunction renderStatusMessage", 1)[0]
-        mailto_block = interactions.split(
-            "function buildFeedbackMailtoUrl", 1
-        )[1].split("\n}\n\nexport function renderReactionResult", 1)[0]
         status_block = interactions.split(
             "function renderStatusMessage", 1
         )[1].split("\n}\n\nexport function setupCanvasDrag", 1)[0]
 
         self.assertIn("reaction-feedback", render_block)
         self.assertIn("Optional feedback", render_block)
-        self.assertIn("feedbackLink.href = buildFeedbackMailtoUrl()", render_block)
+        self.assertIn(
+            "feedbackLink.href = buildFeedbackMailtoUrl(feedbackGuideSource)",
+            render_block,
+        )
         self.assertIn(
             "const FEEDBACK_EMAIL_ADDRESS = 'omnilab-bk8q@mail.tin.computer'",
-            interactions,
+            feedback,
         )
-        self.assertIn("'What were you trying to predict?'", interactions)
-        self.assertIn("'What do you plan to do next?'", interactions)
-        self.assertIn("encodeURIComponent(FEEDBACK_PROMPTS)", mailto_block)
+        self.assertIn("'What were you trying to predict?'", feedback)
+        self.assertIn("'What do you plan to do next?'", feedback)
+        self.assertIn("encodeURIComponent(feedbackBody)", feedback)
         for private_value in (
             "selectedChemicals",
             "reaction.equation",
             "reaction.explanation",
             "reaction.safety",
         ):
-            self.assertNotIn(private_value, mailto_block)
+            self.assertNotIn(private_value, feedback)
         self.assertNotIn("reaction-feedback", status_block)
         self.assertIn(".reaction-feedback-link", css)
         self.assertIn("min-height: 44px;", css)
+
+    def test_feedback_email_labels_only_the_three_fixed_guide_sources(self):
+        configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        feedback = (
+            settings.BASE_DIR / "static/ts/interactions/feedback.ts"
+        ).read_text()
+
+        expected_labels = {
+            "guide_reaction": "Reaction guide",
+            "guide_formula": "Formula guide",
+            "guide_ionic_bond": "Ionic bond guide",
+        }
+        label_block = feedback.split(
+            "const FEEDBACK_GUIDE_LABELS", 1
+        )[1].split("};", 1)[0]
+        found_labels = dict(
+            re.findall(r"(guide_[a-z_]+): '([^']+)'", label_block)
+        )
+
+        self.assertEqual(found_labels, expected_labels)
+        self.assertIn("getGuideVisitSource", configuration)
+        self.assertIn(
+            "config.getGuideVisitSource(config.getVisitSource())",
+            interactions,
+        )
+        self.assertIn(
+            "Object.prototype.hasOwnProperty.call(FEEDBACK_GUIDE_LABELS, source)",
+            feedback,
+        )
+        self.assertIn("? [`Guide source: ${guideLabel}`", feedback)
+        for non_guide_value in (
+            "student_invite",
+            "window.location",
+            "URLSearchParams",
+            "selectedChemicals",
+            "reaction.equation",
+            "reaction.explanation",
+            "reaction.safety",
+            "/guides/",
+        ):
+            with self.subTest(non_guide_value=non_guide_value):
+                self.assertNotIn(non_guide_value, feedback)
 
     def test_successful_result_links_all_three_guides_as_secondary_study_paths(self):
         interactions = (
