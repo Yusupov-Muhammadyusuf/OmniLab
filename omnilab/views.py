@@ -402,11 +402,54 @@ def equation_uses_only_selected_reactants(equation, selected_chemicals):
 
 
 def normalize_reaction_effect(effect):
+    if not isinstance(effect, str):
+        return None
+
+    normalized_effect = effect.strip().casefold()
     return (
-        effect
-        if isinstance(effect, str) and effect in SUPPORTED_REACTION_EFFECTS
-        else "none"
+        normalized_effect
+        if normalized_effect in SUPPORTED_REACTION_EFFECTS
+        else None
     )
+
+
+def validate_complete_reaction_response(data, selected_chemicals):
+    if not isinstance(data, dict):
+        return None
+
+    equation = data.get("equation")
+    explanation = data.get("explanation")
+    safety = data.get("safety")
+    effect = normalize_reaction_effect(data.get("effect"))
+
+    if not all(
+        isinstance(value, str)
+        for value in (equation, explanation, safety)
+    ):
+        return None
+
+    equation = equation.strip()
+    explanation = explanation.strip()
+    safety_rules = [rule.strip() for rule in safety.split("|")]
+
+    if (
+        not equation
+        or not explanation
+        or len(safety_rules) != 3
+        or not all(safety_rules)
+        or effect is None
+        or not equation_uses_only_selected_reactants(
+            equation, selected_chemicals
+        )
+    ):
+        return None
+
+    return {
+        "effect": effect,
+        "equation": equation,
+        "explanation": explanation,
+        "safety": " | ".join(safety_rules),
+    }
 
 
 def insufficient_input_response(message):
@@ -652,16 +695,11 @@ def ai_insights(request):
             
             ai_raw_text = response.choices[0].message.content.strip()
             data = json.loads(ai_raw_text)
-
-            if not equation_uses_only_selected_reactants(
-                data.get("equation", ""), selected_chemicals
-            ):
-                return insufficient_input_response(
-                    "OmniLab couldn't produce a prediction using only your "
-                    "selected chemicals. Try a different combination."
-                )
-
-            data["effect"] = normalize_reaction_effect(data.get("effect"))
+            data = validate_complete_reaction_response(
+                data, selected_chemicals
+            )
+            if data is None:
+                return reaction_retry_response()
             
             return JsonResponse({"status": "success", "data": data})
             
