@@ -1,23 +1,69 @@
 # OmniLab
 
-<img width="400" height="250" alt="OmniLab" src="https://github.com/user-attachments/assets/0009a603-df50-4d0f-b299-ce9f8b2e79a8" />
+OmniLab is a no-account virtual chemistry lab for chemistry students. The current release supports one complete reaction journey: prepare Sodium and Chlorine, then request an educational prediction with an equation, a short explanation, and three safety rules.
 
-## Inspiration
-The inspiration came from remembering how static and unengaging school chemistry textbooks could be, combined with the lack of accessible, high-quality laboratory equipment in many remote schools. I wanted to build a bridge between complex chemical theory and interactive visual learning. By leveraging advanced AI alongside modern web rendering techniques, I realized I could create a safe, virtual environment where anyone could experiment with chemicals without real-world hazards.
+[Open the live lab](https://omnilab-bk8q.onrender.com/) · [Try the prepared Sodium and Chlorine demo](https://omnilab-bk8q.onrender.com/demo/sodium-chlorine/)
 
-## What it does
-OmniLab AI is an interactive, academic-grade chemistry simulator that visualizes and find chemical reactions in real time. Users can select and mix compounds within three dynamic glass vessels (Flasks, Beakers, or Test Tubes), apply thermal heat using a virtual Bunsen burner, and see advanced physics-based fluid animations. Instantly, the backend processes the mixture to output balanced molecular equations, thermodynamics analysis, high-density explanations, and critical safety rules with active command verbs for physical execution.
+![OmniLab showing the supported Sodium and Chlorine reaction](static/images/omnilab-social-preview.png)
 
-<img width="800" height="450" alt="analyze" src="https://github.com/user-attachments/assets/40307e36-3c64-4493-aa2e-251ede5fb084" />
+## What the current release does
 
-## How I built it
-I engineered OmniLab AI using a powerful, multi-layered architecture. The backend is powered by Django, utilizing custom prompt structures connected to LLM APIs for robust JSON processing of reaction analytics. On the frontend, I crafted a high-performance rendering system using HTML5 Canvas and Vanilla JavaScript (ESModules) to simulate real-time fluid waves, dynamic color transitions, and particle-based boiling effects. I also used Bootstrap 5 for a responsive layout and configured a secure .env system for infrastructure stability.
+- Opens directly in the browser without an account or payment.
+- Provides Sodium and Chlorine as the supported pair for one reaction combination.
+- Lets a student assemble the mixture and choose when to request a prediction.
+- Returns an equation, a short explanation, and three safety rules for a supported result.
+- Keeps the current setup and last result in the visitor's browser until they reset it.
 
-## Challenges I ran into
-One of the toughest challenges was managing the asynchronous state cycle between the AI payload and the frontend rendering loops. Initially, the Canvas loop would try to update fluid colors before the JSON response fully resolved, leading to null pointer exceptions (TypeError: Cannot read properties of null (reading 'map')). I also faced edge cases where complex mixtures caused JSON formatting mismatches, which required designing strict validation structures and solid fallback error-handling loops on the client side.
+## Start with the supported demo
 
-## Accomplishments that I'm proud of
-I am incredibly proud of creating a seamless fluid animation system that mathematically calculates fluid height and wave behavior relative to the chosen glassware. Achieving a smooth, cross-fading color transition algorithm that morphs the liquid based on the reaction outcome was a big win. Additionally, creating a highly functional and responsive user interface that switches beautifully between light and dark modes while keeping layout consistency felt deeply rewarding.
+The prepared demo opens the real lab with Sodium and Chlorine already selected. It does not submit anything automatically, so the visitor remains in control of whether to request the prediction.
 
-## What's next for OmniLab AI
-The next phase of OmniLab AI will focus on scaling both the laboratory inventory and the rendering complexity. First, I plan to introduce a much wider variety of laboratory apparatus—such as volumetric pipettes, condenser tubes, and distillation setups—while engineering a system that allows them to interconnectedly work together as a synchronized pipeline. Furthermore, I will push the boundaries of the visual engine by optimizing fluid physics, adding intricate phase-change indicators, and implementing advanced thermodynamic visual effects to make the digital experimentation feel even more realistic and immersive.
+1. Open the [prepared Sodium and Chlorine demo](https://omnilab-bk8q.onrender.com/demo/sodium-chlorine/).
+2. Review the selected chemicals and setup.
+3. Select **Analyze Chemical Reaction** to request the educational prediction.
+
+## Educational and safety limits
+
+OmniLab predicts reactions from the chemical names selected in the browser. Generated equations, explanations, and safety guidance can be incomplete or wrong. Check important information against trusted chemistry sources and follow an instructor's guidance, trained supervision, and the safety procedures of any physical laboratory.
+
+The current release supports one unique reaction combination, Sodium and Chlorine. It is a narrow educational prediction tool, not a validated chemistry simulation, and it does not reproduce every real-world reaction condition.
+
+## Run locally
+
+Create a virtual environment and install the Python dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Copy `.env.example` to `.env` and add a GitHub Models token with Models read permission if you want to request reaction predictions. The rest of the interface can be explored without a provider token.
+
+Prepare the local database and start Django:
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```
+
+Then open `http://127.0.0.1:8000/`.
+
+## Tests
+
+Run the Django test suite with:
+
+```bash
+python manage.py test
+```
+
+## Built with
+
+- Django and Gunicorn
+- TypeScript compiled to browser modules
+- HTML5 Canvas and Bootstrap
+- GitHub Models through the OpenAI Python client
+
+## License
+
+OmniLab is available under the [MIT License](LICENSE).
