@@ -727,6 +727,91 @@ class PredictionInputClarityTests(TestCase):
                 )
 
 
+class SupportedSetupAnalysisStateTests(TestCase):
+    def test_normal_lab_starts_disabled_with_missing_input_guidance(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Add Sodium and Chlorine to enable analysis.")
+        self.assertContains(
+            response,
+            'id="btn-fire-analysis" aria-describedby="prediction-input-note" disabled',
+        )
+
+    def test_prepared_demo_starts_ready_to_analyze(self):
+        response = self.client.get("/demo/sodium-chlorine/")
+        html = response.content.decode()
+        button = html.split('id="btn-fire-analysis"', 1)[1].split(">", 1)[0]
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Ready to analyze the supported Sodium and Chlorine pair.",
+        )
+        self.assertNotIn("disabled", button)
+
+    def test_browser_uses_one_exact_order_independent_support_rule(self):
+        configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+        support_rule = configuration.split(
+            "export function isSupportedReactionSetup", 1
+        )[1].split("\n}\n", 1)[0]
+
+        self.assertIn("new Set(['Na', 'Cl2'])", configuration)
+        self.assertIn(
+            "selectedChemicals.length === SUPPORTED_REACTION_CHEMICALS.size",
+            support_rule,
+        )
+        self.assertIn(
+            "selectedChemicals.every(chemical => "
+            "SUPPORTED_REACTION_CHEMICALS.has(chemical))",
+            support_rule,
+        )
+
+    def test_disabled_setup_stops_before_analytics_and_network(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        analysis_block = interactions.split(
+            "export function fireAIAnalysis(): void {", 1
+        )[1].split('\n}\n\ndocument.addEventListener("DOMContentLoaded"', 1)[0]
+
+        support_guard = analysis_block.index(
+            "if (!config.isSupportedReactionSetup(state.selectedChemicals))"
+        )
+        capture_position = analysis_block.index(
+            "capture('reaction_analysis_started'"
+        )
+        fetch_position = analysis_block.index("fetch('/ai_insights/'")
+
+        self.assertLess(support_guard, capture_position)
+        self.assertLess(support_guard, fetch_position)
+
+    def test_drop_demo_reset_and_request_exit_refresh_button_state(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        drop_block = interactions.split(
+            "export function drop(ev: DragEvent): void {", 1
+        )[1].split("\n}\n\nexport function resetLaboratory", 1)[0]
+        reset_block = interactions.split(
+            "export function resetLaboratory(): void {", 1
+        )[1].split("\n}\n\nfunction getCsrfToken", 1)[0]
+        initialization_block = interactions.split(
+            'document.addEventListener("DOMContentLoaded", () => {', 1
+        )[1]
+
+        self.assertIn("updateAnalysisAvailability()", drop_block)
+        self.assertIn("selectedChemicals: []", reset_block)
+        self.assertIn("setAnalysisPending(false)", reset_block)
+        self.assertLess(
+            reset_block.index("selectedChemicals: []"),
+            reset_block.index("setAnalysisPending(false)"),
+        )
+        self.assertIn("updateAnalysisAvailability()", initialization_block)
+
+
 @override_settings(
     OMNILAB_REACTION_RATE_LIMIT_REQUESTS=2,
     OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS=60,
@@ -1356,7 +1441,7 @@ class LabJourneyRepairTests(TestCase):
             "export function resetLaboratory(): void {", 1
         )[1].split("\n}\n\nfunction getCsrfToken", 1)[0]
 
-        self.assertIn("analyzeBtn.disabled = pending", pending_helper)
+        self.assertIn("updateAnalysisAvailability()", pending_helper)
         self.assertIn("setAttribute('aria-busy'", pending_helper)
         self.assertIn(".finally(() => {", analysis_block)
         self.assertIn("activeAnalysisController = null", analysis_block)

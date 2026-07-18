@@ -26,12 +26,42 @@ const FEEDBACK_PROMPTS = [
 let activeAnalysisController: AbortController | null = null;
 let currentAnalysisRunId = 0;
 
+function getAnalysisAvailabilityMessage(selectedChemicals: string[]): string {
+    if (config.isSupportedReactionSetup(selectedChemicals)) {
+        return 'Ready to analyze the supported Sodium and Chlorine pair.';
+    }
+    if (selectedChemicals.includes('Na') && !selectedChemicals.includes('Cl2')) {
+        return 'Add Chlorine to enable analysis.';
+    }
+    if (selectedChemicals.includes('Cl2') && !selectedChemicals.includes('Na')) {
+        return 'Add Sodium to enable analysis.';
+    }
+    if (selectedChemicals.length > 0) {
+        return 'Use the supported Sodium and Chlorine pair to enable analysis.';
+    }
+    return 'Add Sodium and Chlorine to enable analysis.';
+}
+
+function updateAnalysisAvailability(): void {
+    const selectedChemicals = config.getLabState().selectedChemicals;
+    const setupIsSupported = config.isSupportedReactionSetup(selectedChemicals);
+    const analyzeBtn = document.getElementById('btn-fire-analysis') as HTMLButtonElement | null;
+    const availabilityMessage = document.getElementById('analysis-availability-message');
+
+    if (analyzeBtn) {
+        analyzeBtn.disabled = activeAnalysisController !== null || !setupIsSupported;
+    }
+    if (availabilityMessage) {
+        availabilityMessage.textContent = getAnalysisAvailabilityMessage(selectedChemicals);
+    }
+}
+
 function setAnalysisPending(pending: boolean): void {
     const analyzeBtn = document.getElementById('btn-fire-analysis') as HTMLButtonElement | null;
     if (!analyzeBtn) return;
 
-    analyzeBtn.disabled = pending;
     analyzeBtn.setAttribute('aria-busy', pending ? 'true' : 'false');
+    updateAnalysisAvailability();
 }
 
 interface ReactionData {
@@ -253,6 +283,7 @@ export function drop(ev: DragEvent): void {
             mixtureEl.innerText = updatedChemicals.join(' + ');
         }
     }
+    updateAnalysisAvailability();
     closeAllPopovers();
 }
 
@@ -264,7 +295,6 @@ export function resetLaboratory(): void {
     currentAnalysisRunId += 1;
     activeAnalysisController?.abort();
     activeAnalysisController = null;
-    setAnalysisPending(false);
     cancelReactionEffects();
 
     config.updateLabState({
@@ -282,6 +312,7 @@ export function resetLaboratory(): void {
         vesselOffsetX: 0,
         vesselOffsetY: 0
     });
+    setAnalysisPending(false);
 
     const mixtureEl = document.getElementById('current-mixture');
     if (mixtureEl) {
@@ -311,8 +342,8 @@ export function fireAIAnalysis(): void {
     if (activeAnalysisController) return;
 
     const state = config.getLabState();
-    if (state.selectedChemicals.length === 0) {
-        alert("Laboratory apparatus matrix is currently empty!");
+    if (!config.isSupportedReactionSetup(state.selectedChemicals)) {
+        updateAnalysisAvailability();
         return;
     }
 
@@ -486,6 +517,7 @@ document.addEventListener("DOMContentLoaded", () => {
             mixtureEl.innerText = "Empty Vessel";
         }
     }
+    updateAnalysisAvailability();
 
     const preparedLiquidColor = savedLiquidColor || reactionDemo?.liquidColor;
     if (preparedLiquidColor) {
