@@ -19,6 +19,13 @@ const FEEDBACK_PROMPTS = [
 ].join('\n\n');
 let activeAnalysisController = null;
 let currentAnalysisRunId = 0;
+function setAnalysisPending(pending) {
+    const analyzeBtn = document.getElementById('btn-fire-analysis');
+    if (!analyzeBtn)
+        return;
+    analyzeBtn.disabled = pending;
+    analyzeBtn.setAttribute('aria-busy', pending ? 'true' : 'false');
+}
 function buildFeedbackMailtoUrl() {
     return `mailto:${FEEDBACK_EMAIL_ADDRESS}?body=${encodeURIComponent(FEEDBACK_PROMPTS)}`;
 }
@@ -203,6 +210,7 @@ export function resetLaboratory() {
     currentAnalysisRunId += 1;
     activeAnalysisController?.abort();
     activeAnalysisController = null;
+    setAnalysisPending(false);
     cancelReactionEffects();
     config.updateLabState({
         selectedChemicals: [],
@@ -240,6 +248,8 @@ function getCsrfToken() {
         : '';
 }
 export function fireAIAnalysis() {
+    if (activeAnalysisController)
+        return;
     const state = config.getLabState();
     if (state.selectedChemicals.length === 0) {
         alert("Laboratory apparatus matrix is currently empty!");
@@ -248,9 +258,9 @@ export function fireAIAnalysis() {
     const panel = document.getElementById('ai-response-content');
     if (!panel)
         return;
-    activeAnalysisController?.abort();
     const requestController = new AbortController();
     activeAnalysisController = requestController;
+    setAnalysisPending(true);
     const analysisRunId = ++currentAnalysisRunId;
     const analysisStartedAt = performance.now();
     capture('reaction_analysis_started', {
@@ -274,7 +284,6 @@ export function fireAIAnalysis() {
         .then(rawText => {
         if (analysisRunId !== currentAnalysisRunId)
             return;
-        activeAnalysisController = null;
         const cleanedText = rawText.replace(/[\n\r\t]/g, ' ');
         const resData = JSON.parse(cleanedText);
         if (resData.status === 'rate_limited') {
@@ -332,12 +341,17 @@ export function fireAIAnalysis() {
         .catch(err => {
         if (requestController.signal.aborted || analysisRunId !== currentAnalysisRunId)
             return;
-        activeAnalysisController = null;
         capture('reaction_analysis_failed', {
             stage: 'network_or_parse',
             duration_ms: Math.round(performance.now() - analysisStartedAt)
         });
         renderStatusMessage(panel, 'Network Runtime Error', err instanceof Error ? err.message : 'The reaction request failed.', 'danger');
+    })
+        .finally(() => {
+        if (analysisRunId !== currentAnalysisRunId)
+            return;
+        activeAnalysisController = null;
+        setAnalysisPending(false);
     });
 }
 document.addEventListener("DOMContentLoaded", () => {

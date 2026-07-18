@@ -1039,3 +1039,44 @@ class LabJourneyRepairTests(TestCase):
         )
         self.assertIn("export function cancelReactionEffects()", rendering)
         self.assertIn("clearInterval(thermalBlastTimer)", rendering)
+
+    def test_browser_allows_only_one_in_flight_analysis(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        analysis_block = interactions.split(
+            "export function fireAIAnalysis(): void {", 1
+        )[1].split('\n}\n\ndocument.addEventListener("DOMContentLoaded"', 1)[0]
+
+        guard_position = analysis_block.index(
+            "if (activeAnalysisController) return;"
+        )
+        request_position = analysis_block.index("new AbortController()")
+        fetch_position = analysis_block.index("fetch('/ai_insights/'")
+
+        self.assertLess(guard_position, request_position)
+        self.assertLess(request_position, fetch_position)
+        self.assertNotIn("activeAnalysisController?.abort()", analysis_block)
+        self.assertIn("setAnalysisPending(true)", analysis_block)
+
+    def test_every_analysis_exit_restores_the_analyze_control(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        pending_helper = interactions.split(
+            "function setAnalysisPending", 1
+        )[1].split("\n}\n\ninterface ReactionData", 1)[0]
+        analysis_block = interactions.split(
+            "export function fireAIAnalysis(): void {", 1
+        )[1].split('\n}\n\ndocument.addEventListener("DOMContentLoaded"', 1)[0]
+        reset_block = interactions.split(
+            "export function resetLaboratory(): void {", 1
+        )[1].split("\n}\n\nfunction getCsrfToken", 1)[0]
+
+        self.assertIn("analyzeBtn.disabled = pending", pending_helper)
+        self.assertIn("setAttribute('aria-busy'", pending_helper)
+        self.assertIn(".finally(() => {", analysis_block)
+        self.assertIn("activeAnalysisController = null", analysis_block)
+        self.assertIn("setAnalysisPending(false)", analysis_block)
+        self.assertIn("setAnalysisPending(false)", reset_block)
+        self.assertNotIn("resetBtn.disabled", interactions)
