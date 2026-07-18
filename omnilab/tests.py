@@ -444,6 +444,29 @@ class ShareableReactionDemoTests(TestCase):
         self.assertNotIn("fireAIAnalysis", demo_initialization)
 
 
+class PredictionInputClarityTests(TestCase):
+    def test_normal_lab_and_demo_explain_prediction_inputs_before_analysis(self):
+        for path in ("/", "/demo/sodium-chlorine/"):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                html = response.content.decode()
+
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(
+                    response,
+                    "Selected chemicals only. Vessel and burner choices are "
+                    "visual setup aids.",
+                )
+                self.assertContains(
+                    response,
+                    'aria-describedby="prediction-input-note"',
+                )
+                self.assertLess(
+                    html.index('id="prediction-input-note"'),
+                    html.index('id="btn-fire-analysis"'),
+                )
+
+
 @override_settings(
     OMNILAB_REACTION_RATE_LIMIT_REQUESTS=2,
     OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS=60,

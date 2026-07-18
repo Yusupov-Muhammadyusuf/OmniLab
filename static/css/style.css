@@ -424,6 +424,20 @@ body {
     padding: 16px;
 }
 
+.prediction-input-note {
+    max-width: 46ch;
+    margin: 0 2px 12px;
+    color: var(--muted-text);
+    font-size: 12px;
+    line-height: 1.5;
+    text-wrap: pretty;
+}
+
+.prediction-input-note span {
+    color: var(--text-color);
+    font-weight: 700;
+}
+
 .action-btn-primary {
     background: var(--text-color);
     color: var(--bg-main);
