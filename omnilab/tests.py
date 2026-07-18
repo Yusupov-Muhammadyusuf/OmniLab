@@ -1052,6 +1052,89 @@ class ReactionRateLimitTests(TestCase):
         self.provider_create.assert_called_once()
 
 
+class SupportedReactionBoundaryTests(TestCase):
+    rejection_cases = (
+        ("missing", ""),
+        ("single input", "Na"),
+        ("duplicate input", "Na + Na"),
+        ("unknown input", "Na + H2O"),
+        ("unknown pair", "H2 + O2"),
+        ("additional input", "Na + Cl2 + H2O"),
+    )
+
+    @patch("omnilab.views.reaction_rate_limit")
+    @patch("omnilab.views.get_reaction_client")
+    def test_rejected_setups_do_not_reach_throttle_or_provider(
+        self, get_client, reaction_rate_limit
+    ):
+        for label, query in self.rejection_cases:
+            with self.subTest(label=label, query=query):
+                get_client.reset_mock()
+                reaction_rate_limit.reset_mock()
+
+                response = self.client.post(
+                    "/ai_insights/", {"query": query}
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    response.json(),
+                    {
+                        "status": "insufficient_input",
+                        "message": (
+                            "OmniLab currently analyzes only Sodium and "
+                            "Chlorine together. Add both chemicals, then "
+                            "try again."
+                        ),
+                    },
+                )
+                reaction_rate_limit.assert_not_called()
+                get_client.assert_not_called()
+
+    @patch("omnilab.views.reaction_rate_limit", return_value=None)
+    @patch("omnilab.views.get_reaction_client")
+    def test_both_supported_orders_reach_throttle_and_provider(
+        self, get_client, reaction_rate_limit
+    ):
+        payload = {
+            "effect": "none",
+            "equation": "2Na(s) + Cl2(g) -> 2NaCl(s)",
+            "explanation": "The selected reactants form sodium chloride.",
+            "safety": (
+                "Wear eye protection. | Keep sodium dry. | "
+                "Use trained supervision."
+            ),
+        }
+        provider_create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(content=json.dumps(payload))
+                    )
+                ]
+            )
+        )
+        get_client.return_value = SimpleNamespace(
+            chat=SimpleNamespace(
+                completions=SimpleNamespace(create=provider_create)
+            )
+        )
+
+        for query in ("Na + Cl2", "Cl2 + Na"):
+            with self.subTest(query=query):
+                provider_create.reset_mock()
+                reaction_rate_limit.reset_mock()
+
+                response = self.client.post(
+                    "/ai_insights/", {"query": query}
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json()["status"], "success")
+                reaction_rate_limit.assert_called_once()
+                provider_create.assert_called_once()
+
+
 class ReactionCsrfProtectionTests(TestCase):
     def setUp(self):
         self.client = Client(enforce_csrf_checks=True)
@@ -1775,7 +1858,10 @@ class LabJourneyRepairTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "insufficient_input")
-        self.assertIn("Add at least two chemicals", response.json()["message"])
+        self.assertIn(
+            "only Sodium and Chlorine together",
+            response.json()["message"],
+        )
         self.assertNotIn("water", response.content.decode().lower())
         get_client.assert_not_called()
 
