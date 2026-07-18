@@ -41,6 +41,20 @@ export interface LabState {
     burnerActive: boolean;
 }
 
+export interface ReactionDemoConfig {
+    id: string;
+    version: string;
+    selectedChemicals: string[];
+    vessel: LabState['currentVessel'];
+    liquidColor: string;
+}
+
+declare global {
+    interface Window {
+        reactionDemo?: ReactionDemoConfig | null;
+    }
+}
+
 let state: LabState = {
     chemicalDatabase: [],
     selectedChemicals: [],
@@ -72,6 +86,17 @@ export function getLabState(): LabState {
 
 export function updateLabState(newState: Partial<LabState>): void {
     state = { ...state, ...newState };
+}
+
+export function getReactionDemoConfig(): ReactionDemoConfig | null {
+    return window.reactionDemo || null;
+}
+
+export function getLabStorageKey(baseKey: string): string {
+    const reactionDemo = getReactionDemoConfig();
+    return reactionDemo
+        ? `reactionDemo:${reactionDemo.id}:${baseKey}`
+        : baseKey;
 }
 
 export function hexToRgbA(hex: string, alpha: number = 1): string {
