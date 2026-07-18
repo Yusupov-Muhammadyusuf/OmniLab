@@ -2,6 +2,7 @@ import * as config from '../configuration/config.js';
 import { closeAllPopovers } from '../userInterface/ui.js';
 import { cancelReactionEffects, drawVesselAndFluid, triggerSmokeEffect, triggerThermalBlast } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
+import { buildFeedbackMailtoUrl } from './feedback.js';
 const DEFAULT_REACTION_INSTRUCTION = `
     <div class="text-center mt-5 lab-empty-state">
         <p class="lab-instruction mb-2">Start with <strong>Sodium and Chlorine</strong>, OmniLab's supported pair. Add both from Chemicals.</p>
@@ -12,11 +13,6 @@ const DEFAULT_REACTION_INSTRUCTION = `
     </div>
 `;
 const DEMO_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>';
-const FEEDBACK_EMAIL_ADDRESS = 'omnilab-bk8q@mail.tin.computer';
-const FEEDBACK_PROMPTS = [
-    'What were you trying to predict?',
-    'What do you plan to do next?'
-].join('\n\n');
 let activeAnalysisController = null;
 let currentAnalysisRunId = 0;
 function getAnalysisAvailabilityMessage(selectedChemicals) {
@@ -52,9 +48,6 @@ function setAnalysisPending(pending) {
         return;
     analyzeBtn.setAttribute('aria-busy', pending ? 'true' : 'false');
     updateAnalysisAvailability();
-}
-function buildFeedbackMailtoUrl() {
-    return `mailto:${FEEDBACK_EMAIL_ADDRESS}?body=${encodeURIComponent(FEEDBACK_PROMPTS)}`;
 }
 export function renderReactionResult(panel, reaction) {
     panel.innerHTML = `
@@ -121,7 +114,8 @@ export function renderReactionResult(panel, reaction) {
         return;
     equation.textContent = reaction.equation;
     explanation.textContent = reaction.explanation;
-    feedbackLink.href = buildFeedbackMailtoUrl();
+    const feedbackGuideSource = config.getGuideVisitSource(config.getVisitSource());
+    feedbackLink.href = buildFeedbackMailtoUrl(feedbackGuideSource);
     const safetyPoints = reaction.safety
         .split('|')
         .map(point => point.trim())

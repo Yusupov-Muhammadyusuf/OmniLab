@@ -7,6 +7,7 @@ import {
     triggerThermalBlast
 } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
+import { buildFeedbackMailtoUrl } from './feedback.js';
 
 const DEFAULT_REACTION_INSTRUCTION = `
     <div class="text-center mt-5 lab-empty-state">
@@ -18,11 +19,6 @@ const DEFAULT_REACTION_INSTRUCTION = `
     </div>
 `;
 const DEMO_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>';
-const FEEDBACK_EMAIL_ADDRESS = 'omnilab-bk8q@mail.tin.computer';
-const FEEDBACK_PROMPTS = [
-    'What were you trying to predict?',
-    'What do you plan to do next?'
-].join('\n\n');
 let activeAnalysisController: AbortController | null = null;
 let currentAnalysisRunId = 0;
 
@@ -77,10 +73,6 @@ interface ReactionData {
 }
 
 type ReactionResult = NonNullable<ReactionData['data']>;
-
-function buildFeedbackMailtoUrl(): string {
-    return `mailto:${FEEDBACK_EMAIL_ADDRESS}?body=${encodeURIComponent(FEEDBACK_PROMPTS)}`;
-}
 
 export function renderReactionResult(panel: HTMLElement, reaction: ReactionResult): void {
     panel.innerHTML = `
@@ -148,7 +140,8 @@ export function renderReactionResult(panel: HTMLElement, reaction: ReactionResul
 
     equation.textContent = reaction.equation;
     explanation.textContent = reaction.explanation;
-    feedbackLink.href = buildFeedbackMailtoUrl();
+    const feedbackGuideSource = config.getGuideVisitSource(config.getVisitSource());
+    feedbackLink.href = buildFeedbackMailtoUrl(feedbackGuideSource);
 
     const safetyPoints = reaction.safety
         .split('|')
