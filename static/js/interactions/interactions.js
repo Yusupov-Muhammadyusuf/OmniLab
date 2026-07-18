@@ -427,7 +427,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const chemicalsStorageKey = config.getLabStorageKey('savedChemicals');
     const liquidColorStorageKey = config.getLabStorageKey('savedLiquidColor');
     const reactionStorageKey = config.getLabStorageKey('savedReaction');
-    const savedChemicals = localStorage.getItem(chemicalsStorageKey);
+    const storedChemicals = localStorage.getItem(chemicalsStorageKey);
+    const savedChemicals = config.parseSavedChemicals(storedChemicals);
     const storedLiquidColor = localStorage.getItem(liquidColorStorageKey);
     const savedLiquidColor = isSupportedLiquidColor(storedLiquidColor)
         ? storedLiquidColor
@@ -435,10 +436,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (storedLiquidColor && !savedLiquidColor) {
         localStorage.removeItem(liquidColorStorageKey);
     }
+    if (storedChemicals !== null && savedChemicals === null) {
+        localStorage.removeItem(chemicalsStorageKey);
+    }
     const preparedChemicals = savedChemicals
-        ? JSON.parse(savedChemicals)
-        : reactionDemo?.selectedChemicals || [];
-    if (!savedChemicals && reactionDemo) {
+        ?? reactionDemo?.selectedChemicals
+        ?? [];
+    if (savedChemicals === null && reactionDemo) {
         localStorage.setItem(chemicalsStorageKey, JSON.stringify(reactionDemo.selectedChemicals));
         localStorage.setItem(liquidColorStorageKey, reactionDemo.liquidColor);
     }

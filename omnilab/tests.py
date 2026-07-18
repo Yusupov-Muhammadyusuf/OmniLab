@@ -937,6 +937,101 @@ class SupportedSetupAnalysisStateTests(TestCase):
         self.assertIn("updateAnalysisAvailability()", initialization_block)
 
 
+class SavedChemicalRestorationTests(TestCase):
+    def setUp(self):
+        self.configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+        self.interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        self.restore_block = self.interactions.split(
+            'document.addEventListener("DOMContentLoaded", () => {', 1
+        )[1]
+
+    def test_saved_chemicals_use_one_safe_parser(self):
+        parser = self.configuration.split(
+            "export function parseSavedChemicals", 1
+        )[1].split("\n}\n", 1)[0]
+
+        self.assertIn("try {", parser)
+        self.assertIn("JSON.parse(serializedChemicals)", parser)
+        self.assertIn("Array.isArray(parsedChemicals)", parser)
+        self.assertIn("SUPPORTED_REACTION_CHEMICALS.has(chemical)", parser)
+        self.assertIn(
+            "new Set(parsedChemicals).size !== parsedChemicals.length",
+            parser,
+        )
+        self.assertIn("catch {", parser)
+        self.assertNotIn("JSON.parse(savedChemicals)", self.restore_block)
+        self.assertIn(
+            "config.parseSavedChemicals(storedChemicals)",
+            self.restore_block,
+        )
+
+    def test_invalid_storage_is_removed_before_initial_state_is_applied(self):
+        invalid_guard = (
+            "if (storedChemicals !== null && savedChemicals === null) {"
+        )
+        remove_invalid = "localStorage.removeItem(chemicalsStorageKey);"
+        prepared_state = "const preparedChemicals = savedChemicals"
+
+        self.assertIn(invalid_guard, self.restore_block)
+        self.assertIn(remove_invalid, self.restore_block)
+        self.assertLess(
+            self.restore_block.index(invalid_guard),
+            self.restore_block.index(prepared_state),
+        )
+
+    def test_valid_empty_and_populated_saved_arrays_override_defaults(self):
+        self.assertIn(
+            "const preparedChemicals = savedChemicals\n"
+            "        ?? reactionDemo?.selectedChemicals\n"
+            "        ?? [];",
+            self.restore_block,
+        )
+        self.assertNotIn("savedChemicals ||", self.restore_block)
+        self.assertNotIn("savedChemicals ?", self.restore_block)
+
+    def test_prepared_demo_fills_only_when_saved_state_is_absent_or_invalid(self):
+        fallback_guard = "if (savedChemicals === null && reactionDemo) {"
+
+        self.assertIn(fallback_guard, self.restore_block)
+        fallback_block = self.restore_block.split(fallback_guard, 1)[1].split(
+            "\n    }", 1
+        )[0]
+        self.assertIn(
+            "JSON.stringify(reactionDemo.selectedChemicals)",
+            fallback_block,
+        )
+        self.assertIn(
+            "localStorage.setItem(liquidColorStorageKey, reactionDemo.liquidColor)",
+            fallback_block,
+        )
+
+    def test_result_color_and_reset_cleanup_contracts_remain_in_place(self):
+        self.assertIn(
+            "localStorage.removeItem(liquidColorStorageKey);",
+            self.restore_block,
+        )
+        self.assertIn(
+            "localStorage.removeItem(reactionStorageKey);",
+            self.restore_block,
+        )
+        reset_block = self.interactions.split(
+            "export function resetLaboratory(): void {", 1
+        )[1].split("\n}\n\nfunction getCsrfToken", 1)[0]
+        for storage_name in (
+            "savedChemicals",
+            "savedLiquidColor",
+            "savedReaction",
+        ):
+            self.assertIn(
+                f"localStorage.removeItem(config.getLabStorageKey('{storage_name}'))",
+                reset_block,
+            )
+
+
 @override_settings(
     OMNILAB_REACTION_RATE_LIMIT_REQUESTS=2,
     OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS=60,

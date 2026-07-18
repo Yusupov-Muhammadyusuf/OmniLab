@@ -131,6 +131,24 @@ export function isSupportedReactionSetup(selectedChemicals: string[]): boolean {
         && selectedChemicals.every(chemical => SUPPORTED_REACTION_CHEMICALS.has(chemical));
 }
 
+export function parseSavedChemicals(serializedChemicals: string | null): string[] | null {
+    if (serializedChemicals === null) return null;
+
+    try {
+        const parsedChemicals: unknown = JSON.parse(serializedChemicals);
+        if (!Array.isArray(parsedChemicals)) return null;
+        if (!parsedChemicals.every(
+            (chemical: unknown): chemical is string => typeof chemical === 'string'
+                && SUPPORTED_REACTION_CHEMICALS.has(chemical)
+        )) return null;
+        if (new Set(parsedChemicals).size !== parsedChemicals.length) return null;
+
+        return parsedChemicals;
+    } catch {
+        return null;
+    }
+}
+
 export function getLabStorageKey(baseKey: string): string {
     const reactionDemo = getReactionDemoConfig();
     return reactionDemo
