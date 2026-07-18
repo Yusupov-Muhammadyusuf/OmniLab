@@ -81,6 +81,16 @@ const supportedReactionPairKeys = new Set(
     supportedReactionPairs.map(pair => [...pair].sort().join('+'))
 );
 const supportedChemicalIds = new Set(supportedReactionPairs.flat());
+const supportedReactionPartners = new Map<string, Set<string>>();
+
+for (const [firstChemical, secondChemical] of supportedReactionPairs) {
+    const firstPartners = supportedReactionPartners.get(firstChemical) || new Set<string>();
+    const secondPartners = supportedReactionPartners.get(secondChemical) || new Set<string>();
+    firstPartners.add(secondChemical);
+    secondPartners.add(firstChemical);
+    supportedReactionPartners.set(firstChemical, firstPartners);
+    supportedReactionPartners.set(secondChemical, secondPartners);
+}
 
 let state: LabState = {
     chemicalDatabase: [],
@@ -137,6 +147,10 @@ export function getVisitSource(): VisitSource | null {
 export function isSupportedReactionSetup(selectedChemicals: string[]): boolean {
     if (selectedChemicals.length !== 2) return false;
     return supportedReactionPairKeys.has([...selectedChemicals].sort().join('+'));
+}
+
+export function getCompatibleReactionPartners(chemicalId: string): string[] {
+    return [...(supportedReactionPartners.get(chemicalId) || [])];
 }
 
 export function parseSavedChemicals(serializedChemicals: string | null): string[] | null {
