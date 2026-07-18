@@ -1986,11 +1986,32 @@ class LabJourneyRepairTests(TestCase):
         self.assertNotIn("new_color", interactions)
         self.assertNotIn("triggerSmokeEffect", interactions)
         self.assertNotIn("return { ...reaction, effect }", interactions)
-        self.assertIn("normalizeReactionResult(", restore_block)
+        self.assertIn("parseSavedReactionResult(savedData)", restore_block)
         self.assertIn(
-            "localStorage.setItem(reactionStorageKey, JSON.stringify(reaction))",
+            "localStorage.setItem(reactionStorageKey, JSON.stringify(savedReaction))",
             restore_block,
         )
+
+    def test_browser_rejects_incomplete_saved_reactions_before_rendering(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        restore_block = interactions.split(
+            "const savedData = localStorage.getItem(reactionStorageKey);", 1
+        )[1]
+
+        validation_index = restore_block.index(
+            "const savedReaction = parseSavedReactionResult(savedData);"
+        )
+        render_index = restore_block.index(
+            "renderReactionResult(panel, savedReaction);"
+        )
+        self.assertLess(validation_index, render_index)
+        self.assertIn("if (savedData !== null) {", restore_block)
+        self.assertIn("localStorage.removeItem(reactionStorageKey);", restore_block)
+        self.assertIn("? DEMO_REACTION_INSTRUCTION", restore_block)
+        self.assertIn(": DEFAULT_REACTION_INSTRUCTION", restore_block)
+        self.assertNotIn("capture('reaction_analysis_completed'", restore_block)
 
     def test_browser_discards_invalid_saved_liquid_colors(self):
         interactions = (
