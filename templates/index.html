@@ -46,8 +46,8 @@
     </header>
 
     <div class="excalidraw-floating-toolbar" id="floating-toolbar">
-        <button class="toolbar-trigger-btn" id="trigger-chemicals">Chemicals</button>
-        <button class="toolbar-trigger-btn" id="trigger-apparatus">Apparatus</button>
+        <button class="toolbar-trigger-btn" id="trigger-chemicals" aria-controls="sub-panel-chemicals" aria-expanded="false">Chemicals</button>
+        <button class="toolbar-trigger-btn" id="trigger-apparatus" aria-controls="sub-panel-apparatus" aria-expanded="false">Apparatus</button>
         <div class="toolbar-divider"></div>
         <button class="toolbar-trigger-btn" id="trigger-theme">Theme</button>
     </div>
@@ -61,11 +61,11 @@
     </div>
 
     <div class="floating-popover-panel" id="sub-panel-apparatus">
-        <div class="apparatus-selector-wrapper">
-            <div class="apparatus-option-card{% if not reaction_demo %} selected{% endif %}" id="opt-flask">Erlenmeyer Flask</div>
-            <div class="apparatus-option-card" id="opt-tube">Graduated Test Tube</div>
-            <div class="apparatus-option-card{% if reaction_demo %} selected{% endif %}" id="opt-beaker">Laboratory Beaker</div>
-            <div class="apparatus-option-card" id="opt-burner">Bunsen Burner</div>
+        <div class="apparatus-selector-wrapper" role="group" aria-label="Choose lab apparatus">
+            <button type="button" class="apparatus-option-card{% if not reaction_demo %} selected{% endif %}" id="opt-flask" aria-pressed="{% if not reaction_demo %}true{% else %}false{% endif %}">Erlenmeyer Flask</button>
+            <button type="button" class="apparatus-option-card" id="opt-tube" aria-pressed="false">Graduated Test Tube</button>
+            <button type="button" class="apparatus-option-card{% if reaction_demo %} selected{% endif %}" id="opt-beaker" aria-pressed="{% if reaction_demo %}true{% else %}false{% endif %}">Laboratory Beaker</button>
+            <button type="button" class="apparatus-option-card" id="opt-burner" aria-pressed="false">Bunsen Burner</button>
         </div>
     </div>
 

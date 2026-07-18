@@ -36,10 +36,7 @@ document.addEventListener("DOMContentLoaded", function(): void {
 
     const burnerOpt = document.getElementById('opt-burner');
     if (burnerOpt) {
-        burnerOpt.addEventListener('click', () => {
-            ui.selectVessel('burner');
-            config.updateLabState({ burnerActive: true });
-        });
+        burnerOpt.addEventListener('click', () => ui.selectVessel('burner'));
     }
 
     const jsonUrl: string = window.chemicalDataUrl || "/static/js/chemicaldata.json";
@@ -51,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function(): void {
         })
         .then((data: any) => {
             config.updateLabState({ chemicalDatabase: data });
-            ui.buildChemicalMenu();
+            ui.buildChemicalMenu(interactions.addChemicalToLab);
         })
         .catch((error: any) => console.error("Error loading json:", error));
 

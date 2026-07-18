@@ -645,9 +645,11 @@ class ShareableReactionDemoTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Sodium and chlorine, ready to analyze")
         self.assertContains(response, "Na + Cl2")
-        self.assertIn(
-            '<div class="apparatus-option-card selected" id="opt-beaker">',
-            response.content.decode(),
+        self.assertContains(
+            response,
+            '<button type="button" class="apparatus-option-card selected" '
+            'id="opt-beaker" aria-pressed="true">Laboratory Beaker</button>',
+            html=True,
         )
         self.assertContains(
             response,
@@ -783,6 +785,69 @@ class PredictionInputClarityTests(TestCase):
                 )
 
 
+class AccessibleLabSetupTests(TestCase):
+    def test_apparatus_choices_are_native_pressed_buttons(self):
+        normal_html = self.client.get("/").content.decode()
+        demo_html = self.client.get("/demo/sodium-chlorine/").content.decode()
+
+        for html in (normal_html, demo_html):
+            with self.subTest(path="normal" if html is normal_html else "demo"):
+                self.assertIn('role="group" aria-label="Choose lab apparatus"', html)
+                for option_id in ("flask", "tube", "beaker", "burner"):
+                    self.assertIn(
+                        f'<button type="button" class="apparatus-option-card',
+                        html,
+                    )
+                    self.assertIn(f'id="opt-{option_id}" aria-pressed=', html)
+
+        self.assertIn('id="opt-flask" aria-pressed="true"', normal_html)
+        self.assertIn('id="opt-beaker" aria-pressed="true"', demo_html)
+
+    def test_chemical_buttons_share_one_pointer_keyboard_and_drag_path(self):
+        ui = (settings.BASE_DIR / "static/ts/userInterface/ui.ts").read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        entry = (settings.BASE_DIR / "static/ts/root/main.ts").read_text()
+
+        self.assertIn("document.createElement('button')", ui)
+        self.assertIn("card.type = 'button'", ui)
+        self.assertIn("card.setAttribute('draggable', 'true')", ui)
+        self.assertIn("card.setAttribute('aria-label'", ui)
+        self.assertIn("card.setAttribute(\n            'aria-pressed'", ui)
+        self.assertIn("card.addEventListener('click'", ui)
+        self.assertIn("onSelectChemical(chem.id, chem.color)", ui)
+        self.assertIn("ev.currentTarget", ui)
+        self.assertIn(
+            "ui.buildChemicalMenu(interactions.addChemicalToLab)", entry
+        )
+
+        add_block = interactions.split(
+            "export function addChemicalToLab(", 1
+        )[1].split("\n}\n\nexport function drop", 1)[0]
+        drop_block = interactions.split(
+            "export function drop(ev: DragEvent): void {", 1
+        )[1].split("\n}\n\nexport function resetLaboratory", 1)[0]
+        self.assertEqual(add_block.count("captureLabSetupStarted({"), 1)
+        self.assertIn("updateAnalysisAvailability()", add_block)
+        self.assertIn("addChemicalToLab(name, color", drop_block)
+
+    def test_setup_controls_expose_state_focus_and_touch_targets(self):
+        html = self.client.get("/").content.decode()
+        ui = (settings.BASE_DIR / "static/ts/userInterface/ui.ts").read_text()
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+
+        self.assertIn('aria-controls="sub-panel-chemicals"', html)
+        self.assertIn('aria-controls="sub-panel-apparatus"', html)
+        self.assertEqual(html.count('aria-expanded="false"'), 2)
+        self.assertIn("trigger.setAttribute('aria-expanded', 'true')", ui)
+        self.assertIn("b.setAttribute('aria-expanded', 'false')", ui)
+        self.assertIn("option?.focus()", ui)
+        self.assertIn(".chemical-card:focus-visible", css)
+        self.assertIn(".apparatus-option-card:focus-visible", css)
+        self.assertGreaterEqual(css.count("min-height: 44px"), 2)
+
+
 class SupportedSetupAnalysisStateTests(TestCase):
     def test_normal_lab_starts_disabled_with_missing_input_guidance(self):
         response = self.client.get("/")
@@ -848,6 +913,9 @@ class SupportedSetupAnalysisStateTests(TestCase):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
+        add_block = interactions.split(
+            "export function addChemicalToLab(", 1
+        )[1].split("\n}\n\nexport function drop", 1)[0]
         drop_block = interactions.split(
             "export function drop(ev: DragEvent): void {", 1
         )[1].split("\n}\n\nexport function resetLaboratory", 1)[0]
@@ -858,7 +926,8 @@ class SupportedSetupAnalysisStateTests(TestCase):
             'document.addEventListener("DOMContentLoaded", () => {', 1
         )[1]
 
-        self.assertIn("updateAnalysisAvailability()", drop_block)
+        self.assertIn("addChemicalToLab(name, color", drop_block)
+        self.assertIn("updateAnalysisAvailability()", add_block)
         self.assertIn("selectedChemicals: []", reset_block)
         self.assertIn("setAnalysisPending(false)", reset_block)
         self.assertLess(
