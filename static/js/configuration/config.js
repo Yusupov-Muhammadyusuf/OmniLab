@@ -11,6 +11,7 @@ const ALLOWED_VISIT_SOURCES = new Set([
 ]);
 const supportedReactionPairs = window.supportedReactionPairs || [['Na', 'Cl2']];
 const supportedReactionPairKeys = new Set(supportedReactionPairs.map(pair => [...pair].sort().join('+')));
+const reactionGuidePairKeys = new Set(['Cl2+Na']);
 const supportedChemicalIds = new Set(supportedReactionPairs.flat());
 const supportedReactionPartners = new Map();
 for (const [firstChemical, secondChemical] of supportedReactionPairs) {
@@ -71,6 +72,11 @@ export function isSupportedReactionSetup(selectedChemicals) {
     if (selectedChemicals.length !== 2)
         return false;
     return supportedReactionPairKeys.has([...selectedChemicals].sort().join('+'));
+}
+export function hasMatchingReactionGuides(selectedChemicals) {
+    if (selectedChemicals.length !== 2)
+        return false;
+    return reactionGuidePairKeys.has([...selectedChemicals].sort().join('+'));
 }
 export function getCompatibleReactionPartners(chemicalId) {
     return [...(supportedReactionPartners.get(chemicalId) || [])];

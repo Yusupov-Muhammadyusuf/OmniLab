@@ -26,6 +26,7 @@ globalThis.window = {
 
 const {
     getCompatibleReactionPartners,
+    hasMatchingReactionGuides,
     isSupportedReactionSetup,
     updateLabState
 } = await import('../static/js/configuration/config.js');
@@ -66,6 +67,23 @@ test('partner guidance uses the same matrix as Analyze eligibility', () => {
             assert.equal(isMarked, supportedKeys.has(key));
             assert.equal(isMarked, isSupported);
         }
+    }
+});
+
+test('only sodium and chlorine have matching study guides', () => {
+    assert.equal(hasMatchingReactionGuides(['Na', 'Cl2']), true);
+    assert.equal(hasMatchingReactionGuides(['Cl2', 'Na']), true);
+
+    for (const pair of supportedPairs.slice(1)) {
+        assert.equal(
+            hasMatchingReactionGuides(pair),
+            false,
+            `${pair.join(' + ')} should not show sodium and chlorine guides`
+        );
+    }
+
+    for (const invalidSetup of [[], ['Na'], ['Na', 'Cl2', 'H2O']]) {
+        assert.equal(hasMatchingReactionGuides(invalidSetup), false);
     }
 });
 

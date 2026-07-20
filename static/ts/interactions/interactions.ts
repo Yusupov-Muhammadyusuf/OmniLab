@@ -93,7 +93,34 @@ function isSupportedLiquidColor(color: string | null): color is string {
     return color !== null && /^#[0-9a-f]{6}$/i.test(color);
 }
 
-export function renderReactionResult(panel: HTMLElement, reaction: ReactionResult): void {
+export function renderReactionResult(
+    panel: HTMLElement,
+    reaction: ReactionResult,
+    selectedChemicals: string[]
+): void {
+    const reactionStudyMarkup = config.hasMatchingReactionGuides(selectedChemicals)
+        ? `
+            <nav class="reaction-study" aria-labelledby="reaction-study-title">
+                <p class="reaction-study-label">Study this result</p>
+                <h3 class="reaction-study-title" id="reaction-study-title">Follow the chemistry behind the prediction</h3>
+                <div class="reaction-study-links">
+                    <a href="/guides/sodium-and-chlorine-reaction/">
+                        <span>What happens when sodium reacts with chlorine?</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <a href="/guides/sodium-and-chlorine-formula/">
+                        <span>What formula forms from sodium and chlorine?</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <a href="/guides/sodium-and-chlorine-ionic-bond/">
+                        <span>Why do sodium and chlorine form an ionic bond?</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </nav>
+        `
+        : '';
+
     panel.innerHTML = `
         <div class="lh-base spectrum-analysis-log animate__animated animate__fadeIn text-body-emphasis" style="font-family: 'UbuntuLocal', sans-serif; font-size: 16px; line-height: 1.6; letter-spacing: 0.3px;">
 
@@ -119,24 +146,7 @@ export function renderReactionResult(panel: HTMLElement, reaction: ReactionResul
                 <ul class="list-unstyled mb-0 small fw-medium safety-list"></ul>
             </div>
 
-            <nav class="reaction-study" aria-labelledby="reaction-study-title">
-                <p class="reaction-study-label">Study this result</p>
-                <h3 class="reaction-study-title" id="reaction-study-title">Follow the chemistry behind the prediction</h3>
-                <div class="reaction-study-links">
-                    <a href="/guides/sodium-and-chlorine-reaction/">
-                        <span>What happens when sodium reacts with chlorine?</span>
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    <a href="/guides/sodium-and-chlorine-formula/">
-                        <span>What formula forms from sodium and chlorine?</span>
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    <a href="/guides/sodium-and-chlorine-ionic-bond/">
-                        <span>Why do sodium and chlorine form an ionic bond?</span>
-                        <span aria-hidden="true">→</span>
-                    </a>
-                </div>
-            </nav>
+            ${reactionStudyMarkup}
 
             <aside class="reaction-feedback" aria-labelledby="reaction-feedback-title">
                 <p class="reaction-feedback-label">Optional feedback</p>
@@ -476,7 +486,7 @@ export function fireAIAnalysis(): void {
                 config.getLabStorageKey('savedReaction'),
                 JSON.stringify(reaction)
             );
-            renderReactionResult(panel, reaction);
+            renderReactionResult(panel, reaction, state.selectedChemicals);
 
             config.updateLabState({ isBubbling: false });
 
@@ -583,7 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const savedReaction = parseSavedReactionResult(savedData);
     if (savedReaction) {
         writeStorageValue(reactionStorageKey, JSON.stringify(savedReaction));
-        renderReactionResult(panel, savedReaction);
+        renderReactionResult(panel, savedReaction, preparedChemicals);
     } else {
         if (savedData !== null) {
             removeStorageValue(reactionStorageKey);
