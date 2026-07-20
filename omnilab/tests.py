@@ -1619,7 +1619,7 @@ class LabJourneyRepairTests(TestCase):
             with self.subTest(non_guide_value=non_guide_value):
                 self.assertNotIn(non_guide_value, feedback)
 
-    def test_successful_result_links_all_three_guides_as_secondary_study_paths(self):
+    def test_sodium_chlorine_result_links_all_three_guides_as_secondary_paths(self):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
@@ -1627,6 +1627,10 @@ class LabJourneyRepairTests(TestCase):
             "export function renderReactionResult", 1
         )[1].split("\n}\n\nfunction renderStatusMessage", 1)[0]
 
+        self.assertIn(
+            "config.hasMatchingReactionGuides(selectedChemicals)",
+            render_block,
+        )
         self.assertEqual(render_block.count('class="reaction-study"'), 1)
         for path, guide in (
             (
@@ -1648,6 +1652,26 @@ class LabJourneyRepairTests(TestCase):
         self.assertNotIn('class="btn', render_block)
         self.assertNotIn("action-btn-primary", render_block)
         self.assertNotIn("guide-primary", render_block)
+
+    def test_live_and_restored_results_use_their_selected_pair_for_study_links(self):
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        success_block = interactions.split(
+            "} else if (resData.status === 'success' && resData.data) {", 1
+        )[1].split("} else {", 1)[0]
+        restore_block = interactions.split(
+            "const savedData = readStorageValue(reactionStorageKey);", 1
+        )[1]
+
+        self.assertIn(
+            "renderReactionResult(panel, reaction, state.selectedChemicals)",
+            success_block,
+        )
+        self.assertIn(
+            "renderReactionResult(panel, savedReaction, preparedChemicals)",
+            restore_block,
+        )
 
     def test_reset_removes_the_result_only_study_block(self):
         interactions = (
@@ -1679,7 +1703,7 @@ class LabJourneyRepairTests(TestCase):
         )
         storage_index = success_block.index("JSON.stringify(reaction)")
         render_index = success_block.index(
-            "renderReactionResult(panel, reaction);"
+            "renderReactionResult(panel, reaction, state.selectedChemicals);"
         )
         self.assertLess(normalization_index, capture_index)
         self.assertLess(normalization_index, storage_index)
@@ -1706,7 +1730,7 @@ class LabJourneyRepairTests(TestCase):
             "const savedReaction = parseSavedReactionResult(savedData);"
         )
         render_index = restore_block.index(
-            "renderReactionResult(panel, savedReaction);"
+            "renderReactionResult(panel, savedReaction, preparedChemicals);"
         )
         self.assertLess(validation_index, render_index)
         self.assertIn("if (savedData !== null) {", restore_block)
