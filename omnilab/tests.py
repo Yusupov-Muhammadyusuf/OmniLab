@@ -59,6 +59,33 @@ class HomepageFaqTests(TestCase):
             self.assertEqual(entity["acceptedAnswer"]["@type"], "Answer")
             self.assertEqual(entity["acceptedAnswer"]["text"], faq["answer"])
 
+    def test_supported_inputs_faq_states_twelve_reaction_pairs(self):
+        supported_inputs_faq = next(
+            faq
+            for faq in HOMEPAGE_FAQS
+            if faq["question"] == "Which chemicals and equipment can I use?"
+        )
+        self.assertIn("supports 12 reaction pairs", supported_inputs_faq["answer"])
+        self.assertContains(self.response, supported_inputs_faq["answer"])
+
+        html = self.response.content.decode()
+        schema_match = re.search(
+            r'<script type="application/ld\+json">(.*?)</script>',
+            html,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(schema_match)
+        schema = json.loads(schema_match.group(1))
+        supported_inputs_entity = next(
+            entity
+            for entity in schema["mainEntity"]
+            if entity["name"] == supported_inputs_faq["question"]
+        )
+        self.assertEqual(
+            supported_inputs_entity["acceptedAnswer"]["text"],
+            supported_inputs_faq["answer"],
+        )
+
 
 class HomepageGuideLinksTests(TestCase):
     guide_links = {
@@ -216,10 +243,13 @@ class GuidedExperimentPageTests(TestCase):
     def test_each_guide_has_one_primary_path_to_the_prepared_lab(self):
         for path, guide_key in self.routes.items():
             with self.subTest(path=path):
-                html = self.client.get(path).content.decode()
+                response = self.client.get(path)
+                html = response.content.decode()
                 visit_source = GUIDED_EXPERIMENT_PAGES[guide_key]["visit_source"]
 
                 self.assertEqual(html.count('class="guide-primary"'), 1)
+                self.assertContains(response, "Try Sodium + Chlorine")
+                self.assertNotContains(response, "Open the prepared lab")
                 self.assertEqual(
                     html.count(
                         'href="/demo/sodium-chlorine/'
