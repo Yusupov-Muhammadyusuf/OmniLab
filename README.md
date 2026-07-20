@@ -48,6 +48,10 @@ python manage.py runserver
 
 Then open `http://127.0.0.1:8000/`.
 
+## AI configuration
+
+The current reaction library is deterministic and does not call an external AI model. If a future feature adds AI-backed functionality, `GITHUB_MODELS_API_KEY` is the only supported credential; copy `.env.example` to configure it locally.
+
 ## Tests
 
 Run the Django test suite with:
