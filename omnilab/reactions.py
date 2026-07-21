@@ -193,6 +193,184 @@ REACTION_MATRIX = {
             "Clean spills promptly to prevent slippery surfaces.",
         ),
     ),
+    frozenset({"NH3", "HNO3"}): _reaction(
+        "none",
+        "NH3(aq) + HNO3(aq) -> NH4NO3(aq)",
+        (
+            "Ammonia accepts a proton from nitric acid to form ammonium "
+            "nitrate in solution. This is an acid-base reaction and can "
+            "release heat, especially when concentrated solutions are used. "
+            "The balanced equation uses one molecule of each reactant."
+        ),
+        (
+            "Use dilute solutions under trained laboratory supervision.",
+            "Avoid inhaling ammonia or nitric acid vapors.",
+            "Do not isolate or heat the ammonium nitrate product.",
+        ),
+    ),
+    frozenset({"H2SO4", "KOH"}): _reaction(
+        "none",
+        "H2SO4(aq) + 2KOH(aq) -> K2SO4(aq) + 2H2O(l)",
+        (
+            "Sulfuric acid and potassium hydroxide neutralize to form "
+            "potassium sulfate and water. Two hydroxide ions are needed to "
+            "neutralize the two acidic protons represented in the balanced "
+            "equation. The solution can warm because neutralization is "
+            "exothermic."
+        ),
+        (
+            "Wear chemical splash goggles and alkali-resistant gloves.",
+            "Add one dilute solution slowly to the other to control heating.",
+            "Rinse acid or alkali splashes immediately with plenty of water.",
+        ),
+    ),
+    frozenset({"CH3COOH", "NaHCO3"}): _reaction(
+        "bubble",
+        (
+            "CH3COOH(aq) + NaHCO3(s) -> "
+            "CH3COONa(aq) + CO2(g) + H2O(l)"
+        ),
+        (
+            "Acetic acid reacts with sodium bicarbonate to form sodium "
+            "acetate, carbon dioxide, and water. The visible bubbling comes "
+            "from carbon dioxide leaving the mixture. The equation has a "
+            "one-to-one ratio of acid and bicarbonate."
+        ),
+        (
+            "Keep the reaction vessel open so carbon dioxide cannot build "
+            "pressure.",
+            "Wear eye protection to guard against splashes.",
+            "Add the bicarbonate in small portions to control foaming.",
+        ),
+    ),
+    frozenset({"Ca(OH)2", "CO2"}): _reaction(
+        "none",
+        "Ca(OH)2(aq) + CO2(g) -> CaCO3(s) + H2O(l)",
+        (
+            "Carbon dioxide reacts with calcium hydroxide to form a calcium "
+            "carbonate precipitate and water. In the common limewater test, "
+            "the suspended calcium carbonate makes the solution appear "
+            "cloudy. Excess carbon dioxide can cause further changes that "
+            "are outside this simplified equation."
+        ),
+        (
+            "Avoid breathing calcium hydroxide dust or carbon dioxide-rich "
+            "air.",
+            "Wear splash goggles and gloves when handling limewater.",
+            "Work with carbon dioxide in a well-ventilated area.",
+        ),
+    ),
+    frozenset({"CuSO4", "KOH"}): _reaction(
+        "none",
+        "CuSO4(aq) + 2KOH(aq) -> Cu(OH)2(s) + K2SO4(aq)",
+        (
+            "Copper(II) sulfate and potassium hydroxide undergo a double "
+            "displacement reaction. Insoluble copper(II) hydroxide forms as "
+            "a blue precipitate while potassium sulfate remains in solution. "
+            "Two hydroxide ions are required for each copper(II) ion."
+        ),
+        (
+            "Wear splash goggles and chemical-resistant gloves.",
+            "Avoid skin contact with copper sulfate and potassium hydroxide.",
+            "Collect copper-containing waste for proper disposal.",
+        ),
+    ),
+    frozenset({"AgNO3", "NaCl"}): _reaction(
+        "none",
+        "AgNO3(aq) + NaCl(aq) -> AgCl(s) + NaNO3(aq)",
+        (
+            "Silver nitrate and sodium chloride exchange ions to form "
+            "insoluble silver chloride. The white silver chloride precipitate "
+            "is the usual evidence for chloride ions in this simplified test. "
+            "Sodium and nitrate ions remain in solution."
+        ),
+        (
+            "Wear gloves and splash goggles when handling silver nitrate.",
+            "Protect the mixture from strong light after the precipitate "
+            "forms.",
+            "Collect silver-containing waste instead of pouring it down a "
+            "drain.",
+        ),
+    ),
+    frozenset({"AgNO3", "KI"}): _reaction(
+        "none",
+        "AgNO3(aq) + KI(aq) -> AgI(s) + KNO3(aq)",
+        (
+            "Silver nitrate and potassium iodide undergo a precipitation "
+            "reaction. Insoluble silver iodide forms as a yellow solid while "
+            "potassium and nitrate ions remain in solution. The molecular "
+            "equation has a one-to-one reactant ratio."
+        ),
+        (
+            "Wear gloves and splash goggles when handling silver nitrate.",
+            "Protect the silver iodide precipitate from strong light.",
+            "Collect silver-containing waste for approved disposal.",
+        ),
+    ),
+    frozenset({"KMnO4", "H2O2"}): _reaction(
+        "bubble",
+        (
+            "2KMnO4(aq) + 3H2O2(aq) -> "
+            "2MnO2(s) + 3O2(g) + 2KOH(aq) + 2H2O(l)"
+        ),
+        (
+            "In neutral or alkaline conditions, permanganate oxidizes "
+            "hydrogen peroxide to oxygen while manganese dioxide forms. "
+            "Oxygen evolution produces bubbles and the permanganate color "
+            "fades as brown manganese dioxide appears. Different acidity "
+            "can change the products."
+        ),
+        (
+            "Use dilute solutions and add hydrogen peroxide slowly.",
+            "Keep both reagents away from combustible or reducing materials.",
+            "Do not seal the vessel because oxygen gas is produced.",
+        ),
+    ),
+    frozenset({"Na2CO3", "HCl"}): _reaction(
+        "bubble",
+        "Na2CO3(aq) + 2HCl(aq) -> 2NaCl(aq) + CO2(g) + H2O(l)",
+        (
+            "Sodium carbonate reacts with hydrochloric acid to form sodium "
+            "chloride, carbon dioxide, and water. Carbon dioxide escaping "
+            "from the solution causes bubbling. Two hydrogen ions are needed "
+            "for each carbonate ion in the balanced equation."
+        ),
+        (
+            "Wear splash goggles and acid-resistant gloves.",
+            "Add hydrochloric acid slowly to control foaming and heat.",
+            "Keep the vessel open and work in a ventilated area.",
+        ),
+    ),
+    frozenset({"BaCl2", "Na2CO3"}): _reaction(
+        "none",
+        "BaCl2(aq) + Na2CO3(aq) -> BaCO3(s) + 2NaCl(aq)",
+        (
+            "Barium chloride and sodium carbonate exchange ions to form "
+            "insoluble barium carbonate. The white precipitate removes "
+            "barium ions from the solution while sodium and chloride ions "
+            "remain dissolved. The reactants combine in a one-to-one ratio."
+        ),
+        (
+            "Treat soluble barium compounds as toxic and avoid all ingestion.",
+            "Wear gloves and splash goggles throughout the procedure.",
+            "Collect all barium-containing material as hazardous waste.",
+        ),
+    ),
+    frozenset({"Zn", "HCl"}): _reaction(
+        "bubble",
+        "Zn(s) + 2HCl(aq) -> ZnCl2(aq) + H2(g)",
+        (
+            "Zinc displaces hydrogen from hydrochloric acid to form zinc "
+            "chloride and hydrogen gas. The bubbles are hydrogen leaving the "
+            "solution. Zinc is oxidized while hydrogen ions are reduced in "
+            "this single-displacement reaction."
+        ),
+        (
+            "Keep flames and sparks away from the hydrogen produced.",
+            "Work in a ventilated area under trained supervision.",
+            "Wear acid-resistant gloves and splash goggles.",
+        ),
+    ),
 }
 
 

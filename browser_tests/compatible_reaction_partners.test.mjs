@@ -13,7 +13,18 @@ const supportedPairs = [
     ['H2', 'Cl2'],
     ['Na', 'H2O'],
     ['CO2', 'H2O'],
-    ['NaCl', 'H2O']
+    ['NaCl', 'H2O'],
+    ['NH3', 'HNO3'],
+    ['H2SO4', 'KOH'],
+    ['CH3COOH', 'NaHCO3'],
+    ['Ca(OH)2', 'CO2'],
+    ['CuSO4', 'KOH'],
+    ['AgNO3', 'NaCl'],
+    ['AgNO3', 'KI'],
+    ['KMnO4', 'H2O2'],
+    ['Na2CO3', 'HCl'],
+    ['BaCl2', 'Na2CO3'],
+    ['Zn', 'HCl']
 ];
 
 globalThis.document = {

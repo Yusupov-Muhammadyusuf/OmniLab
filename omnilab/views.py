@@ -231,7 +231,7 @@ HOMEPAGE_FAQS = [
     {
         "question": "Which chemicals and equipment can I use?",
         "answer": (
-            "The current release supports 12 reaction pairs using the chemicals "
+            "The current release supports 23 reaction pairs using the chemicals "
             "listed in its searchable Chemicals menu. Equipment includes an "
             "Erlenmeyer flask, graduated test tube, laboratory beaker, and "
             "virtual Bunsen burner. The menus in the lab are the current source "
