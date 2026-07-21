@@ -63,6 +63,38 @@ export function updateAndDrawAmbientBubbles(cx, cy) {
     }
     config.updateLabState({ ambientBubbles: bubbles });
 }
+function drawPrecipitate(cx, liquidTopY, liquidBottomY, startX, endX, color) {
+    if (!config.ctx)
+        return;
+    const width = Math.max(20, endX - startX - 18);
+    const height = Math.max(16, liquidBottomY - liquidTopY - 8);
+    config.ctx.save();
+    config.ctx.shadowColor = config.hexToRgbA(color, 0.3);
+    config.ctx.shadowBlur = 2;
+    for (let index = 0; index < 42; index++) {
+        const x = startX + 9 + ((index * 37) % width);
+        const depth = ((index * 29) % height) / height;
+        const y = liquidBottomY - 6 - depth * height * 0.82;
+        const radiusX = 2.2 + (index % 4) * 0.65;
+        const radiusY = 1.4 + (index % 3) * 0.45;
+        config.ctx.fillStyle = config.hexToRgbA(color, 0.58 + (index % 3) * 0.1);
+        config.ctx.strokeStyle = color === '#f5f3ea'
+            ? 'rgba(70, 83, 96, 0.28)'
+            : config.hexToRgbA(color, 0.82);
+        config.ctx.lineWidth = 0.8;
+        config.ctx.beginPath();
+        config.ctx.ellipse(x, y, radiusX, radiusY, 0, 0, Math.PI * 2);
+        config.ctx.fill();
+        config.ctx.stroke();
+    }
+    const sedimentHeight = Math.min(13, Math.max(6, height * 0.12));
+    const sedimentGradient = config.ctx.createLinearGradient(cx, liquidBottomY - sedimentHeight, cx, liquidBottomY);
+    sedimentGradient.addColorStop(0, config.hexToRgbA(color, 0.15));
+    sedimentGradient.addColorStop(1, config.hexToRgbA(color, 0.78));
+    config.ctx.fillStyle = sedimentGradient;
+    config.ctx.fillRect(startX, liquidBottomY - sedimentHeight, endX - startX, sedimentHeight);
+    config.ctx.restore();
+}
 let currentRenderColor = null;
 let thermalBlastTimer = null;
 export function cancelReactionEffects() {
@@ -265,6 +297,9 @@ export function drawVesselAndFluid() {
         }
         config.ctx.closePath();
         config.ctx.fill();
+        if (updatedState.precipitateColor) {
+            drawPrecipitate(cx, liquidTopY, baseLevel, startX, endX, updatedState.precipitateColor);
+        }
         if (updatedState.burnerActive) {
             let topY = baseLevel - updatedState.currentLiquidVol;
             config.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';

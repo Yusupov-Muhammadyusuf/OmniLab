@@ -3,13 +3,25 @@
 from copy import deepcopy
 
 
-def _reaction(effect, equation, explanation, safety):
-    return {
+PRECIPITATE_COLORS = frozenset({"#5ba7d1", "#f2c94c", "#f5f3ea"})
+
+
+def _reaction(
+    effect,
+    equation,
+    explanation,
+    safety,
+    precipitate_color=None,
+):
+    reaction = {
         "effect": effect,
         "equation": equation,
         "explanation": explanation,
         "safety": " | ".join(safety),
     }
+    if precipitate_color is not None:
+        reaction["precipitate_color"] = precipitate_color
+    return reaction
 
 
 REACTION_MATRIX = {
@@ -244,7 +256,7 @@ REACTION_MATRIX = {
         ),
     ),
     frozenset({"Ca(OH)2", "CO2"}): _reaction(
-        "none",
+        "precipitate",
         "Ca(OH)2(aq) + CO2(g) -> CaCO3(s) + H2O(l)",
         (
             "Carbon dioxide reacts with calcium hydroxide to form a calcium "
@@ -259,9 +271,10 @@ REACTION_MATRIX = {
             "Wear splash goggles and gloves when handling limewater.",
             "Work with carbon dioxide in a well-ventilated area.",
         ),
+        precipitate_color="#f5f3ea",
     ),
     frozenset({"CuSO4", "KOH"}): _reaction(
-        "none",
+        "precipitate",
         "CuSO4(aq) + 2KOH(aq) -> Cu(OH)2(s) + K2SO4(aq)",
         (
             "Copper(II) sulfate and potassium hydroxide undergo a double "
@@ -274,9 +287,10 @@ REACTION_MATRIX = {
             "Avoid skin contact with copper sulfate and potassium hydroxide.",
             "Collect copper-containing waste for proper disposal.",
         ),
+        precipitate_color="#5ba7d1",
     ),
     frozenset({"AgNO3", "NaCl"}): _reaction(
-        "none",
+        "precipitate",
         "AgNO3(aq) + NaCl(aq) -> AgCl(s) + NaNO3(aq)",
         (
             "Silver nitrate and sodium chloride exchange ions to form "
@@ -291,9 +305,10 @@ REACTION_MATRIX = {
             "Collect silver-containing waste instead of pouring it down a "
             "drain.",
         ),
+        precipitate_color="#f5f3ea",
     ),
     frozenset({"AgNO3", "KI"}): _reaction(
-        "none",
+        "precipitate",
         "AgNO3(aq) + KI(aq) -> AgI(s) + KNO3(aq)",
         (
             "Silver nitrate and potassium iodide undergo a precipitation "
@@ -306,6 +321,7 @@ REACTION_MATRIX = {
             "Protect the silver iodide precipitate from strong light.",
             "Collect silver-containing waste for approved disposal.",
         ),
+        precipitate_color="#f2c94c",
     ),
     frozenset({"KMnO4", "H2O2"}): _reaction(
         "bubble",
@@ -342,7 +358,7 @@ REACTION_MATRIX = {
         ),
     ),
     frozenset({"BaCl2", "Na2CO3"}): _reaction(
-        "none",
+        "precipitate",
         "BaCl2(aq) + Na2CO3(aq) -> BaCO3(s) + 2NaCl(aq)",
         (
             "Barium chloride and sodium carbonate exchange ions to form "
@@ -355,6 +371,7 @@ REACTION_MATRIX = {
             "Wear gloves and splash goggles throughout the procedure.",
             "Collect all barium-containing material as hazardous waste.",
         ),
+        precipitate_color="#f5f3ea",
     ),
     frozenset({"Zn", "HCl"}): _reaction(
         "bubble",

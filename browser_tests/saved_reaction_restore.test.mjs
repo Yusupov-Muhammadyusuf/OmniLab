@@ -74,3 +74,47 @@ test('unsupported saved effects use the existing no-effect boundary', () => {
         );
     }
 });
+
+test('saved precipitates preserve only allowlisted colors', () => {
+    for (const precipitate_color of ['#5ba7d1', '#f2c94c', '#f5f3ea']) {
+        const value = {
+            ...completeResult,
+            effect: 'precipitate',
+            precipitate_color
+        };
+        assert.deepEqual(
+            parseSavedReactionResult(JSON.stringify(value)),
+            value
+        );
+    }
+});
+
+test('malformed saved precipitates become no effect before restoration', () => {
+    for (const precipitate_color of [undefined, null, 'yellow', '#ffffff', 2]) {
+        const value = {
+            ...completeResult,
+            effect: 'precipitate',
+            precipitate_color
+        };
+        assert.deepEqual(
+            parseSavedReactionResult(JSON.stringify(value)),
+            {
+                equation: value.equation,
+                explanation: value.explanation,
+                safety: value.safety,
+                effect: 'none'
+            }
+        );
+    }
+});
+
+test('non-precipitate effects discard precipitate colors', () => {
+    const value = {
+        ...completeResult,
+        precipitate_color: '#f5f3ea'
+    };
+    assert.deepEqual(
+        parseSavedReactionResult(JSON.stringify(value)),
+        completeResult
+    );
+});

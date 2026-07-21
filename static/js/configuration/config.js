@@ -44,6 +44,7 @@ let state = {
     smokeParticles: [],
     explosionParticles: [],
     isBubbling: false,
+    precipitateColor: null,
     burnerActive: false
 };
 export function getLabState() {
