@@ -58,5 +58,80 @@
     "id": "Cu",
     "name": "Copper",
     "color": "#b86938"
+  },
+  {
+    "id": "NH3",
+    "name": "Ammonia",
+    "color": "#527ac7"
+  },
+  {
+    "id": "H2SO4",
+    "name": "Sulfuric acid",
+    "color": "#c88a24"
+  },
+  {
+    "id": "HNO3",
+    "name": "Nitric acid",
+    "color": "#d0b328"
+  },
+  {
+    "id": "CH3COOH",
+    "name": "Acetic acid",
+    "color": "#c56b7d"
+  },
+  {
+    "id": "KOH",
+    "name": "Potassium hydroxide",
+    "color": "#8059c9"
+  },
+  {
+    "id": "Ca(OH)2",
+    "name": "Calcium hydroxide",
+    "color": "#7f91a3"
+  },
+  {
+    "id": "CuSO4",
+    "name": "Copper(II) sulfate",
+    "color": "#247bc1"
+  },
+  {
+    "id": "AgNO3",
+    "name": "Silver nitrate",
+    "color": "#98a4af"
+  },
+  {
+    "id": "KI",
+    "name": "Potassium iodide",
+    "color": "#a77742"
+  },
+  {
+    "id": "KMnO4",
+    "name": "Potassium permanganate",
+    "color": "#7f3c98"
+  },
+  {
+    "id": "Na2CO3",
+    "name": "Sodium carbonate",
+    "color": "#a5b5c2"
+  },
+  {
+    "id": "NaHCO3",
+    "name": "Sodium bicarbonate",
+    "color": "#b9c4cc"
+  },
+  {
+    "id": "BaCl2",
+    "name": "Barium chloride",
+    "color": "#8496a8"
+  },
+  {
+    "id": "H2O2",
+    "name": "Hydrogen peroxide",
+    "color": "#55a5c7"
+  },
+  {
+    "id": "Zn",
+    "name": "Zinc",
+    "color": "#8b949a"
   }
 ]

@@ -59,13 +59,13 @@ class HomepageFaqTests(TestCase):
             self.assertEqual(entity["acceptedAnswer"]["@type"], "Answer")
             self.assertEqual(entity["acceptedAnswer"]["text"], faq["answer"])
 
-    def test_supported_inputs_faq_states_twelve_reaction_pairs(self):
+    def test_supported_inputs_faq_states_twenty_three_reaction_pairs(self):
         supported_inputs_faq = next(
             faq
             for faq in HOMEPAGE_FAQS
             if faq["question"] == "Which chemicals and equipment can I use?"
         )
-        self.assertIn("supports 12 reaction pairs", supported_inputs_faq["answer"])
+        self.assertIn("supports 23 reaction pairs", supported_inputs_faq["answer"])
         self.assertContains(self.response, supported_inputs_faq["answer"])
 
         html = self.response.content.decode()
@@ -1280,6 +1280,21 @@ class DeterministicReactionMatrixTests(TestCase):
         "NaCl",
         "Fe",
         "Cu",
+        "NH3",
+        "H2SO4",
+        "HNO3",
+        "CH3COOH",
+        "KOH",
+        "Ca(OH)2",
+        "CuSO4",
+        "AgNO3",
+        "KI",
+        "KMnO4",
+        "Na2CO3",
+        "NaHCO3",
+        "BaCl2",
+        "H2O2",
+        "Zn",
     }
 
     def test_catalog_contains_all_requested_substances_once(self):
@@ -1290,7 +1305,8 @@ class DeterministicReactionMatrixTests(TestCase):
 
         self.assertTrue(self.requested_chemical_ids.issubset(catalog_ids))
         self.assertEqual(len(catalog_ids), len(set(catalog_ids)))
-        self.assertEqual(len(catalog_ids), 12)
+        self.assertEqual(len(catalog_ids), 27)
+        self.assertEqual(set(catalog_ids), set(SUPPORTED_CHEMICAL_IDS))
 
     def test_matrix_preserves_existing_pair_and_required_reactions(self):
         expected_equations = {
@@ -1299,6 +1315,42 @@ class DeterministicReactionMatrixTests(TestCase):
             frozenset({"HCl", "NaOH"}): (
                 "HCl(aq) + NaOH(aq) -> NaCl(aq) + H2O(l)"
             ),
+            frozenset({"NH3", "HNO3"}): (
+                "NH3(aq) + HNO3(aq) -> NH4NO3(aq)"
+            ),
+            frozenset({"H2SO4", "KOH"}): (
+                "H2SO4(aq) + 2KOH(aq) -> K2SO4(aq) + 2H2O(l)"
+            ),
+            frozenset({"CH3COOH", "NaHCO3"}): (
+                "CH3COOH(aq) + NaHCO3(s) -> "
+                "CH3COONa(aq) + CO2(g) + H2O(l)"
+            ),
+            frozenset({"Ca(OH)2", "CO2"}): (
+                "Ca(OH)2(aq) + CO2(g) -> CaCO3(s) + H2O(l)"
+            ),
+            frozenset({"CuSO4", "KOH"}): (
+                "CuSO4(aq) + 2KOH(aq) -> Cu(OH)2(s) + K2SO4(aq)"
+            ),
+            frozenset({"AgNO3", "NaCl"}): (
+                "AgNO3(aq) + NaCl(aq) -> AgCl(s) + NaNO3(aq)"
+            ),
+            frozenset({"AgNO3", "KI"}): (
+                "AgNO3(aq) + KI(aq) -> AgI(s) + KNO3(aq)"
+            ),
+            frozenset({"KMnO4", "H2O2"}): (
+                "2KMnO4(aq) + 3H2O2(aq) -> "
+                "2MnO2(s) + 3O2(g) + 2KOH(aq) + 2H2O(l)"
+            ),
+            frozenset({"Na2CO3", "HCl"}): (
+                "Na2CO3(aq) + 2HCl(aq) -> "
+                "2NaCl(aq) + CO2(g) + H2O(l)"
+            ),
+            frozenset({"BaCl2", "Na2CO3"}): (
+                "BaCl2(aq) + Na2CO3(aq) -> BaCO3(s) + 2NaCl(aq)"
+            ),
+            frozenset({"Zn", "HCl"}): (
+                "Zn(s) + 2HCl(aq) -> ZnCl2(aq) + H2(g)"
+            ),
         }
 
         for pair, equation in expected_equations.items():
@@ -1306,7 +1358,7 @@ class DeterministicReactionMatrixTests(TestCase):
                 self.assertEqual(REACTION_MATRIX[pair]["equation"], equation)
 
     def test_every_matrix_entry_has_a_complete_safe_contract(self):
-        self.assertEqual(len(REACTION_MATRIX), 12)
+        self.assertEqual(len(REACTION_MATRIX), 23)
 
         for pair, reaction in REACTION_MATRIX.items():
             with self.subTest(pair=pair):
@@ -1418,8 +1470,8 @@ class LabJourneyRepairTests(TestCase):
             (settings.BASE_DIR / "static/js/chemicaldata.json").read_text()
         )
 
-        self.assertEqual(len(catalog), 12)
-        self.assertEqual(len({chemical["id"] for chemical in catalog}), 12)
+        self.assertEqual(len(catalog), 27)
+        self.assertEqual(len({chemical["id"] for chemical in catalog}), 27)
         self.assertTrue(
             {"Na", "Cl2", "H2", "O2", "HCl", "NaOH", "Fe", "Cu"}
             .issubset(chemical["id"] for chemical in catalog)
@@ -1470,7 +1522,7 @@ class LabJourneyRepairTests(TestCase):
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
 
-        self.assertEqual(len(catalog), 12)
+        self.assertEqual(len(catalog), 27)
         self.assertIn(
             ("HCl", "Hydrochloric acid"),
             [(chemical["id"], chemical["name"]) for chemical in catalog],
