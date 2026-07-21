@@ -18,8 +18,10 @@ from .views import (
     SOCIAL_PREVIEW_ALT,
     SOCIAL_PREVIEW_URL,
     equation_uses_only_selected_reactants,
+    validate_complete_reaction_response,
 )
 from .reactions import (
+    PRECIPITATE_COLORS,
     REACTION_MATRIX,
     SUPPORTED_CHEMICAL_IDS,
     get_reaction,
@@ -1364,7 +1366,10 @@ class DeterministicReactionMatrixTests(TestCase):
             with self.subTest(pair=pair):
                 self.assertEqual(len(pair), 2)
                 self.assertTrue(pair.issubset(SUPPORTED_CHEMICAL_IDS))
-                self.assertIn(reaction["effect"], {"explosion", "bubble", "none"})
+                self.assertIn(
+                    reaction["effect"],
+                    {"explosion", "bubble", "precipitate", "none"},
+                )
                 self.assertTrue(reaction["explanation"].strip())
                 self.assertEqual(len(reaction["safety"].split("|")), 3)
                 self.assertTrue(
@@ -1372,6 +1377,50 @@ class DeterministicReactionMatrixTests(TestCase):
                         reaction["equation"], list(pair)
                     )
                 )
+
+    def test_five_precipitation_reactions_have_bounded_colors(self):
+        expected_precipitates = {
+            frozenset({"Ca(OH)2", "CO2"}): "#f5f3ea",
+            frozenset({"CuSO4", "KOH"}): "#5ba7d1",
+            frozenset({"AgNO3", "NaCl"}): "#f5f3ea",
+            frozenset({"AgNO3", "KI"}): "#f2c94c",
+            frozenset({"BaCl2", "Na2CO3"}): "#f5f3ea",
+        }
+
+        precipitate_reactions = {
+            pair: reaction
+            for pair, reaction in REACTION_MATRIX.items()
+            if reaction["effect"] == "precipitate"
+        }
+        self.assertEqual(set(precipitate_reactions), set(expected_precipitates))
+        for pair, expected_color in expected_precipitates.items():
+            with self.subTest(pair=pair):
+                reaction = precipitate_reactions[pair]
+                self.assertEqual(reaction["precipitate_color"], expected_color)
+                self.assertIn(reaction["precipitate_color"], PRECIPITATE_COLORS)
+
+    def test_precipitate_contract_rejects_missing_or_unknown_colors(self):
+        valid_reaction = REACTION_MATRIX[frozenset({"AgNO3", "KI"})]
+
+        for color in (None, "yellow", "#ffffff", 2, []):
+            with self.subTest(color=color):
+                candidate = {**valid_reaction, "precipitate_color": color}
+                self.assertIsNone(
+                    validate_complete_reaction_response(
+                        candidate,
+                        ["AgNO3", "KI"],
+                    )
+                )
+
+    def test_non_precipitate_contract_rejects_precipitate_metadata(self):
+        reaction = {
+            **REACTION_MATRIX[frozenset({"Na", "Cl2"})],
+            "precipitate_color": "#f5f3ea",
+        }
+
+        self.assertIsNone(
+            validate_complete_reaction_response(reaction, ["Na", "Cl2"])
+        )
 
     def test_every_matrix_pair_is_order_independent_at_the_endpoint(self):
         for first, second in supported_reaction_pairs():
@@ -1791,6 +1840,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertLess(normalization_index, storage_index)
         self.assertLess(normalization_index, render_index)
         self.assertIn("effect: reaction.effect", success_block)
+        self.assertNotIn("precipitate_color: reaction.precipitate_color", success_block)
         self.assertNotIn("new_color", interactions)
         self.assertNotIn("triggerSmokeEffect", interactions)
         self.assertNotIn("return { ...reaction, effect }", interactions)
@@ -1899,6 +1949,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("isBubbling: false", reset_block)
         self.assertIn("smokeParticles: []", reset_block)
         self.assertIn("explosionParticles: []", reset_block)
+        self.assertIn("precipitateColor: null", reset_block)
         self.assertIn("panel.innerHTML = DEFAULT_REACTION_INSTRUCTION", reset_block)
 
     def test_reset_cancels_stale_analysis_and_thermal_effects(self):

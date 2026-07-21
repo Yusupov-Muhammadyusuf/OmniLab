@@ -10,7 +10,11 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from .reactions import get_reaction, supported_reaction_pairs
+from .reactions import (
+    PRECIPITATE_COLORS,
+    get_reaction,
+    supported_reaction_pairs,
+)
 
 PRODUCTION_BASE_URL = "https://omnilab-bk8q.onrender.com"
 SOCIAL_PREVIEW_URL = (
@@ -43,7 +47,9 @@ SODIUM_CHLORINE_DEMO = {
     "vessel": "beaker",
     "liquidColor": "#89a83b",
 }
-SUPPORTED_REACTION_EFFECTS = frozenset({"explosion", "bubble", "none"})
+SUPPORTED_REACTION_EFFECTS = frozenset(
+    {"explosion", "bubble", "precipitate", "none"}
+)
 
 GUIDED_EXPERIMENT_PAGES = {
     "reaction": {
@@ -394,6 +400,7 @@ def validate_complete_reaction_response(data, selected_chemicals):
     explanation = data.get("explanation")
     safety = data.get("safety")
     effect = normalize_reaction_effect(data.get("effect"))
+    precipitate_color = data.get("precipitate_color")
 
     if not all(
         isinstance(value, str)
@@ -417,12 +424,24 @@ def validate_complete_reaction_response(data, selected_chemicals):
     ):
         return None
 
-    return {
+    if effect == "precipitate":
+        if (
+            not isinstance(precipitate_color, str)
+            or precipitate_color not in PRECIPITATE_COLORS
+        ):
+            return None
+    elif precipitate_color is not None:
+        return None
+
+    reaction = {
         "effect": effect,
         "equation": equation,
         "explanation": explanation,
         "safety": " | ".join(safety_rules),
     }
+    if effect == "precipitate":
+        reaction["precipitate_color"] = precipitate_color
+    return reaction
 
 
 def insufficient_input_response(message):

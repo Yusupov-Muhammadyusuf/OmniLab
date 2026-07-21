@@ -38,6 +38,7 @@ export interface LabState {
     smokeParticles: Particle[];
     explosionParticles: Particle[];
     isBubbling: boolean;
+    precipitateColor: '#5ba7d1' | '#f2c94c' | '#f5f3ea' | null;
     burnerActive: boolean;
 }
 
@@ -115,6 +116,7 @@ let state: LabState = {
     smokeParticles: [],
     explosionParticles: [],
     isBubbling: false,
+    precipitateColor: null,
     burnerActive: false
 };
 

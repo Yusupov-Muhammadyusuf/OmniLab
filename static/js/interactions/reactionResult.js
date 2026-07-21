@@ -1,9 +1,26 @@
 const SUPPORTED_REACTION_EFFECTS = new Set([
     'explosion',
     'bubble',
+    'precipitate',
     'none'
 ]);
-export function normalizeReactionEffect(effect) {
+const SUPPORTED_PRECIPITATE_COLORS = new Set([
+    '#5ba7d1',
+    '#f2c94c',
+    '#f5f3ea'
+]);
+export function normalizePrecipitateColor(effect, color) {
+    return effect === 'precipitate'
+        && SUPPORTED_PRECIPITATE_COLORS.has(color)
+        ? color
+        : undefined;
+}
+export function normalizeReactionEffect(effect, precipitateColor) {
+    if (effect === 'precipitate') {
+        return normalizePrecipitateColor(effect, precipitateColor)
+            ? 'precipitate'
+            : 'none';
+    }
     return SUPPORTED_REACTION_EFFECTS.has(effect)
         ? effect
         : 'none';
@@ -32,11 +49,16 @@ export function parseSavedReactionResult(serializedReaction) {
         if (safetyRules.length !== 3 || !safetyRules.every(rule => rule.length > 0)) {
             return null;
         }
+        const effect = normalizeReactionEffect(candidate.effect, candidate.precipitate_color);
+        const precipitateColor = normalizePrecipitateColor(effect, candidate.precipitate_color);
         return {
             equation,
             explanation,
             safety,
-            effect: normalizeReactionEffect(candidate.effect)
+            effect,
+            ...(precipitateColor
+                ? { precipitate_color: precipitateColor }
+                : {})
         };
     }
     catch {

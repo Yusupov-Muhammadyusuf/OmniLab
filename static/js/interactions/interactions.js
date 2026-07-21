@@ -3,7 +3,7 @@ import { closeAllPopovers, refreshChemicalMenuGuidance } from '../userInterface/
 import { cancelReactionEffects, drawVesselAndFluid, triggerThermalBlast } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 import { buildFeedbackMailtoUrl } from './feedback.js';
-import { normalizeReactionEffect, parseSavedReactionResult } from './reactionResult.js';
+import { normalizeReactionEffect, normalizePrecipitateColor, parseSavedReactionResult } from './reactionResult.js';
 import { readStorageValue, removeStorageValue, writeStorageValue } from '../storage/storage.js';
 const DEFAULT_REACTION_INSTRUCTION = `
     <div class="text-center mt-5 lab-empty-state">
@@ -50,11 +50,16 @@ function setAnalysisPending(pending) {
     updateAnalysisAvailability();
 }
 function normalizeReactionResult(reaction) {
+    const effect = normalizeReactionEffect(reaction.effect, reaction.precipitate_color);
+    const precipitateColor = normalizePrecipitateColor(effect, reaction.precipitate_color);
     return {
         equation: reaction.equation,
         explanation: reaction.explanation,
         safety: reaction.safety,
-        effect: normalizeReactionEffect(reaction.effect)
+        effect,
+        ...(precipitateColor
+            ? { precipitate_color: precipitateColor }
+            : {})
     };
 }
 function isSupportedLiquidColor(color) {
@@ -289,6 +294,7 @@ export function resetLaboratory() {
         smokeParticles: [],
         explosionParticles: [],
         isBubbling: false,
+        precipitateColor: null,
         streamActive: false,
         vesselOffsetX: 0,
         vesselOffsetY: 0
@@ -384,7 +390,12 @@ export function fireAIAnalysis() {
             });
             writeStorageValue(config.getLabStorageKey('savedReaction'), JSON.stringify(reaction));
             renderReactionResult(panel, reaction, state.selectedChemicals);
-            config.updateLabState({ isBubbling: false });
+            config.updateLabState({
+                isBubbling: false,
+                precipitateColor: reaction.effect === 'precipitate'
+                    ? reaction.precipitate_color || null
+                    : null
+            });
             if (reaction.effect === 'explosion') {
                 triggerThermalBlast();
             }
@@ -481,6 +492,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedReaction) {
         writeStorageValue(reactionStorageKey, JSON.stringify(savedReaction));
         renderReactionResult(panel, savedReaction, preparedChemicals);
+        if (savedReaction.effect === 'precipitate') {
+            config.updateLabState({
+                precipitateColor: savedReaction.precipitate_color || null
+            });
+            drawVesselAndFluid();
+        }
     }
     else {
         if (savedData !== null) {
