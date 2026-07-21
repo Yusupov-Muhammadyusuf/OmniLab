@@ -38,6 +38,9 @@ PUBLIC_CANONICAL_URLS = {
     "sodium_chlorine_ionic_bond": (
         f"{PRODUCTION_BASE_URL}/guides/sodium-and-chlorine-ionic-bond/"
     ),
+    "chemical_reaction_virtual_lab": (
+        f"{PRODUCTION_BASE_URL}/guides/chemical-reaction-virtual-lab/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 SODIUM_CHLORINE_DEMO = {
@@ -222,6 +225,40 @@ GUIDED_EXPERIMENT_PAGES = {
         ],
     },
 }
+
+CHEMICAL_REACTION_LAB_FAQS = [
+    {
+        "question": "Is OmniLab's chemical reaction virtual lab free?",
+        "answer": (
+            "Yes. The current public release is free to use without an "
+            "account or payment. Future access or pricing may change as the "
+            "product develops."
+        ),
+    },
+    {
+        "question": "How many chemical reactions can I try?",
+        "answer": (
+            "OmniLab currently supports 23 specific reaction pairs across "
+            "27 available substances. After you choose the first chemical, "
+            "the lab marks every supported partner."
+        ),
+    },
+    {
+        "question": "Does the beaker or burner change the prediction?",
+        "answer": (
+            "No. The selected chemicals are the only inputs to the current "
+            "prediction. Vessel and burner choices are visual setup aids."
+        ),
+    },
+    {
+        "question": "Can a virtual reaction replace a physical lab?",
+        "answer": (
+            "No. OmniLab is an educational prediction tool, not a physical "
+            "simulation or a substitute for instructor supervision, trusted "
+            "references, or real-laboratory safety procedures."
+        ),
+    },
+]
 
 HOMEPAGE_FAQS = [
     {
@@ -586,6 +623,61 @@ def guided_experiment(request, guide_key):
             "social_preview_url": SOCIAL_PREVIEW_URL,
             "social_preview_alt": SOCIAL_PREVIEW_ALT,
             "page_schema_json": json.dumps(page_schema),
+        },
+    )
+
+
+def chemical_reaction_virtual_lab(request):
+    canonical_url = PUBLIC_CANONICAL_URLS["chemical_reaction_virtual_lab"]
+    page_title = "Chemical reaction virtual lab for students | OmniLab"
+    description = (
+        "Try 23 supported reaction pairs in OmniLab's free chemical reaction "
+        "virtual lab. See equations, explanations, safety guidance, and "
+        "visible reaction cues."
+    )
+    page_schema = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "LearningResource",
+                "name": "Chemical reaction virtual lab for students",
+                "description": description,
+                "url": canonical_url,
+                "educationalLevel": "Introductory chemistry",
+                "learningResourceType": "Virtual laboratory guide",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "OmniLab",
+                    "url": PUBLIC_CANONICAL_URLS["index"],
+                },
+            },
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": faq["question"],
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": faq["answer"],
+                        },
+                    }
+                    for faq in CHEMICAL_REACTION_LAB_FAQS
+                ],
+            },
+        ],
+    }
+    return render(
+        request,
+        "chemical_reaction_virtual_lab.html",
+        {
+            "page_title": page_title,
+            "page_description": description,
+            "canonical_url": canonical_url,
+            "social_preview_url": SOCIAL_PREVIEW_URL,
+            "social_preview_alt": SOCIAL_PREVIEW_ALT,
+            "page_schema_json": json.dumps(page_schema),
+            "faqs": CHEMICAL_REACTION_LAB_FAQS,
         },
     )
 

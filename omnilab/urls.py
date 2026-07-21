@@ -30,5 +30,10 @@ urlpatterns = [
         {'guide_key': 'ionic-bond'},
         name="guide_sodium_chlorine_ionic_bond",
     ),
+    path(
+        'guides/chemical-reaction-virtual-lab/',
+        views.chemical_reaction_virtual_lab,
+        name="chemical_reaction_virtual_lab",
+    ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]
