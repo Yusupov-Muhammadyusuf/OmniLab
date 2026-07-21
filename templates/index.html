@@ -73,7 +73,7 @@
     </div>
 
     <main class="container-fluid p-0">
-        <section class="lab-workspace row g-0" aria-label="Virtual chemistry lab">
+        <section class="lab-workspace row g-0" id="lab-workspace" aria-label="Virtual chemistry lab">
             
             <div class="col-lg-8" id="canvas-zone" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event)">
                 <canvas id="lab-canvas"></canvas>
@@ -125,6 +125,10 @@
                     <p class="guide-library-context">Study the supported pair</p>
                     <h2 id="guide-library-title">Understand sodium and chlorine from three angles</h2>
                     <p>Start with the reaction, then connect its balanced equation to the ionic bond that forms sodium chloride.</p>
+                    <a class="guide-library-overview-link" href="{% url 'chemical_reaction_virtual_lab' %}">
+                        See how the chemical reaction virtual lab works
+                        <span aria-hidden="true">&rarr;</span>
+                    </a>
                 </div>
 
                 <nav class="guide-library-list" aria-label="Sodium and chlorine study guides">

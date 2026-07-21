@@ -654,6 +654,22 @@ body {
     text-wrap: pretty;
 }
 
+.guide-library-overview-link {
+    margin-top: 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 700;
+    text-underline-offset: 4px;
+}
+
+.guide-library-overview-link:focus-visible {
+    outline: 3px solid #e3384f;
+    outline-offset: 3px;
+}
+
 .guide-library-list {
     border-top: 1px solid var(--border-color);
 }
@@ -1617,6 +1633,60 @@ body {
     text-underline-offset: 4px;
 }
 
+.reaction-lab-shell { width: min(1180px, calc(100% - 48px)); margin: 28px auto 0; }
+.reaction-lab-hero { margin-top: 44px; display: grid; grid-template-columns: minmax(0, .92fr) minmax(420px, 1.08fr); align-items: center; gap: 72px; }
+.reaction-lab-hero h1 { max-width: 12ch; margin: 0; font-size: clamp(48px, 6vw, 80px); line-height: .96; letter-spacing: -3.5px; text-wrap: balance; }
+.reaction-lab-lede { max-width: 56ch; margin: 28px 0 30px; color: var(--muted-text); font-size: 18px; line-height: 1.68; text-wrap: pretty; }
+.reaction-lab-preview { transform: rotate(.7deg); }
+.reaction-lab-output { margin-top: 96px; padding: 34px 36px; display: grid; grid-template-columns: minmax(220px, .68fr) minmax(0, 1.32fr); gap: 64px; border: 2px solid var(--border-color); border-radius: 14px; background: var(--panel-bg); box-shadow: var(--shadow); }
+.reaction-lab-output h2, .reaction-lab-section-intro h2, .reaction-lab-reading-copy h2, .reaction-lab-boundary h2, .reaction-lab-final h2 { margin: 0; font-size: clamp(32px, 4vw, 50px); line-height: 1.04; letter-spacing: -1.9px; text-wrap: balance; }
+.reaction-lab-output-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 28px; }
+.reaction-lab-output-grid > div { padding: 18px 0 22px; border-top: 1px solid rgba(30, 30, 30, .22); }
+.reaction-lab-output-grid span, .reaction-pair-type { color: var(--muted-text); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.reaction-lab-output-grid h3 { margin: 9px 0 8px; font-size: 17px; }
+.reaction-lab-output-grid p, .reaction-lab-section-intro > p:last-child, .reaction-lab-how-list p, .reaction-pair-grid article > p:last-child, .reaction-lab-reading-copy p, .reaction-lab-fit-grid p, .reaction-lab-boundary p, .reaction-lab-final > p { margin: 0; color: var(--muted-text); font-size: 15px; line-height: 1.68; text-wrap: pretty; }
+.reaction-lab-how, .reaction-lab-pairs, .reaction-lab-fit, .reaction-lab-faq { margin-top: 112px; display: grid; grid-template-columns: minmax(240px, .7fr) minmax(0, 1.3fr); align-items: start; gap: 80px; }
+.reaction-lab-section-intro { position: sticky; top: 32px; }
+.reaction-lab-section-intro > p:last-child { max-width: 40ch; margin-top: 20px; }
+.reaction-lab-how-list { margin: 0; padding: 0; border-top: 2px solid var(--border-color); list-style: none; }
+.reaction-lab-how-list li { padding: 30px 0; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 20px; border-bottom: 1px solid rgba(30, 30, 30, .22); }
+.reaction-lab-how-list > li > span { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--border-color); border-radius: 50%; font-size: 13px; font-weight: 700; }
+.reaction-lab-how-list h3 { margin: 3px 0 9px; font-size: 22px; letter-spacing: -.5px; }
+.reaction-pair-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.reaction-pair-grid article { min-height: 220px; padding: 24px; display: flex; flex-direction: column; border: 2px solid var(--border-color); border-radius: 12px; background: var(--panel-bg); box-shadow: var(--shadow); }
+.reaction-pair-grid article:nth-child(2n) { transform: translateY(12px); }
+.reaction-pair-type { margin: 0 0 14px; }
+.reaction-pair-grid h3 { margin: 0 0 12px; font-size: 19px; line-height: 1.3; }
+.reaction-pair-equation { margin: 0 0 16px; padding: 10px 12px; border-radius: 8px; background: var(--bg-canvas); font-size: 13px; font-weight: 700; line-height: 1.5; }
+.reaction-pair-grid article > p:last-child { margin-top: auto; }
+.reaction-lab-reading { margin-top: 124px; display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(320px, .92fr); align-items: center; gap: 72px; }
+.reaction-lab-equation-card { padding: 32px; border: 2px solid var(--border-color); border-radius: 14px; background: var(--text-color); color: var(--bg-main); box-shadow: var(--shadow); }
+.reaction-lab-equation-card .guide-section-label { color: var(--bg-main); opacity: .7; }
+.reaction-lab-equation { margin: 30px 0; font-size: clamp(24px, 3.2vw, 39px); font-weight: 700; line-height: 1.28; letter-spacing: -1.3px; }
+.reaction-lab-equation-key { padding-top: 20px; display: flex; flex-wrap: wrap; gap: 12px 20px; border-top: 1px solid rgba(255,255,255,.3); font-size: 12px; }
+.reaction-lab-reading-copy p { margin-top: 18px; }
+.reaction-lab-fit-grid { display: grid; border-top: 2px solid var(--border-color); }
+.reaction-lab-fit-grid article { padding: 28px 0; display: grid; grid-template-columns: minmax(200px, .72fr) minmax(0, 1.28fr); gap: 36px; border-bottom: 1px solid rgba(30,30,30,.22); }
+.reaction-lab-fit-grid h3 { margin: 0; font-size: 19px; line-height: 1.4; }
+.reaction-lab-boundary { margin-top: 112px; padding: 40px; display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr); gap: 72px; border: 2px solid var(--border-color); border-radius: 14px; background: var(--panel-bg); box-shadow: var(--shadow); }
+.reaction-lab-boundary > div:last-child { display: grid; gap: 18px; }
+.reaction-lab-boundary .reaction-lab-boundary-strong { color: var(--text-color); font-weight: 700; }
+.reaction-lab-faq-list { border-top: 2px solid var(--border-color); }
+.reaction-lab-faq-list details { border-bottom: 1px solid rgba(30,30,30,.22); }
+.reaction-lab-faq-list summary { min-height: 72px; padding: 20px 42px 20px 0; position: relative; display: flex; align-items: center; cursor: pointer; font-size: 17px; font-weight: 700; line-height: 1.4; list-style: none; }
+.reaction-lab-faq-list summary::-webkit-details-marker { display: none; }
+.reaction-lab-faq-list summary::after { content: "+"; position: absolute; right: 4px; font-size: 22px; }
+.reaction-lab-faq-list details[open] summary::after { content: "−"; }
+.reaction-lab-faq-list details p { max-width: 66ch; margin: -2px 0 24px; color: var(--muted-text); font-size: 15px; line-height: 1.7; }
+.reaction-lab-final { margin-top: 112px; padding: 48px; border-radius: 14px; background: var(--text-color); color: var(--bg-main); }
+.reaction-lab-final h2 { max-width: 19ch; }
+.reaction-lab-final .guide-section-label, .reaction-lab-final > p { color: var(--bg-main); opacity: .78; }
+.reaction-lab-final > p { max-width: 64ch; margin-top: 18px; }
+.reaction-lab-final-links { margin-top: 28px; display: flex; align-items: center; flex-wrap: wrap; gap: 16px 24px; }
+.reaction-lab-final .guide-primary { border-color: var(--bg-main); background: var(--bg-main); color: var(--text-color); }
+.reaction-lab-final-links > a:last-child { color: var(--bg-main); font-size: 14px; font-weight: 700; text-underline-offset: 4px; }
+.reaction-lab-related { margin-top: 80px; }
+
 .guide-primary:focus-visible,
 .guide-brand:focus-visible,
 .guide-breadcrumb a:focus-visible,
@@ -1646,6 +1716,9 @@ body {
     .guide-learning-intro { position: static; }
     .guide-notes { grid-template-columns: 1fr; gap: 48px; }
     .guide-related { grid-template-columns: 1fr; gap: 28px; }
+    .reaction-lab-hero, .reaction-lab-output, .reaction-lab-how, .reaction-lab-pairs, .reaction-lab-reading, .reaction-lab-fit, .reaction-lab-faq, .reaction-lab-boundary { grid-template-columns: 1fr; gap: 48px; }
+    .reaction-lab-section-intro { position: static; }
+    .reaction-lab-preview { transform: none; }
 }
 
 @media (max-width: 991.98px) {
@@ -1691,7 +1764,8 @@ body {
     .faq-item summary { min-height: 68px; padding-right: 44px; font-size: 16px; }
     .faq-item p { padding-right: 32px; font-size: 15px; }
     .guide-site-header,
-    .guide-shell { width: min(100% - 32px, 1180px); }
+    .guide-shell,
+    .reaction-lab-shell { width: min(100% - 32px, 1180px); }
     .guide-site-header { padding: 20px 0; }
     .guide-shell { margin-top: 12px; }
     .guide-hero { margin-top: 32px; gap: 40px; }
@@ -1704,4 +1778,14 @@ body {
     .guide-notes { margin-top: 72px; }
     .guide-steps li { grid-template-columns: 36px minmax(0, 1fr); gap: 12px; }
     .guide-boundary { padding: 24px 20px; }
+    .reaction-lab-hero { margin-top: 32px; gap: 40px; }
+    .reaction-lab-hero h1 { font-size: 43px; letter-spacing: -1.9px; }
+    .reaction-lab-lede { margin: 22px 0 24px; font-size: 16px; }
+    .reaction-lab-output { margin-top: 64px; padding: 24px 20px; }
+    .reaction-lab-output-grid, .reaction-pair-grid { grid-template-columns: 1fr; }
+    .reaction-pair-grid article:nth-child(2n) { transform: none; }
+    .reaction-lab-how, .reaction-lab-pairs, .reaction-lab-fit, .reaction-lab-faq, .reaction-lab-boundary, .reaction-lab-final { margin-top: 72px; }
+    .reaction-lab-reading { margin-top: 80px; }
+    .reaction-lab-equation-card, .reaction-lab-boundary, .reaction-lab-final { padding: 24px 20px; }
+    .reaction-lab-fit-grid article { grid-template-columns: 1fr; gap: 12px; }
 }

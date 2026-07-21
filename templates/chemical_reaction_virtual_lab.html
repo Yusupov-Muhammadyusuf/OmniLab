@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ page_description }}">
+    <title>{{ page_title }}</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="OmniLab">
+    <meta property="og:title" content="Chemical reaction virtual lab for students">
+    <meta property="og:description" content="{{ page_description }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ social_preview_url }}">
+    <meta property="og:image:alt" content="{{ social_preview_alt }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Chemical reaction virtual lab for students">
+    <meta name="twitter:description" content="{{ page_description }}">
+    <meta name="twitter:image" content="{{ social_preview_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% include "partials/product_analytics.html" %}
+    <script type="application/ld+json">{{ page_schema_json|safe }}</script>
+</head>
+<body class="guide-page">
+    <header class="guide-site-header">
+        <a class="guide-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="guide-site-label">Virtual lab guide</span>
+    </header>
+
+    <main>
+        <article class="reaction-lab-shell">
+            <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+                <a href="{% url 'index' %}">Virtual lab</a>
+                <span aria-hidden="true">/</span>
+                <span>Chemical reaction virtual lab</span>
+            </nav>
+
+            <section class="reaction-lab-hero" aria-labelledby="reaction-lab-heading">
+                <div class="reaction-lab-hero-copy">
+                    <p class="guide-context">Free in the current release · No account required</p>
+                    <h1 id="reaction-lab-heading">Try a chemical reaction in a virtual lab</h1>
+                    <p class="reaction-lab-lede">Choose two chemicals from a supported pair. OmniLab returns a balanced equation, a plain-language explanation, three safety notes, and a visible reaction cue when the result includes bubbling or a precipitate.</p>
+                    <a class="guide-primary" href="{% url 'index' %}#lab-workspace">
+                        Open the reaction lab
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <p class="guide-cta-note">You stay in control of when to request a prediction.</p>
+                </div>
+
+                <figure class="guide-preview reaction-lab-preview">
+                    <div class="guide-preview-frame">
+                        <img src="{% static 'images/omnilab-social-preview.png' %}" alt="OmniLab showing selected chemicals, a reaction equation, an explanation, and safety guidance">
+                        <span class="guide-preview-label">Real OmniLab result</span>
+                    </div>
+                    <figcaption>This is the live browser workspace, not an illustration. The result shown is the supported Sodium and Chlorine journey.</figcaption>
+                </figure>
+            </section>
+
+            <section class="reaction-lab-output" aria-labelledby="output-heading">
+                <div>
+                    <p class="guide-section-label">What you get</p>
+                    <h2 id="output-heading">One setup, four ways to read the result</h2>
+                </div>
+                <div class="reaction-lab-output-grid">
+                    <div><span>01</span><h3>Balanced equation</h3><p>See the reactants, products, coefficients, and physical states for the supported pair.</p></div>
+                    <div><span>02</span><h3>Short explanation</h3><p>Connect the equation to the reaction type, particle changes, and expected observation.</p></div>
+                    <div><span>03</span><h3>Three safety notes</h3><p>Read reaction-specific cautions before treating the prediction as preparation for real work.</p></div>
+                    <div><span>04</span><h3>Visible cue</h3><p>Watch bounded bubbles or colored precipitate where the supported result includes one.</p></div>
+                </div>
+            </section>
+
+            <section class="reaction-lab-how" aria-labelledby="how-heading">
+                <div class="reaction-lab-section-intro">
+                    <p class="guide-section-label">How to use the lab</p>
+                    <h2 id="how-heading">From a question to a reaction prediction</h2>
+                    <p>OmniLab keeps the path short so you can focus on reading the chemistry rather than learning a complex interface.</p>
+                </div>
+                <ol class="reaction-lab-how-list">
+                    <li><span>1</span><div><h3>Choose your first chemical</h3><p>Open the Chemicals menu and select one of the 27 available substances. The lab then marks every chemical that forms one of its 23 supported pairs with your first choice.</p></div></li>
+                    <li><span>2</span><div><h3>Add a supported partner</h3><p>Select the marked partner by click, tap, keyboard, or drag. You can also choose a flask, test tube, beaker, or burner to arrange the visual workspace.</p></div></li>
+                    <li><span>3</span><div><h3>Analyze, then check the result</h3><p>Select Analyze Chemical Reaction. Read the equation, explanation, safety notes, and effect together, then compare important details with your course materials or instructor.</p></div></li>
+                </ol>
+            </section>
+
+            <section class="reaction-lab-pairs" aria-labelledby="pairs-heading">
+                <div class="reaction-lab-section-intro">
+                    <p class="guide-section-label">Supported examples</p>
+                    <h2 id="pairs-heading">Explore reaction types, not random combinations</h2>
+                    <p>The current matrix covers 23 specific pairs. These examples show the range you can explore without pretending every possible mixture is supported.</p>
+                </div>
+                <div class="reaction-pair-grid">
+                    <article><p class="reaction-pair-type">Synthesis</p><h3>Hydrogen + Oxygen</h3><p class="reaction-pair-equation">2H₂ + O₂ → 2H₂O</p><p>Follow how two elements combine into one compound.</p></article>
+                    <article><p class="reaction-pair-type">Neutralization</p><h3>Hydrochloric acid + Sodium hydroxide</h3><p class="reaction-pair-equation">HCl + NaOH → NaCl + H₂O</p><p>Connect an acid-base reaction to salt and water formation.</p></article>
+                    <article><p class="reaction-pair-type">Gas evolution</p><h3>Acetic acid + Sodium bicarbonate</h3><p class="reaction-pair-equation">CH₃COOH + NaHCO₃ → CO₂ + H₂O + CH₃COONa</p><p>See carbon dioxide represented as a bubbling result.</p></article>
+                    <article><p class="reaction-pair-type">Blue precipitate</p><h3>Copper(II) sulfate + Potassium hydroxide</h3><p class="reaction-pair-equation">CuSO₄ + 2KOH → Cu(OH)₂ + K₂SO₄</p><p>Relate the equation to a blue copper(II) hydroxide solid.</p></article>
+                    <article><p class="reaction-pair-type">Yellow precipitate</p><h3>Silver nitrate + Potassium iodide</h3><p class="reaction-pair-equation">AgNO₃ + KI → AgI + KNO₃</p><p>Identify a yellow silver iodide precipitate in a double displacement reaction.</p></article>
+                    <article><p class="reaction-pair-type">Single displacement</p><h3>Zinc + Hydrochloric acid</h3><p class="reaction-pair-equation">Zn + 2HCl → ZnCl₂ + H₂</p><p>Track zinc oxidation and hydrogen gas formation.</p></article>
+                </div>
+            </section>
+
+            <section class="reaction-lab-reading" aria-labelledby="reading-heading">
+                <div class="reaction-lab-equation-card">
+                    <p class="guide-section-label">Example result</p>
+                    <p class="reaction-lab-equation">AgNO₃(aq) + NaCl(aq) → AgCl(s) + NaNO₃(aq)</p>
+                    <div class="reaction-lab-equation-key">
+                        <span><strong>(aq)</strong> dissolved in water</span>
+                        <span><strong>(s)</strong> solid product</span>
+                        <span><strong>→</strong> produces</span>
+                    </div>
+                </div>
+                <div class="reaction-lab-reading-copy">
+                    <p class="guide-section-label">Read beyond the animation</p>
+                    <h2 id="reading-heading">Use the cue to ask a chemistry question</h2>
+                    <p>A white solid appearing in the vessel is useful only when you connect it to the equation. In this example, aqueous silver and chloride ions form solid silver chloride. Sodium and nitrate ions remain dissolved.</p>
+                    <p>The visual cue is deliberately bounded. It helps you recognize an expected observation, but it does not model concentration, temperature, reaction rate, yield, or every physical condition that changes a real experiment.</p>
+                </div>
+            </section>
+
+            <section class="reaction-lab-fit" aria-labelledby="fit-heading">
+                <div class="reaction-lab-section-intro">
+                    <p class="guide-section-label">Choose the right tool</p>
+                    <h2 id="fit-heading">Where a chemical reaction virtual lab fits</h2>
+                    <p>No single online lab covers every learning goal. Choose the format that matches what you need to practice.</p>
+                </div>
+                <div class="reaction-lab-fit-grid">
+                    <article><h3>Use OmniLab for a quick supported-pair check</h3><p>Choose two chemicals and get a deterministic educational result without an account. This is the best fit when you want to practice reading an equation, explanation, safety notes, and observation together.</p></article>
+                    <article><h3>Use an open-ended lab for experimental design</h3><p>A broader virtual environment is a better fit when you need hundreds of reagents, quantitative glassware, concentrations, measurements, or a multi-step procedure. OmniLab does not currently model those variables.</p></article>
+                    <article><h3>Use your course platform for assigned practicals</h3><p>A teacher-selected simulation is the better fit when your grade depends on a specific protocol, dataset, assessment, or learning-management workflow. Follow your course requirements first.</p></article>
+                </div>
+            </section>
+
+            <section class="reaction-lab-boundary" aria-labelledby="boundary-heading">
+                <div>
+                    <p class="guide-section-label">Educational boundary</p>
+                    <h2 id="boundary-heading">Predict online. Verify before the physical lab.</h2>
+                </div>
+                <div>
+                    <p>OmniLab matches supported chemical pairs to a fixed educational result. It does not infer a real outcome from concentration, quantity, pressure, temperature, order of addition, vessel choice, burner state, contamination, or laboratory technique.</p>
+                    <p>That makes it useful for studying a simplified reaction path, not for deciding that a real procedure is safe. Results can be incomplete or wrong. Check important information against trusted chemistry references and follow trained supervision and your laboratory's safety rules.</p>
+                    <p class="reaction-lab-boundary-strong">Never attempt a reaction solely because it appears in a virtual lab.</p>
+                </div>
+            </section>
+
+            <section class="reaction-lab-faq" aria-labelledby="reaction-lab-faq-heading">
+                <div class="reaction-lab-section-intro">
+                    <p class="guide-section-label">Common questions</p>
+                    <h2 id="reaction-lab-faq-heading">Before you start mixing</h2>
+                </div>
+                <div class="reaction-lab-faq-list">
+                    {% for faq in faqs %}
+                    <details{% if forloop.first %} open{% endif %}>
+                        <summary>{{ faq.question }}</summary>
+                        <p>{{ faq.answer }}</p>
+                    </details>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="reaction-lab-final" aria-labelledby="final-heading">
+                <p class="guide-section-label">Ready to try one?</p>
+                <h2 id="final-heading">Turn a reaction question into a result you can inspect.</h2>
+                <p>Start with the full catalog, or use the prepared Sodium and Chlorine journey if you want one known setup ready to analyze.</p>
+                <div class="reaction-lab-final-links">
+                    <a class="guide-primary" href="{% url 'index' %}#lab-workspace">Open the reaction lab <span aria-hidden="true">→</span></a>
+                    <a href="{% url 'sodium_chlorine_demo' %}">Try the prepared Sodium + Chlorine setup</a>
+                </div>
+            </section>
+
+            <nav class="guide-related reaction-lab-related" aria-labelledby="related-heading">
+                <div>
+                    <p class="guide-section-label">Study one reaction</p>
+                    <h2 id="related-heading">Go deeper on sodium and chlorine</h2>
+                </div>
+                <div class="guide-related-links">
+                    <a href="{% url 'guide_sodium_chlorine_reaction' %}"><span>What happens when sodium reacts with chlorine?</span><span aria-hidden="true">→</span></a>
+                    <a href="{% url 'guide_sodium_chlorine_formula' %}"><span>What formula forms from sodium and chlorine?</span><span aria-hidden="true">→</span></a>
+                    <a href="{% url 'guide_sodium_chlorine_ionic_bond' %}"><span>Why do sodium and chlorine form an ionic bond?</span><span aria-hidden="true">→</span></a>
+                </div>
+            </nav>
+        </article>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+</body>
+</html>

@@ -131,6 +131,53 @@ class HomepageGuideLinksTests(TestCase):
 
 
 class SearchDiscoveryTests(TestCase):
+    def test_chemical_reaction_virtual_lab_page_is_complete_and_discoverable(self):
+        response = self.client.get("/guides/chemical-reaction-virtual-lab/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "<h1 id=\"reaction-lab-heading\">Try a chemical reaction in a virtual lab</h1>",
+            html=True,
+        )
+        self.assertContains(response, "23 supported reaction pairs")
+        self.assertContains(response, "27 available substances")
+        self.assertContains(response, "Open the reaction lab")
+        self.assertContains(
+            response,
+            (
+                '<link rel="canonical" href="'
+                f'{PUBLIC_CANONICAL_URLS["chemical_reaction_virtual_lab"]}">'
+            ),
+            html=True,
+        )
+
+    def test_chemical_reaction_virtual_lab_has_learning_and_faq_schema(self):
+        response = self.client.get("/guides/chemical-reaction-virtual-lab/")
+        html = response.content.decode()
+        schemas = [
+            json.loads(match)
+            for match in re.findall(
+                r'<script type="application/ld\+json">(.*?)</script>',
+                html,
+                re.DOTALL,
+            )
+        ]
+        page_graph = next(schema["@graph"] for schema in schemas if "@graph" in schema)
+        schema_types = {item["@type"] for item in page_graph}
+
+        self.assertEqual(schema_types, {"LearningResource", "FAQPage"})
+        faq_schema = next(item for item in page_graph if item["@type"] == "FAQPage")
+        self.assertEqual(len(faq_schema["mainEntity"]), 4)
+
+    def test_homepage_links_to_chemical_reaction_virtual_lab(self):
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            'href="/guides/chemical-reaction-virtual-lab/"',
+        )
+
     def test_homepage_description_states_audience_action_and_boundary(self):
         response = self.client.get("/")
 
