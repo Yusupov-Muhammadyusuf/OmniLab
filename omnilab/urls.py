@@ -5,6 +5,7 @@ urlpatterns = [
     path('robots.txt', views.robots_txt, name="robots_txt"),
     path('sitemap.xml', views.sitemap_xml, name="sitemap_xml"),
     path('pricing/', views.pricing, name="pricing"),
+    path('contact/', views.contact, name="contact"),
     path('privacy/', views.privacy, name="privacy"),
     path('terms/', views.terms, name="terms"),
     path(

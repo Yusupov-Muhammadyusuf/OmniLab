@@ -138,3 +138,23 @@ OMNILAB_REACTION_RATE_LIMIT_REQUESTS = int(
 OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS = int(
     os.getenv("OMNILAB_REACTION_RATE_LIMIT_WINDOW_SECONDS", "600")
 )
+
+# Contact messages use Django's standard SMTP backend. Production supplies
+# provider details through environment variables; no message content is logged
+# or stored in the application database.
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.getenv("OMNILAB_EMAIL_HOST", "")
+EMAIL_PORT = int(os.getenv("OMNILAB_EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.getenv("OMNILAB_EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("OMNILAB_EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.getenv("OMNILAB_EMAIL_USE_TLS", "true").lower() == "true"
+DEFAULT_FROM_EMAIL = os.getenv(
+    "OMNILAB_CONTACT_FROM_EMAIL",
+    "omnilab-bk8q@mail.tin.computer",
+)
+OMNILAB_CONTACT_RATE_LIMIT_REQUESTS = int(
+    os.getenv("OMNILAB_CONTACT_RATE_LIMIT_REQUESTS", "5")
+)
+OMNILAB_CONTACT_RATE_LIMIT_WINDOW_SECONDS = int(
+    os.getenv("OMNILAB_CONTACT_RATE_LIMIT_WINDOW_SECONDS", "3600")
+)
