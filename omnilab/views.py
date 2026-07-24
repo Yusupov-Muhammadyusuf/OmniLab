@@ -41,6 +41,18 @@ PUBLIC_CANONICAL_URLS = {
     "chemical_reaction_virtual_lab": (
         f"{PRODUCTION_BASE_URL}/guides/chemical-reaction-virtual-lab/"
     ),
+    "limewater_carbon_dioxide": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "why-limewater-turns-cloudy-with-carbon-dioxide/"
+    ),
+    "sodium_carbonate_hydrochloric_acid": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "why-sodium-carbonate-fizzes-with-hydrochloric-acid/"
+    ),
+    "silver_nitrate_potassium_iodide": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "silver-nitrate-potassium-iodide-precipitate/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 SODIUM_CHLORINE_DEMO = {
@@ -49,6 +61,71 @@ SODIUM_CHLORINE_DEMO = {
     "selectedChemicals": ["Na", "Cl2"],
     "vessel": "beaker",
     "liquidColor": "#89a83b",
+    "mixture_label": "Na + Cl2",
+    "title": "Sodium and chlorine, ready to analyze",
+    "page_title": "OmniLab - Sodium and chlorine reaction demo",
+    "page_description": (
+        "Open a prepared Sodium and Chlorine setup, then choose whether to "
+        "request an educational reaction prediction."
+    ),
+    "url": SODIUM_CHLORINE_DEMO_URL,
+}
+REACTION_DEMOS = {
+    "sodium-chlorine": SODIUM_CHLORINE_DEMO,
+    "carbon-dioxide-calcium-hydroxide": {
+        "id": "limewater-carbon-dioxide",
+        "version": "v1",
+        "selectedChemicals": ["Ca(OH)2", "CO2"],
+        "vessel": "beaker",
+        "liquidColor": "#6d7782",
+        "mixture_label": "Ca(OH)2 + CO2",
+        "title": "Limewater and carbon dioxide, ready to analyze",
+        "page_title": "OmniLab - Limewater and carbon dioxide demo",
+        "page_description": (
+            "Open a prepared Calcium hydroxide and Carbon dioxide setup, then "
+            "choose whether to request an educational reaction prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "carbon-dioxide-calcium-hydroxide/"
+        ),
+    },
+    "sodium-carbonate-hydrochloric-acid": {
+        "id": "sodium-carbonate-hydrochloric-acid",
+        "version": "v1",
+        "selectedChemicals": ["Na2CO3", "HCl"],
+        "vessel": "beaker",
+        "liquidColor": "#d0a22f",
+        "mixture_label": "Na2CO3 + HCl",
+        "title": "Sodium carbonate and hydrochloric acid, ready to analyze",
+        "page_title": "OmniLab - Sodium carbonate and hydrochloric acid demo",
+        "page_description": (
+            "Open a prepared Sodium carbonate and Hydrochloric acid setup, "
+            "then choose whether to request an educational reaction prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "sodium-carbonate-hydrochloric-acid/"
+        ),
+    },
+    "silver-nitrate-potassium-iodide": {
+        "id": "silver-nitrate-potassium-iodide",
+        "version": "v1",
+        "selectedChemicals": ["AgNO3", "KI"],
+        "vessel": "beaker",
+        "liquidColor": "#a77742",
+        "mixture_label": "AgNO3 + KI",
+        "title": "Silver nitrate and potassium iodide, ready to analyze",
+        "page_title": "OmniLab - Silver nitrate and potassium iodide demo",
+        "page_description": (
+            "Open a prepared Silver nitrate and Potassium iodide setup, then "
+            "choose whether to request an educational reaction prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "silver-nitrate-potassium-iodide/"
+        ),
+    },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
 SUPPORTED_REACTION_EFFECTS = frozenset(
@@ -224,6 +301,178 @@ GUIDED_EXPERIMENT_PAGES = {
             "Its result is generated and may be incomplete or wrong.",
             "Use a textbook or instructor to verify the bonding model.",
         ],
+    },
+}
+
+OBSERVATION_GUIDE_PAGES = {
+    "limewater-carbon-dioxide": {
+        "route_name": "guide_limewater_carbon_dioxide",
+        "canonical_key": "limewater_carbon_dioxide",
+        "visit_source": "guide_observation_a",
+        "demo_route_name": "demo_carbon_dioxide_calcium_hydroxide",
+        "title": "Why does limewater turn cloudy when carbon dioxide is added?",
+        "page_title": (
+            "Why limewater turns cloudy with carbon dioxide | OmniLab"
+        ),
+        "description": (
+            "See why carbon dioxide turns limewater cloudy, read the balanced "
+            "equation, and open the exact supported setup in OmniLab."
+        ),
+        "reading_time": "4 minute read",
+        "direct_answer": (
+            "Carbon dioxide reacts with calcium hydroxide in limewater to form "
+            "solid calcium carbonate. That suspended white precipitate makes "
+            "the mixture look cloudy."
+        ),
+        "reactants": [
+            {"name": "Calcium hydroxide", "formula": "Ca(OH)2"},
+            {"name": "Carbon dioxide", "formula": "CO2"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Calcium hydroxide and Carbon dioxide. "
+            "The burner stays off, and you decide when to analyze."
+        ),
+        "cta_label": "Try the limewater setup",
+        "equation": "Ca(OH)2(aq) + CO2(g) -> CaCO3(s) + H2O(l)",
+        "explanation": (
+            "Carbon dioxide reacts with calcium hydroxide to form a calcium "
+            "carbonate precipitate and water. In the common limewater test, "
+            "the suspended calcium carbonate makes the solution appear "
+            "cloudy. Excess carbon dioxide can cause further changes that "
+            "are outside this simplified equation."
+        ),
+        "observation_title": "A cloudy white precipitate",
+        "observation": (
+            "OmniLab shows a bounded white precipitate cue inside the beaker "
+            "to represent the expected calcium carbonate solid."
+        ),
+        "observation_class": "observation-cloudy",
+        "observation_label": "Cloudy white",
+        "safety": [
+            (
+                "Avoid breathing calcium hydroxide dust or carbon dioxide-rich "
+                "air."
+            ),
+            "Wear splash goggles and gloves when handling limewater.",
+            "Work with carbon dioxide in a well-ventilated area.",
+        ],
+        "boundary": (
+            "OmniLab predicts this simplified limewater test. It does not "
+            "simulate gas delivery, concentration, rate, yield, or the further "
+            "chemistry that excess carbon dioxide can cause."
+        ),
+    },
+    "sodium-carbonate-hydrochloric-acid": {
+        "route_name": "guide_sodium_carbonate_hydrochloric_acid",
+        "canonical_key": "sodium_carbonate_hydrochloric_acid",
+        "visit_source": "guide_observation_b",
+        "demo_route_name": "demo_sodium_carbonate_hydrochloric_acid",
+        "title": "Why does sodium carbonate fizz with hydrochloric acid?",
+        "page_title": (
+            "Why sodium carbonate fizzes with hydrochloric acid | OmniLab"
+        ),
+        "description": (
+            "See why sodium carbonate fizzes with hydrochloric acid, read the "
+            "balanced equation, and try the exact supported setup in OmniLab."
+        ),
+        "reading_time": "4 minute read",
+        "direct_answer": (
+            "Sodium carbonate reacts with hydrochloric acid to form sodium "
+            "chloride, water, and carbon dioxide gas. The escaping carbon "
+            "dioxide is what makes the mixture fizz."
+        ),
+        "reactants": [
+            {"name": "Sodium carbonate", "formula": "Na2CO3"},
+            {"name": "Hydrochloric acid", "formula": "HCl"},
+        ],
+        "setup_summary": (
+            "An open beaker is prepared with Sodium carbonate and Hydrochloric "
+            "acid. The burner stays off, and you decide when to analyze."
+        ),
+        "cta_label": "Try the fizzing setup",
+        "equation": (
+            "Na2CO3(aq) + 2HCl(aq) -> "
+            "2NaCl(aq) + CO2(g) + H2O(l)"
+        ),
+        "explanation": (
+            "Sodium carbonate reacts with hydrochloric acid to form sodium "
+            "chloride, carbon dioxide, and water. Carbon dioxide escaping "
+            "from the solution causes bubbling. Two hydrogen ions are needed "
+            "for each carbonate ion in the balanced equation."
+        ),
+        "observation_title": "Carbon dioxide bubbles",
+        "observation": (
+            "OmniLab shows a bounded bubble cue inside the beaker to represent "
+            "the expected gas evolution."
+        ),
+        "observation_class": "observation-bubbles",
+        "observation_label": "Visible fizzing",
+        "safety": [
+            "Wear splash goggles and acid-resistant gloves.",
+            "Add hydrochloric acid slowly to control foaming and heat.",
+            "Keep the vessel open and work in a ventilated area.",
+        ],
+        "boundary": (
+            "The bubble cue represents expected gas evolution, not its rate, "
+            "volume, temperature change, or real-procedure safety. Vessel and "
+            "burner choices do not affect the prediction."
+        ),
+    },
+    "silver-nitrate-potassium-iodide": {
+        "route_name": "guide_silver_nitrate_potassium_iodide",
+        "canonical_key": "silver_nitrate_potassium_iodide",
+        "visit_source": "guide_observation_c",
+        "demo_route_name": "demo_silver_nitrate_potassium_iodide",
+        "title": (
+            "What precipitate forms when silver nitrate reacts with "
+            "potassium iodide?"
+        ),
+        "page_title": (
+            "Silver nitrate and potassium iodide precipitate | OmniLab"
+        ),
+        "description": (
+            "Identify the precipitate from silver nitrate and potassium "
+            "iodide, read the equation, and try the supported setup in OmniLab."
+        ),
+        "reading_time": "4 minute read",
+        "direct_answer": (
+            "Silver nitrate and potassium iodide form silver iodide, an "
+            "insoluble yellow precipitate. Potassium and nitrate ions remain "
+            "dissolved in the solution."
+        ),
+        "reactants": [
+            {"name": "Silver nitrate", "formula": "AgNO3"},
+            {"name": "Potassium iodide", "formula": "KI"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Silver nitrate and Potassium iodide. "
+            "The burner stays off, and you decide when to analyze."
+        ),
+        "cta_label": "Try the yellow precipitate setup",
+        "equation": "AgNO3(aq) + KI(aq) -> AgI(s) + KNO3(aq)",
+        "explanation": (
+            "Silver nitrate and potassium iodide undergo a precipitation "
+            "reaction. Insoluble silver iodide forms as a yellow solid while "
+            "potassium and nitrate ions remain in solution. The molecular "
+            "equation has a one-to-one reactant ratio."
+        ),
+        "observation_title": "A yellow silver iodide precipitate",
+        "observation": (
+            "OmniLab shows a bounded yellow precipitate cue inside the beaker "
+            "to represent the expected silver iodide solid."
+        ),
+        "observation_class": "observation-yellow",
+        "observation_label": "Yellow solid",
+        "safety": [
+            "Wear gloves and splash goggles when handling silver nitrate.",
+            "Protect the silver iodide precipitate from strong light.",
+            "Collect silver-containing waste for approved disposal.",
+        ],
+        "boundary": (
+            "The yellow cue is a simplified expected observation. OmniLab does "
+            "not model concentration, yield, particle size, light-driven "
+            "decomposition, or waste handling."
+        ),
     },
 }
 
@@ -566,13 +815,10 @@ def homepage_context(reaction_demo=None):
     if reaction_demo:
         context.update(
             {
-                "social_url": SODIUM_CHLORINE_DEMO_URL,
-                "page_title": "OmniLab - Sodium and chlorine reaction demo",
-                "social_title": "OmniLab - Sodium and chlorine reaction demo",
-                "page_description": (
-                    "Open a prepared Sodium and Chlorine setup, then choose "
-                    "whether to request an educational reaction prediction."
-                ),
+                "social_url": reaction_demo["url"],
+                "page_title": reaction_demo["page_title"],
+                "social_title": reaction_demo["page_title"],
+                "page_description": reaction_demo["page_description"],
             }
         )
     return context
@@ -589,6 +835,15 @@ def sodium_chlorine_demo(request):
         request,
         "index.html",
         homepage_context(SODIUM_CHLORINE_DEMO),
+    )
+
+
+@ensure_csrf_cookie
+def prepared_reaction_demo(request, demo_key):
+    return render(
+        request,
+        "index.html",
+        homepage_context(REACTION_DEMOS[demo_key]),
     )
 
 
@@ -617,6 +872,42 @@ def guided_experiment(request, guide_key):
     return render(
         request,
         "guided_experiment.html",
+        {
+            "guide": guide,
+            "related_guides": related_guides,
+            "canonical_url": canonical_url,
+            "social_preview_url": SOCIAL_PREVIEW_URL,
+            "social_preview_alt": SOCIAL_PREVIEW_ALT,
+            "page_schema_json": json.dumps(page_schema),
+        },
+    )
+
+
+def observation_guide(request, guide_key):
+    guide = OBSERVATION_GUIDE_PAGES[guide_key]
+    related_guides = [
+        related_guide
+        for related_key, related_guide in OBSERVATION_GUIDE_PAGES.items()
+        if related_key != guide_key
+    ]
+    canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
+    page_schema = {
+        "@context": "https://schema.org",
+        "@type": "LearningResource",
+        "name": guide["title"],
+        "description": guide["description"],
+        "url": canonical_url,
+        "educationalLevel": "Introductory chemistry",
+        "learningResourceType": "Experiment observation guide",
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "OmniLab",
+            "url": PUBLIC_CANONICAL_URLS["index"],
+        },
+    }
+    return render(
+        request,
+        "observation_guide.html",
         {
             "guide": guide,
             "related_guides": related_guides,
@@ -680,6 +971,7 @@ def chemical_reaction_virtual_lab(request):
             "page_schema_json": json.dumps(page_schema),
             "faqs": CHEMICAL_REACTION_LAB_FAQS,
             "visit_source": CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
+            "observation_guides": list(OBSERVATION_GUIDE_PAGES.values()),
         },
     )
 

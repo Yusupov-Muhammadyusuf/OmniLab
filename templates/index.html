@@ -36,7 +36,7 @@
     <header class="app-title-card">
         {% if reaction_demo %}
         <p class="app-wordmark">OmniLab guided demo</p>
-        <h1>Sodium and chlorine, ready to analyze</h1>
+        <h1>{{ reaction_demo.title }}</h1>
         <p class="app-subheadline">The supported inputs and a beaker are prepared. Select Analyze Chemical Reaction when you want an educational prediction.</p>
         {% else %}
         <p class="app-wordmark">OmniLab</p>
@@ -84,7 +84,7 @@
                 
                 <div class="border border-2 rounded-3 p-3 mb-3" style="border-color: var(--border-color) !important; background: var(--bg-canvas);">
                     <span class="d-block small fw-bold mb-1" style="color: var(--text-color); opacity: 0.7;">COMPOUNDS MATRIX:</span>
-                    <h3 id="current-mixture" class="m-0 fw-bold text-danger">{% if reaction_demo %}Na + Cl2{% else %}Empty Vessel{% endif %}</h3>
+                    <h3 id="current-mixture" class="m-0 fw-bold text-danger">{% if reaction_demo %}{{ reaction_demo.mixture_label }}{% else %}Empty Vessel{% endif %}</h3>
                     <button class="btn btn-sm action-btn-secondary mt-3 px-3 py-1" id="btn-reset-lab">Reset Setup</button>
                 </div>
 

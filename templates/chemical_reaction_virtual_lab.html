@@ -170,8 +170,20 @@
 
             <nav class="guide-related reaction-lab-related" aria-labelledby="related-heading">
                 <div>
+                    <p class="guide-section-label">Follow an observation</p>
+                    <h2 id="related-heading">Study three visible reaction outcomes</h2>
+                </div>
+                <div class="guide-related-links">
+                    {% for guide in observation_guides %}
+                    <a href="{% url guide.route_name %}"><span>{{ guide.title }}</span><span aria-hidden="true">→</span></a>
+                    {% endfor %}
+                </div>
+            </nav>
+
+            <nav class="guide-related reaction-lab-related" aria-labelledby="sodium-related-heading">
+                <div>
                     <p class="guide-section-label">Study one reaction</p>
-                    <h2 id="related-heading">Go deeper on sodium and chlorine</h2>
+                    <h2 id="sodium-related-heading">Go deeper on sodium and chlorine</h2>
                 </div>
                 <div class="guide-related-links">
                     <a href="{% url 'guide_sodium_chlorine_reaction' %}"><span>What happens when sodium reacts with chlorine?</span><span aria-hidden="true">→</span></a>

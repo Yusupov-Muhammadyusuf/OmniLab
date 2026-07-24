@@ -13,6 +13,24 @@ urlpatterns = [
         name="sodium_chlorine_demo",
     ),
     path(
+        'demo/carbon-dioxide-calcium-hydroxide/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'carbon-dioxide-calcium-hydroxide'},
+        name="demo_carbon_dioxide_calcium_hydroxide",
+    ),
+    path(
+        'demo/sodium-carbonate-hydrochloric-acid/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'sodium-carbonate-hydrochloric-acid'},
+        name="demo_sodium_carbonate_hydrochloric_acid",
+    ),
+    path(
+        'demo/silver-nitrate-potassium-iodide/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'silver-nitrate-potassium-iodide'},
+        name="demo_silver_nitrate_potassium_iodide",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -34,6 +52,24 @@ urlpatterns = [
         'guides/chemical-reaction-virtual-lab/',
         views.chemical_reaction_virtual_lab,
         name="chemical_reaction_virtual_lab",
+    ),
+    path(
+        'guides/why-limewater-turns-cloudy-with-carbon-dioxide/',
+        views.observation_guide,
+        {'guide_key': 'limewater-carbon-dioxide'},
+        name="guide_limewater_carbon_dioxide",
+    ),
+    path(
+        'guides/why-sodium-carbonate-fizzes-with-hydrochloric-acid/',
+        views.observation_guide,
+        {'guide_key': 'sodium-carbonate-hydrochloric-acid'},
+        name="guide_sodium_carbonate_hydrochloric_acid",
+    ),
+    path(
+        'guides/silver-nitrate-potassium-iodide-precipitate/',
+        views.observation_guide,
+        {'guide_key': 'silver-nitrate-potassium-iodide'},
+        name="guide_silver_nitrate_potassium_iodide",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]

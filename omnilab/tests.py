@@ -12,8 +12,10 @@ from .views import (
     CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
     GUIDED_EXPERIMENT_PAGES,
     HOMEPAGE_FAQS,
+    OBSERVATION_GUIDE_PAGES,
     PRODUCTION_BASE_URL,
     PUBLIC_CANONICAL_URLS,
+    REACTION_DEMOS,
     SODIUM_CHLORINE_DEMO,
     SODIUM_CHLORINE_DEMO_URL,
     SOCIAL_PREVIEW_ALT,
@@ -477,6 +479,167 @@ class GuidedExperimentPageTests(TestCase):
                 self.assertEqual(sitemap.count(canonical), 1)
 
 
+class ObservationGuidePageTests(TestCase):
+    routes = {
+        "/guides/why-limewater-turns-cloudy-with-carbon-dioxide/": (
+            "limewater-carbon-dioxide",
+            "/demo/carbon-dioxide-calcium-hydroxide/",
+        ),
+        "/guides/why-sodium-carbonate-fizzes-with-hydrochloric-acid/": (
+            "sodium-carbonate-hydrochloric-acid",
+            "/demo/sodium-carbonate-hydrochloric-acid/",
+        ),
+        "/guides/silver-nitrate-potassium-iodide-precipitate/": (
+            "silver-nitrate-potassium-iodide",
+            "/demo/silver-nitrate-potassium-iodide/",
+        ),
+    }
+
+    def test_three_guides_match_the_confirmed_reaction_matrix(self):
+        self.assertEqual(len(OBSERVATION_GUIDE_PAGES), 3)
+
+        for path, (guide_key, _demo_path) in self.routes.items():
+            with self.subTest(path=path):
+                guide = OBSERVATION_GUIDE_PAGES[guide_key]
+                selected_chemicals = [
+                    reactant["formula"] for reactant in guide["reactants"]
+                ]
+                reaction = get_reaction(selected_chemicals)
+                response = self.client.get(path)
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(guide["equation"], reaction["equation"])
+                self.assertEqual(guide["explanation"], reaction["explanation"])
+                self.assertEqual(guide["safety"], reaction["safety"].split(" | "))
+                self.assertEqual(len(guide["safety"]), 3)
+                self.assertContains(response, guide["title"])
+                self.assertContains(response, guide["direct_answer"])
+                self.assertIn(
+                    guide["equation"].replace(">", "&gt;"),
+                    response.content.decode(),
+                )
+                self.assertContains(response, guide["explanation"])
+                for safety_note in guide["safety"]:
+                    self.assertContains(response, safety_note)
+
+    def test_each_guide_has_one_exact_prepared_lab_action(self):
+        for path, (guide_key, demo_path) in self.routes.items():
+            with self.subTest(path=path):
+                guide = OBSERVATION_GUIDE_PAGES[guide_key]
+                html = self.client.get(path).content.decode()
+
+                self.assertEqual(html.count('class="guide-primary"'), 1)
+                self.assertEqual(
+                    html.count(
+                        f'href="{demo_path}?source={guide["visit_source"]}"'
+                    ),
+                    1,
+                )
+                self.assertIn(
+                    "Nothing runs until you select Analyze.",
+                    html,
+                )
+
+    def test_prepared_demos_select_the_exact_pair_without_auto_analysis(self):
+        for _path, (guide_key, demo_path) in self.routes.items():
+            with self.subTest(demo_path=demo_path):
+                guide = OBSERVATION_GUIDE_PAGES[guide_key]
+                demo_key = demo_path.removeprefix("/demo/").removesuffix("/")
+                demo = REACTION_DEMOS[demo_key]
+                response = self.client.get(
+                    f"{demo_path}?source={guide['visit_source']}"
+                )
+                html = response.content.decode()
+                selected_chemicals = [
+                    reactant["formula"] for reactant in guide["reactants"]
+                ]
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(demo["selectedChemicals"], selected_chemicals)
+                self.assertContains(
+                    response,
+                    f"window.reactionDemo = {json.dumps(demo)};",
+                )
+                self.assertNotIn("fireAIAnalysis()", html)
+                self.assertContains(response, "Analyze Chemical Reaction")
+
+    def test_guides_use_fixed_sources_and_ignore_query_values(self):
+        expected_sources = {
+            "limewater-carbon-dioxide": "guide_observation_a",
+            "sodium-carbonate-hydrochloric-acid": "guide_observation_b",
+            "silver-nitrate-potassium-iodide": "guide_observation_c",
+        }
+        self.assertEqual(
+            {
+                key: guide["visit_source"]
+                for key, guide in OBSERVATION_GUIDE_PAGES.items()
+            },
+            expected_sources,
+        )
+
+        for path, (guide_key, _demo_path) in self.routes.items():
+            with self.subTest(path=path):
+                response = self.client.get(
+                    f"{path}?source=student-email@example.com"
+                )
+                self.assertContains(
+                    response,
+                    "window.guideVisitSource = "
+                    f'"{expected_sources[guide_key]}";',
+                )
+                self.assertNotContains(response, "student-email@example.com")
+
+    def test_guides_cross_link_and_broad_guide_links_all_three(self):
+        broad_html = self.client.get(
+            "/guides/chemical-reaction-virtual-lab/"
+        ).content.decode()
+
+        for path, (guide_key, _demo_path) in self.routes.items():
+            with self.subTest(path=path):
+                html = self.client.get(path).content.decode()
+                related_block = html.split(
+                    'aria-label="Related observation guides"', 1
+                )[1].split("</nav>", 1)[0]
+
+                self.assertEqual(related_block.count("<a href="), 2)
+                self.assertNotIn(path, related_block)
+                self.assertEqual(broad_html.count(f'href="{path}"'), 1)
+                self.assertIn(
+                    OBSERVATION_GUIDE_PAGES[guide_key]["title"],
+                    broad_html,
+                )
+
+    def test_canonicals_schema_and_sitemap_include_each_guide_once(self):
+        sitemap = self.client.get("/sitemap.xml").content.decode()
+        canonical_urls = set()
+
+        for path, (guide_key, _demo_path) in self.routes.items():
+            with self.subTest(path=path):
+                guide = OBSERVATION_GUIDE_PAGES[guide_key]
+                response = self.client.get(path)
+                html = response.content.decode()
+                canonical = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
+                schema_match = re.search(
+                    r'<script type="application/ld\+json">(.*?)</script>',
+                    html,
+                    re.DOTALL,
+                )
+
+                self.assertContains(
+                    response,
+                    f'<link rel="canonical" href="{canonical}">',
+                    html=True,
+                )
+                self.assertIsNotNone(schema_match)
+                schema = json.loads(schema_match.group(1))
+                self.assertEqual(schema["@type"], "LearningResource")
+                self.assertEqual(schema["url"], canonical)
+                self.assertEqual(sitemap.count(canonical), 1)
+                canonical_urls.add(canonical)
+
+        self.assertEqual(len(canonical_urls), 3)
+
+
 class SocialPreviewTests(TestCase):
     def setUp(self):
         self.response = self.client.get("/")
@@ -690,6 +853,9 @@ class AnalyticsInstrumentationTests(TestCase):
             "guide_formula",
             "guide_ionic_bond",
             "guide_virtual_lab",
+            "guide_observation_a",
+            "guide_observation_b",
+            "guide_observation_c",
         ):
             with self.subTest(visit_source=visit_source):
                 self.assertIn(f"'{visit_source}'", configuration)
@@ -1780,7 +1946,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn(".reaction-feedback-link", css)
         self.assertIn("min-height: 44px;", css)
 
-    def test_feedback_email_labels_only_the_three_fixed_guide_sources(self):
+    def test_feedback_email_labels_only_the_fixed_guide_sources(self):
         configuration = (
             settings.BASE_DIR / "static/ts/configuration/config.ts"
         ).read_text()
@@ -1795,6 +1961,9 @@ class LabJourneyRepairTests(TestCase):
             "guide_reaction": "Reaction guide",
             "guide_formula": "Formula guide",
             "guide_ionic_bond": "Ionic bond guide",
+            "guide_observation_a": "Limewater observation guide",
+            "guide_observation_b": "Sodium carbonate observation guide",
+            "guide_observation_c": "Silver iodide observation guide",
         }
         label_block = feedback.split(
             "const FEEDBACK_GUIDE_LABELS", 1

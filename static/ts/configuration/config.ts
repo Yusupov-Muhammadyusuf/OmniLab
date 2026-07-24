@@ -56,7 +56,10 @@ export type GuideVisitSource =
     | 'guide_reaction'
     | 'guide_formula'
     | 'guide_ionic_bond'
-    | 'guide_virtual_lab';
+    | 'guide_virtual_lab'
+    | 'guide_observation_a'
+    | 'guide_observation_b'
+    | 'guide_observation_c';
 
 export type VisitSource = 'student_invite' | GuideVisitSource;
 
@@ -64,7 +67,10 @@ const GUIDE_VISIT_SOURCES = new Set<GuideVisitSource>([
     'guide_reaction',
     'guide_formula',
     'guide_ionic_bond',
-    'guide_virtual_lab'
+    'guide_virtual_lab',
+    'guide_observation_a',
+    'guide_observation_b',
+    'guide_observation_c'
 ]);
 
 const ALLOWED_VISIT_SOURCES = new Set<VisitSource>([
