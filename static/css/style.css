@@ -744,8 +744,11 @@ body {
     outline-offset: 4px;
 }
 
-.faq-section {
-    border-top: 2px solid var(--border-color);
+.faq-page {
+    min-height: 100vh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     background-color: var(--bg-canvas);
     background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px);
     background-size: 24px 24px;
@@ -754,7 +757,7 @@ body {
 .faq-shell {
     width: min(1040px, calc(100% - 48px));
     margin: 0 auto;
-    padding: 96px 0 88px;
+    padding: 72px 0 88px;
     display: grid;
     grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
     align-items: start;
@@ -773,12 +776,12 @@ body {
     font-weight: 700;
 }
 
-.faq-intro h2 {
-    max-width: 14ch;
+.faq-intro h1 {
+    max-width: 12ch;
     margin: 0;
-    font-size: clamp(36px, 4.5vw, 52px);
-    line-height: 1.04;
-    letter-spacing: -2px;
+    font-size: clamp(48px, 6vw, 72px);
+    line-height: 0.98;
+    letter-spacing: -3px;
     text-wrap: balance;
 }
 
@@ -789,6 +792,38 @@ body {
     font-size: 16px;
     line-height: 1.65;
     text-wrap: pretty;
+}
+
+.faq-primary {
+    min-height: 48px;
+    margin-top: 32px;
+    padding: 12px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    border: 2px solid var(--text-color);
+    border-radius: 10px;
+    background: var(--text-color);
+    color: var(--bg-main);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.faq-primary:hover {
+    color: var(--bg-main);
+    opacity: 0.88;
+}
+
+.faq-primary:active {
+    transform: translateY(1px);
+}
+
+.faq-primary:focus-visible {
+    outline: 3px solid #e3384f;
+    outline-offset: 3px;
 }
 
 .faq-list {
@@ -2285,7 +2320,7 @@ body {
     .guide-library-intro h2 { max-width: 16ch; }
     .faq-shell { grid-template-columns: 1fr; gap: 48px; }
     .faq-intro { position: static; }
-    .faq-intro h2 { max-width: 16ch; }
+    .faq-intro h1 { max-width: 14ch; }
     .guide-hero { grid-template-columns: 1fr; gap: 48px; }
     .guide-hero h1 { max-width: 15ch; }
     .guide-equation { grid-template-columns: 1fr; gap: 20px; }
@@ -2362,7 +2397,8 @@ body {
     }
     .guide-library-copy strong { font-size: 16px; }
     .faq-shell { padding: 64px 0 56px; gap: 40px; }
-    .faq-intro h2 { font-size: 38px; letter-spacing: -1.5px; }
+    .faq-intro h1 { font-size: 46px; letter-spacing: -2px; }
+    .faq-primary { width: 100%; }
     .faq-item summary { min-height: 68px; padding-right: 44px; font-size: 16px; }
     .faq-item p { padding-right: 32px; font-size: 15px; }
     .guide-site-header,

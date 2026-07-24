@@ -12,8 +12,8 @@ from django.test import Client, TestCase, override_settings
 from .views import (
     CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
     GUIDED_EXPERIMENT_PAGES,
-    HOMEPAGE_FAQS,
     OBSERVATION_GUIDE_PAGES,
+    PRODUCT_FAQS,
     PRODUCTION_BASE_URL,
     PUBLIC_CANONICAL_URLS,
     REACTION_DEMOS,
@@ -33,15 +33,15 @@ from .reactions import (
 )
 
 
-class HomepageFaqTests(TestCase):
+class FaqPageTests(TestCase):
     def setUp(self):
-        self.response = self.client.get("/")
+        self.response = self.client.get("/faq/")
 
-    def test_faq_content_is_visible_on_homepage(self):
+    def test_faq_content_is_visible_on_dedicated_page(self):
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(len(HOMEPAGE_FAQS), 5)
+        self.assertEqual(len(PRODUCT_FAQS), 5)
 
-        for faq in HOMEPAGE_FAQS:
+        for faq in PRODUCT_FAQS:
             self.assertContains(self.response, faq["question"])
             self.assertContains(self.response, faq["answer"])
 
@@ -57,18 +57,45 @@ class HomepageFaqTests(TestCase):
         schema = json.loads(schema_match.group(1))
         self.assertEqual(schema["@context"], "https://schema.org")
         self.assertEqual(schema["@type"], "FAQPage")
-        self.assertEqual(len(schema["mainEntity"]), len(HOMEPAGE_FAQS))
+        self.assertEqual(len(schema["mainEntity"]), len(PRODUCT_FAQS))
 
-        for faq, entity in zip(HOMEPAGE_FAQS, schema["mainEntity"]):
+        for faq, entity in zip(PRODUCT_FAQS, schema["mainEntity"]):
             self.assertEqual(entity["@type"], "Question")
             self.assertEqual(entity["name"], faq["question"])
             self.assertEqual(entity["acceptedAnswer"]["@type"], "Answer")
             self.assertEqual(entity["acceptedAnswer"]["text"], faq["answer"])
 
+    def test_homepage_has_no_faq_content_or_schema(self):
+        response = self.client.get("/")
+        html = response.content.decode()
+        schemas = [
+            json.loads(match)
+            for match in re.findall(
+                r'<script type="application/ld\+json">(.*?)</script>',
+                html,
+                re.DOTALL,
+            )
+        ]
+
+        self.assertNotContains(response, 'class="faq-list"')
+        for faq in PRODUCT_FAQS:
+            self.assertNotContains(response, faq["question"])
+            self.assertNotContains(response, faq["answer"])
+        self.assertNotIn("FAQPage", {schema.get("@type") for schema in schemas})
+
+    def test_footer_links_to_faq_from_homepage(self):
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            '<a href="/faq/">FAQ</a>',
+            html=True,
+        )
+
     def test_supported_inputs_faq_states_twenty_three_reaction_pairs(self):
         supported_inputs_faq = next(
             faq
-            for faq in HOMEPAGE_FAQS
+            for faq in PRODUCT_FAQS
             if faq["question"] == "Which chemicals and equipment can I use?"
         )
         self.assertIn("supports 23 reaction pairs", supported_inputs_faq["answer"])
@@ -417,6 +444,7 @@ class SearchDiscoveryTests(TestCase):
             "/": "index",
             "/pricing/": "pricing",
             "/contact/": "contact",
+            "/faq/": "faq",
             "/privacy/": "privacy",
             "/terms/": "terms",
         }

@@ -30,6 +30,7 @@ PUBLIC_CANONICAL_URLS = {
     "index": f"{PRODUCTION_BASE_URL}/",
     "pricing": f"{PRODUCTION_BASE_URL}/pricing/",
     "contact": f"{PRODUCTION_BASE_URL}/contact/",
+    "faq": f"{PRODUCTION_BASE_URL}/faq/",
     "privacy": f"{PRODUCTION_BASE_URL}/privacy/",
     "terms": f"{PRODUCTION_BASE_URL}/terms/",
     "sodium_chlorine_reaction": (
@@ -513,7 +514,7 @@ CHEMICAL_REACTION_LAB_FAQS = [
     },
 ]
 
-HOMEPAGE_FAQS = [
+PRODUCT_FAQS = [
     {
         "question": "How do I set up an experiment in OmniLab?",
         "answer": (
@@ -782,21 +783,6 @@ def reaction_retry_response():
 
 
 def homepage_context(reaction_demo=None):
-    faq_schema = {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": [
-            {
-                "@type": "Question",
-                "name": faq["question"],
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": faq["answer"],
-                },
-            }
-            for faq in HOMEPAGE_FAQS
-        ],
-    }
     software_schema = {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
@@ -834,8 +820,6 @@ def homepage_context(reaction_demo=None):
         ),
         "social_preview_url": SOCIAL_PREVIEW_URL,
         "social_preview_alt": SOCIAL_PREVIEW_ALT,
-        "homepage_faqs": HOMEPAGE_FAQS,
-        "faq_schema_json": json.dumps(faq_schema),
         "software_schema_json": json.dumps(software_schema),
         "reaction_demo": reaction_demo,
         "reaction_demo_json": json.dumps(reaction_demo),
@@ -1011,6 +995,33 @@ def pricing(request):
         request,
         "pricing.html",
         {"canonical_url": PUBLIC_CANONICAL_URLS["pricing"]},
+    )
+
+
+def faq(request):
+    faq_schema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": item["question"],
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": item["answer"],
+                },
+            }
+            for item in PRODUCT_FAQS
+        ],
+    }
+    return render(
+        request,
+        "faq.html",
+        {
+            "canonical_url": PUBLIC_CANONICAL_URLS["faq"],
+            "faqs": PRODUCT_FAQS,
+            "faq_schema_json": json.dumps(faq_schema),
+        },
     )
 
 
