@@ -50,6 +50,7 @@ SODIUM_CHLORINE_DEMO = {
     "vessel": "beaker",
     "liquidColor": "#89a83b",
 }
+CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
 SUPPORTED_REACTION_EFFECTS = frozenset(
     {"explosion", "bubble", "precipitate", "none"}
 )
@@ -678,6 +679,7 @@ def chemical_reaction_virtual_lab(request):
             "social_preview_alt": SOCIAL_PREVIEW_ALT,
             "page_schema_json": json.dumps(page_schema),
             "faqs": CHEMICAL_REACTION_LAB_FAQS,
+            "visit_source": CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
         },
     )
 

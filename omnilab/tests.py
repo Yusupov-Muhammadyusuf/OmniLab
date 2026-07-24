@@ -9,6 +9,7 @@ from django.core.cache import cache
 from django.test import Client, TestCase, override_settings
 
 from .views import (
+    CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
     GUIDED_EXPERIMENT_PAGES,
     HOMEPAGE_FAQS,
     PRODUCTION_BASE_URL,
@@ -142,7 +143,7 @@ class SearchDiscoveryTests(TestCase):
         )
         self.assertContains(response, "23 supported reaction pairs")
         self.assertContains(response, "27 available substances")
-        self.assertContains(response, "Open the reaction lab")
+        self.assertContains(response, "Try Sodium + Chlorine")
         self.assertContains(
             response,
             (
@@ -151,6 +152,34 @@ class SearchDiscoveryTests(TestCase):
             ),
             html=True,
         )
+
+    def test_chemical_reaction_virtual_lab_has_one_attributed_primary_path(self):
+        response = self.client.get(
+            "/guides/chemical-reaction-virtual-lab/"
+            "?source=arbitrary-private-value"
+        )
+        html = response.content.decode()
+
+        self.assertEqual(html.count('class="guide-primary"'), 1)
+        self.assertEqual(
+            html.count(
+                'href="/demo/sodium-chlorine/'
+                f'?source={CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE}"'
+            ),
+            1,
+        )
+        self.assertContains(response, "Open the full reaction lab")
+        self.assertContains(
+            response,
+            "window.guideVisitSource = "
+            f'"{CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE}";',
+        )
+        self.assertContains(
+            response,
+            '<script type="module" src="/static/js/root/guide.js"></script>',
+            html=True,
+        )
+        self.assertNotContains(response, "arbitrary-private-value")
 
     def test_chemical_reaction_virtual_lab_has_learning_and_faq_schema(self):
         response = self.client.get("/guides/chemical-reaction-virtual-lab/")
@@ -660,6 +689,7 @@ class AnalyticsInstrumentationTests(TestCase):
             "guide_reaction",
             "guide_formula",
             "guide_ionic_bond",
+            "guide_virtual_lab",
         ):
             with self.subTest(visit_source=visit_source):
                 self.assertIn(f"'{visit_source}'", configuration)

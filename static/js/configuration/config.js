@@ -3,7 +3,8 @@ export const ctx = canvas ? canvas.getContext('2d') : null;
 const GUIDE_VISIT_SOURCES = new Set([
     'guide_reaction',
     'guide_formula',
-    'guide_ionic_bond'
+    'guide_ionic_bond',
+    'guide_virtual_lab'
 ]);
 const ALLOWED_VISIT_SOURCES = new Set([
     'student_invite',
