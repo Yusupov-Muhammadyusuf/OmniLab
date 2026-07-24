@@ -670,6 +670,19 @@ body {
     outline-offset: 3px;
 }
 
+.guide-library-groups {
+    display: grid;
+    gap: 48px;
+}
+
+.guide-library-group h3 {
+    margin: 0 0 12px;
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
 .guide-library-list {
     border-top: 1px solid var(--border-color);
 }

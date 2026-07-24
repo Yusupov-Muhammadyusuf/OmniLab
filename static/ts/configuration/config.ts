@@ -52,6 +52,11 @@ export interface ReactionDemoConfig {
 
 type SupportedReactionPair = [string, string];
 
+export interface ReactionGuide {
+    href: string;
+    title: string;
+}
+
 export type GuideVisitSource =
     | 'guide_reaction'
     | 'guide_formula'
@@ -89,7 +94,52 @@ const supportedReactionPairs = window.supportedReactionPairs || [['Na', 'Cl2']];
 const supportedReactionPairKeys = new Set(
     supportedReactionPairs.map(pair => [...pair].sort().join('+'))
 );
-const reactionGuidePairKeys = new Set(['Cl2+Na']);
+const reactionGuidesByPairKey = new Map<string, readonly ReactionGuide[]>([
+    [
+        'Cl2+Na',
+        [
+            {
+                href: '/guides/sodium-and-chlorine-reaction/',
+                title: 'What happens when sodium reacts with chlorine?'
+            },
+            {
+                href: '/guides/sodium-and-chlorine-formula/',
+                title: 'What formula forms from sodium and chlorine?'
+            },
+            {
+                href: '/guides/sodium-and-chlorine-ionic-bond/',
+                title: 'Why do sodium and chlorine form an ionic bond?'
+            }
+        ]
+    ],
+    [
+        'CO2+Ca(OH)2',
+        [
+            {
+                href: '/guides/why-limewater-turns-cloudy-with-carbon-dioxide/',
+                title: 'Why does limewater turn cloudy when carbon dioxide is added?'
+            }
+        ]
+    ],
+    [
+        'HCl+Na2CO3',
+        [
+            {
+                href: '/guides/why-sodium-carbonate-fizzes-with-hydrochloric-acid/',
+                title: 'Why does sodium carbonate fizz with hydrochloric acid?'
+            }
+        ]
+    ],
+    [
+        'AgNO3+KI',
+        [
+            {
+                href: '/guides/silver-nitrate-potassium-iodide-precipitate/',
+                title: 'What precipitate forms when silver nitrate reacts with potassium iodide?'
+            }
+        ]
+    ]
+]);
 const supportedChemicalIds = new Set(supportedReactionPairs.flat());
 const supportedReactionPartners = new Map<string, Set<string>>();
 
@@ -160,9 +210,13 @@ export function isSupportedReactionSetup(selectedChemicals: string[]): boolean {
     return supportedReactionPairKeys.has([...selectedChemicals].sort().join('+'));
 }
 
-export function hasMatchingReactionGuides(selectedChemicals: string[]): boolean {
-    if (selectedChemicals.length !== 2) return false;
-    return reactionGuidePairKeys.has([...selectedChemicals].sort().join('+'));
+export function getMatchingReactionGuides(
+    selectedChemicals: string[]
+): readonly ReactionGuide[] {
+    if (selectedChemicals.length !== 2) return [];
+    return reactionGuidesByPairKey.get(
+        [...selectedChemicals].sort().join('+')
+    ) || [];
 }
 
 export function getCompatibleReactionPartners(chemicalId: string): string[] {

@@ -37,7 +37,7 @@ globalThis.window = {
 
 const {
     getCompatibleReactionPartners,
-    hasMatchingReactionGuides,
+    getMatchingReactionGuides,
     isSupportedReactionSetup,
     updateLabState
 } = await import('../static/js/configuration/config.js');
@@ -81,20 +81,45 @@ test('partner guidance uses the same matrix as Analyze eligibility', () => {
     }
 });
 
-test('only sodium and chlorine have matching study guides', () => {
-    assert.equal(hasMatchingReactionGuides(['Na', 'Cl2']), true);
-    assert.equal(hasMatchingReactionGuides(['Cl2', 'Na']), true);
+test('four reaction families have only their exact matching study guides', () => {
+    const guidedPairs = new Map([
+        ['Cl2+Na', {
+            count: 3,
+            path: '/guides/sodium-and-chlorine-reaction/'
+        }],
+        ['CO2+Ca(OH)2', {
+            count: 1,
+            path: '/guides/why-limewater-turns-cloudy-with-carbon-dioxide/'
+        }],
+        ['HCl+Na2CO3', {
+            count: 1,
+            path: '/guides/why-sodium-carbonate-fizzes-with-hydrochloric-acid/'
+        }],
+        ['AgNO3+KI', {
+            count: 1,
+            path: '/guides/silver-nitrate-potassium-iodide-precipitate/'
+        }]
+    ]);
 
-    for (const pair of supportedPairs.slice(1)) {
-        assert.equal(
-            hasMatchingReactionGuides(pair),
-            false,
-            `${pair.join(' + ')} should not show sodium and chlorine guides`
-        );
+    for (const pair of supportedPairs) {
+        const key = [...pair].sort().join('+');
+        const expected = guidedPairs.get(key);
+
+        for (const orderedPair of [pair, [...pair].reverse()]) {
+            const guides = getMatchingReactionGuides(orderedPair);
+            assert.equal(
+                guides.length,
+                expected?.count || 0,
+                `${orderedPair.join(' + ')} should have only its matching guides`
+            );
+            if (expected) {
+                assert.ok(guides.some(guide => guide.href === expected.path));
+            }
+        }
     }
 
     for (const invalidSetup of [[], ['Na'], ['Na', 'Cl2', 'H2O']]) {
-        assert.equal(hasMatchingReactionGuides(invalidSetup), false);
+        assert.deepEqual(getMatchingReactionGuides(invalidSetup), []);
     }
 });
 
