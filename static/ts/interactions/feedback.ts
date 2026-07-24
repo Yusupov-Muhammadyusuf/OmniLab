@@ -11,7 +11,10 @@ const FEEDBACK_GUIDE_LABELS: Readonly<
 > = {
     guide_reaction: 'Reaction guide',
     guide_formula: 'Formula guide',
-    guide_ionic_bond: 'Ionic bond guide'
+    guide_ionic_bond: 'Ionic bond guide',
+    guide_observation_a: 'Limewater observation guide',
+    guide_observation_b: 'Sodium carbonate observation guide',
+    guide_observation_c: 'Silver iodide observation guide'
 };
 
 export function buildFeedbackMailtoUrl(source: string | null): string {

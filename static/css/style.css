@@ -1687,10 +1687,325 @@ body {
 .reaction-lab-final-links > a:last-child { color: var(--bg-main); font-size: 14px; font-weight: 700; text-underline-offset: 4px; }
 .reaction-lab-related { margin-top: 80px; }
 
+.observation-guide-shell {
+    width: min(1180px, calc(100% - 48px));
+    margin: 28px auto 0;
+}
+
+.observation-guide-hero {
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) minmax(440px, 1.08fr);
+    align-items: center;
+    gap: 72px;
+}
+
+.observation-guide-hero h1 {
+    max-width: 14ch;
+    margin: 0;
+    font-size: clamp(44px, 5.4vw, 70px);
+    line-height: .99;
+    letter-spacing: -3px;
+    text-wrap: balance;
+}
+
+.observation-guide-preview {
+    margin: 0;
+}
+
+.observation-guide-preview-frame {
+    position: relative;
+    min-height: 370px;
+    overflow: hidden;
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--panel-bg);
+    box-shadow: var(--shadow);
+}
+
+.observation-guide-preview-frame img {
+    width: 100%;
+    height: 370px;
+    display: block;
+    object-fit: cover;
+    object-position: 58% center;
+    opacity: .72;
+}
+
+.observation-guide-setup-card {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    left: 20px;
+    padding: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--panel-bg);
+    box-shadow: var(--shadow);
+}
+
+.observation-guide-setup-card > span,
+.observation-guide-setup-card small {
+    color: var(--muted-text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.observation-guide-reactants {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: clamp(20px, 2.8vw, 32px);
+    letter-spacing: -1px;
+}
+
+.observation-guide-preview figcaption {
+    max-width: 64ch;
+    margin-top: 12px;
+    color: var(--muted-text);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.observation-guide-result {
+    margin-top: 96px;
+    padding: 36px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr);
+    align-items: start;
+    gap: 56px;
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--text-color);
+    color: var(--bg-main);
+    box-shadow: var(--shadow);
+}
+
+.observation-guide-result .guide-section-label {
+    color: var(--bg-main);
+    opacity: .68;
+}
+
+.observation-guide-equation h2 {
+    margin: 0;
+    font-size: clamp(25px, 3.2vw, 41px);
+    line-height: 1.25;
+    letter-spacing: -1.4px;
+    text-wrap: balance;
+}
+
+.observation-guide-explanation {
+    padding-left: 28px;
+    border-left: 1px solid rgba(255, 255, 255, .3);
+}
+
+.observation-guide-explanation p:last-child {
+    max-width: 52ch;
+    margin: 0;
+    color: var(--bg-main);
+    font-size: 15px;
+    line-height: 1.72;
+    opacity: .82;
+    text-wrap: pretty;
+}
+
+.observation-guide-observation {
+    margin-top: 112px;
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) minmax(340px, 1.08fr);
+    align-items: center;
+    gap: 88px;
+}
+
+.observation-guide-observation-copy h2,
+.observation-guide-safety h2,
+.observation-guide-next h2 {
+    max-width: 15ch;
+    margin: 0;
+    font-size: clamp(34px, 4.3vw, 54px);
+    line-height: 1.03;
+    letter-spacing: -2px;
+    text-wrap: balance;
+}
+
+.observation-guide-observation-copy > p:last-child,
+.observation-guide-next > div > p {
+    max-width: 54ch;
+    margin: 22px 0 0;
+    color: var(--muted-text);
+    font-size: 16px;
+    line-height: 1.7;
+    text-wrap: pretty;
+}
+
+.observation-vessel {
+    width: min(100%, 440px);
+    height: 340px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.observation-vessel::before {
+    content: "";
+    position: absolute;
+    right: 42px;
+    bottom: 28px;
+    left: 42px;
+    height: 260px;
+    border: 4px solid var(--border-color);
+    border-top: 0;
+    border-radius: 0 0 44px 44px;
+    background: rgba(255, 255, 255, .56);
+}
+
+.observation-vessel-rim {
+    position: absolute;
+    top: 48px;
+    right: 24px;
+    left: 24px;
+    height: 24px;
+    z-index: 2;
+    border: 4px solid var(--border-color);
+    border-radius: 50%;
+    background: var(--bg-canvas);
+}
+
+.observation-vessel-liquid {
+    position: absolute;
+    right: 46px;
+    bottom: 32px;
+    left: 46px;
+    height: 152px;
+    overflow: hidden;
+    border-radius: 0 0 39px 39px;
+    background: rgba(125, 156, 183, .24);
+}
+
+.observation-vessel strong {
+    position: relative;
+    z-index: 3;
+    margin-bottom: 52px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    background: rgba(30, 30, 30, .9);
+    color: #fff;
+    font-size: 12px;
+}
+
+.observation-particle {
+    position: absolute;
+    width: 34px;
+    height: 14px;
+    border-radius: 50%;
+    background: #f5f3ea;
+}
+
+.particle-one { right: 18%; bottom: 20%; }
+.particle-two { right: 40%; bottom: 42%; width: 22px; }
+.particle-three { left: 16%; bottom: 30%; width: 42px; }
+.particle-four { left: 43%; bottom: 12%; width: 48px; }
+.particle-five { right: 28%; bottom: 5%; width: 30px; }
+
+.observation-cloudy .observation-vessel-liquid {
+    background: rgba(245, 243, 234, .76);
+}
+
+.observation-yellow .observation-vessel-liquid {
+    background: rgba(242, 201, 76, .28);
+}
+
+.observation-yellow .observation-particle {
+    background: #f2c94c;
+}
+
+.observation-bubbles .observation-particle {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(30, 30, 30, .62);
+    background: transparent;
+}
+
+.observation-bubbles .particle-two,
+.observation-bubbles .particle-five {
+    width: 14px;
+    height: 14px;
+}
+
+.observation-guide-notes {
+    margin-top: 112px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.08fr) minmax(340px, .92fr);
+    align-items: start;
+    gap: 72px;
+}
+
+.observation-guide-safety {
+    padding-top: 28px;
+    border-top: 2px solid var(--border-color);
+}
+
+.observation-guide-safety ol {
+    margin: 34px 0 0;
+    padding: 0;
+    border-top: 1px solid rgba(30, 30, 30, .22);
+    list-style: none;
+}
+
+.observation-guide-safety li {
+    min-height: 80px;
+    padding: 18px 0;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    align-items: start;
+    gap: 16px;
+    border-bottom: 1px solid rgba(30, 30, 30, .22);
+}
+
+.observation-guide-safety li span {
+    color: var(--muted-text);
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.observation-guide-safety li p {
+    max-width: 58ch;
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 15px;
+    line-height: 1.65;
+}
+
+.observation-guide-next {
+    margin: 112px 0 80px;
+    padding-top: 28px;
+    display: grid;
+    grid-template-columns: minmax(260px, .82fr) minmax(0, 1.18fr);
+    gap: 72px;
+    border-top: 2px solid var(--border-color);
+}
+
+.observation-guide-next > div > a {
+    min-height: 44px;
+    margin-top: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 700;
+    text-underline-offset: 4px;
+}
+
 .guide-primary:focus-visible,
 .guide-brand:focus-visible,
 .guide-breadcrumb a:focus-visible,
 .guide-sources a:focus-visible,
+.observation-guide-next > div > a:focus-visible,
 .guide-related-links a:focus-visible {
     outline: 3px solid #e3384f;
     outline-offset: 3px;
@@ -1719,6 +2034,19 @@ body {
     .reaction-lab-hero, .reaction-lab-output, .reaction-lab-how, .reaction-lab-pairs, .reaction-lab-reading, .reaction-lab-fit, .reaction-lab-faq, .reaction-lab-boundary { grid-template-columns: 1fr; gap: 48px; }
     .reaction-lab-section-intro { position: static; }
     .reaction-lab-preview { transform: none; }
+    .observation-guide-hero,
+    .observation-guide-result,
+    .observation-guide-observation,
+    .observation-guide-notes,
+    .observation-guide-next {
+        grid-template-columns: 1fr;
+        gap: 48px;
+    }
+    .observation-guide-explanation {
+        padding: 24px 0 0;
+        border-top: 1px solid rgba(255, 255, 255, .3);
+        border-left: 0;
+    }
 }
 
 @media (max-width: 991.98px) {
@@ -1765,7 +2093,8 @@ body {
     .faq-item p { padding-right: 32px; font-size: 15px; }
     .guide-site-header,
     .guide-shell,
-    .reaction-lab-shell { width: min(100% - 32px, 1180px); }
+    .reaction-lab-shell,
+    .observation-guide-shell { width: min(100% - 32px, 1180px); }
     .guide-site-header { padding: 20px 0; }
     .guide-shell { margin-top: 12px; }
     .guide-hero { margin-top: 32px; gap: 40px; }
@@ -1788,4 +2117,17 @@ body {
     .reaction-lab-reading { margin-top: 80px; }
     .reaction-lab-equation-card, .reaction-lab-boundary, .reaction-lab-final { padding: 24px 20px; }
     .reaction-lab-fit-grid article { grid-template-columns: 1fr; gap: 12px; }
+    .observation-guide-hero { margin-top: 32px; gap: 40px; }
+    .observation-guide-hero h1 { font-size: 41px; letter-spacing: -1.8px; }
+    .observation-guide-preview-frame,
+    .observation-guide-preview-frame img { height: 330px; min-height: 330px; }
+    .observation-guide-setup-card { right: 12px; bottom: 12px; left: 12px; padding: 16px; }
+    .observation-guide-result { margin-top: 64px; padding: 24px 20px; }
+    .observation-guide-equation h2 { font-size: 25px; }
+    .observation-guide-observation,
+    .observation-guide-notes,
+    .observation-guide-next { margin-top: 72px; }
+    .observation-vessel { height: 300px; }
+    .observation-vessel::before { height: 220px; }
+    .observation-guide-next { margin-bottom: 64px; }
 }

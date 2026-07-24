@@ -4,7 +4,10 @@ const GUIDE_VISIT_SOURCES = new Set([
     'guide_reaction',
     'guide_formula',
     'guide_ionic_bond',
-    'guide_virtual_lab'
+    'guide_virtual_lab',
+    'guide_observation_a',
+    'guide_observation_b',
+    'guide_observation_c'
 ]);
 const ALLOWED_VISIT_SOURCES = new Set([
     'student_invite',

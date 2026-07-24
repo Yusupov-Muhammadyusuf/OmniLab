@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ guide.description }}">
+    <title>{{ guide.page_title }}</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="OmniLab">
+    <meta property="og:title" content="{{ guide.title }}">
+    <meta property="og:description" content="{{ guide.description }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ social_preview_url }}">
+    <meta property="og:image:alt" content="{{ social_preview_alt }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ guide.title }}">
+    <meta name="twitter:description" content="{{ guide.description }}">
+    <meta name="twitter:image" content="{{ social_preview_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% include "partials/product_analytics.html" %}
+    <script type="application/ld+json">{{ page_schema_json|safe }}</script>
+</head>
+<body class="guide-page observation-guide-page">
+    <header class="guide-site-header">
+        <a class="guide-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="guide-site-label">Observation guide</span>
+    </header>
+
+    <main>
+        <article class="observation-guide-shell">
+            <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+                <a href="{% url 'index' %}">Virtual lab</a>
+                <span aria-hidden="true">/</span>
+                <span>Reaction observation</span>
+            </nav>
+
+            <section class="observation-guide-hero" aria-labelledby="guide-heading">
+                <div class="observation-guide-hero-copy">
+                    <p class="guide-context">For chemistry students · {{ guide.reading_time }}</p>
+                    <h1 id="guide-heading">{{ guide.title }}</h1>
+                    <p class="guide-answer">{{ guide.direct_answer }}</p>
+                    <a class="guide-primary" href="{% url guide.demo_route_name %}?source={{ guide.visit_source }}">
+                        {{ guide.cta_label }}
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    <p class="guide-cta-note">The exact supported pair opens in a beaker. Nothing runs until you select Analyze.</p>
+                </div>
+
+                <figure class="observation-guide-preview">
+                    <div class="observation-guide-preview-frame">
+                        <img src="{% static 'images/omnilab-lab-preview.png' %}" alt="The OmniLab virtual chemistry workspace with a beaker area and reaction analysis panel">
+                        <div class="observation-guide-setup-card">
+                            <span>Prepared beaker</span>
+                            <div class="observation-guide-reactants">
+                                {% for reactant in guide.reactants %}
+                                <strong>{{ reactant.formula }}</strong>
+                                {% if not forloop.last %}<span aria-hidden="true">+</span>{% endif %}
+                                {% endfor %}
+                            </div>
+                            <small>Burner off · Analysis waits for you</small>
+                        </div>
+                    </div>
+                    <figcaption>{{ guide.setup_summary }}</figcaption>
+                </figure>
+            </section>
+
+            <section class="observation-guide-result" aria-labelledby="equation-heading">
+                <div class="observation-guide-equation">
+                    <p class="guide-section-label">Supported prediction</p>
+                    <h2 id="equation-heading">{{ guide.equation }}</h2>
+                </div>
+                <div class="observation-guide-explanation">
+                    <p class="guide-section-label">What the equation means</p>
+                    <p>{{ guide.explanation }}</p>
+                </div>
+            </section>
+
+            <section class="observation-guide-observation" aria-labelledby="observation-heading">
+                <div class="observation-guide-observation-copy">
+                    <p class="guide-section-label">Expected observation</p>
+                    <h2 id="observation-heading">{{ guide.observation_title }}</h2>
+                    <p>{{ guide.observation }}</p>
+                </div>
+                <div class="observation-vessel {{ guide.observation_class }}" role="img" aria-label="{{ guide.observation_label }} represented inside a beaker">
+                    <div class="observation-vessel-rim"></div>
+                    <div class="observation-vessel-liquid">
+                        <span class="observation-particle particle-one"></span>
+                        <span class="observation-particle particle-two"></span>
+                        <span class="observation-particle particle-three"></span>
+                        <span class="observation-particle particle-four"></span>
+                        <span class="observation-particle particle-five"></span>
+                    </div>
+                    <strong>{{ guide.observation_label }}</strong>
+                </div>
+            </section>
+
+            <section class="observation-guide-notes" aria-label="Safety and product limits">
+                <div class="observation-guide-safety">
+                    <p class="guide-section-label">Three safety notes</p>
+                    <h2>Read these before any physical experiment</h2>
+                    <ol>
+                        {% for safety_note in guide.safety %}
+                        <li><span>0{{ forloop.counter }}</span><p>{{ safety_note }}</p></li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                <aside class="guide-boundary" aria-labelledby="boundary-heading">
+                    <p class="guide-section-label">Educational boundary</p>
+                    <h2 id="boundary-heading">Use the cue to study, not to plan a procedure.</h2>
+                    <p>{{ guide.boundary }}</p>
+                    <p class="guide-boundary-warning">The result can be incomplete or wrong. Verify it with trusted course materials and follow trained laboratory supervision.</p>
+                </aside>
+            </section>
+
+            <section class="observation-guide-next" aria-labelledby="next-heading">
+                <div>
+                    <p class="guide-section-label">Keep exploring</p>
+                    <h2 id="next-heading">Connect this observation to another reaction</h2>
+                    <p>These guides use the same pattern: predict the equation, identify the visible cue, then check what the virtual model leaves out.</p>
+                    <a href="{% url 'chemical_reaction_virtual_lab' %}">See how the full virtual lab works <span aria-hidden="true">→</span></a>
+                </div>
+                <nav class="guide-related-links" aria-label="Related observation guides">
+                    {% for related_guide in related_guides %}
+                    <a href="{% url related_guide.route_name %}">
+                        <span>{{ related_guide.title }}</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                    {% endfor %}
+                </nav>
+            </section>
+        </article>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+    <script>
+        window.guideVisitSource = "{{ guide.visit_source }}";
+    </script>
+    <script type="module" src="{% static 'js/root/guide.js' %}"></script>
+</body>
+</html>
