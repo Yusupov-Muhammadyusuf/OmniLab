@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find clear answers about setting up OmniLab, supported chemicals and equipment, reaction accuracy, lab safety, and account access.">
+    <title>Frequently asked questions | OmniLab</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script type="application/ld+json">{{ faq_schema_json|safe }}</script>
+</head>
+<body class="faq-page">
+    <header class="pricing-site-header">
+        <a class="pricing-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="pricing-page-label">FAQ</span>
+    </header>
+
+    <main class="faq-shell">
+        <div class="faq-intro">
+            <p class="faq-context">Five practical answers</p>
+            <h1 id="faq-title">Know what the virtual lab can tell you</h1>
+            <p>Set up a reaction in minutes, then treat the result as a prediction to check and learn from.</p>
+            <a class="faq-primary" href="{% url 'index' %}">
+                Open the virtual lab
+                <span aria-hidden="true">&rarr;</span>
+            </a>
+        </div>
+
+        <section class="faq-list" aria-labelledby="faq-title">
+            {% for faq in faqs %}
+            <details class="faq-item"{% if forloop.first %} open{% endif %}>
+                <summary>{{ faq.question }}</summary>
+                <p>{{ faq.answer }}</p>
+            </details>
+            {% endfor %}
+        </section>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+</body>
+</html>

@@ -6,6 +6,7 @@ urlpatterns = [
     path('sitemap.xml', views.sitemap_xml, name="sitemap_xml"),
     path('pricing/', views.pricing, name="pricing"),
     path('contact/', views.contact, name="contact"),
+    path('faq/', views.faq, name="faq"),
     path('privacy/', views.privacy, name="privacy"),
     path('terms/', views.terms, name="terms"),
     path(
