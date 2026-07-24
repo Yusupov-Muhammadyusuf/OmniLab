@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Send OmniLab a question or product note through the secure in-page contact form.">
+    <title>Contact | OmniLab</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="contact-page">
+    <header class="pricing-site-header">
+        <a class="pricing-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="pricing-page-label">Contact</span>
+    </header>
+
+    <main class="contact-shell">
+        <section class="contact-intro" aria-labelledby="contact-heading">
+            <p class="pricing-context">A direct line to OmniLab</p>
+            <h1 id="contact-heading">What can we help with?</h1>
+            <p class="contact-lede">Ask a question, report something that isn't working, or share what would make the virtual lab more useful.</p>
+
+            <div class="contact-expectation">
+                <span class="contact-expectation-mark" aria-hidden="true"></span>
+                <div>
+                    <h2>Your message stays focused.</h2>
+                    <p>It goes to OmniLab's managed support mailbox. Include only the details needed to understand your request.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-form-card" aria-labelledby="message-heading">
+            <div class="contact-form-heading">
+                <p class="contact-step">01 / Message</p>
+                <h2 id="message-heading">Send a message</h2>
+            </div>
+
+            {% if sent %}
+                <div class="contact-alert contact-alert--success" role="status">
+                    <strong>Message sent.</strong>
+                    <span>Thanks for reaching out. OmniLab has your note.</span>
+                </div>
+            {% endif %}
+
+            {% if form.non_field_errors %}
+                <div class="contact-alert contact-alert--error" role="alert">
+                    {% for error in form.non_field_errors %}
+                        <strong>Message not sent.</strong>
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form class="contact-form" method="post" action="{% url 'contact' %}" novalidate>
+                {% csrf_token %}
+                {{ form.website }}
+
+                <div class="contact-field-row">
+                    <div class="contact-field">
+                        <label for="id_name">Name</label>
+                        <input
+                            id="id_name"
+                            name="name"
+                            type="text"
+                            maxlength="100"
+                            autocomplete="name"
+                            value="{{ form.name.value|default_if_none:'' }}"
+                            required
+                            {% if form.name.errors %}aria-invalid="true" aria-describedby="name-error"{% endif %}
+                        >
+                        {% if form.name.errors %}
+                            <span class="contact-field-error" id="name-error">{{ form.name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="contact-field">
+                        <label for="id_email">Email</label>
+                        <input
+                            id="id_email"
+                            name="email"
+                            type="email"
+                            maxlength="254"
+                            autocomplete="email"
+                            value="{{ form.email.value|default_if_none:'' }}"
+                            required
+                            {% if form.email.errors %}aria-invalid="true" aria-describedby="email-error"{% endif %}
+                        >
+                        {% if form.email.errors %}
+                            <span class="contact-field-error" id="email-error">{{ form.email.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="contact-field">
+                    <label for="id_subject">Subject <span>(optional)</span></label>
+                    <input
+                        id="id_subject"
+                        name="subject"
+                        type="text"
+                        maxlength="120"
+                        value="{{ form.subject.value|default_if_none:'' }}"
+                        {% if form.subject.errors %}aria-invalid="true" aria-describedby="subject-error"{% endif %}
+                    >
+                    {% if form.subject.errors %}
+                        <span class="contact-field-error" id="subject-error">{{ form.subject.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="contact-field">
+                    <label for="id_message">Message</label>
+                    <textarea
+                        id="id_message"
+                        name="message"
+                        rows="7"
+                        maxlength="4000"
+                        required
+                        {% if form.message.errors %}aria-invalid="true" aria-describedby="message-error"{% endif %}
+                    >{{ form.message.value|default_if_none:'' }}</textarea>
+                    {% if form.message.errors %}
+                        <span class="contact-field-error" id="message-error">{{ form.message.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="contact-submit-row">
+                    <p>By submitting, you agree that OmniLab can use these details to respond. See <a href="{% url 'privacy' %}">Privacy</a>.</p>
+                    <button type="submit">Submit <span aria-hidden="true">↗</span></button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+</body>
+</html>

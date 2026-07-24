@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from unittest.mock import patch
 
 from django.conf import settings
+from django.core import mail
 from django.core.cache import cache
 from django.test import Client, TestCase, override_settings
 
@@ -149,6 +150,179 @@ class HomepageGuideLinksTests(TestCase):
         self.assertNotContains(response, 'class="guide-library-link"')
 
 
+@override_settings(
+    EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
+    DEFAULT_FROM_EMAIL="omnilab-bk8q@mail.tin.computer",
+)
+class ContactFormTests(TestCase):
+    def tearDown(self):
+        cache.clear()
+
+    def test_contact_page_has_in_page_form_and_no_footer_mailto(self):
+        response = self.client.get("/contact/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<h1 id=\"contact-heading\">What can we help with?</h1>", html=True)
+        self.assertContains(response, '<form class="contact-form" method="post"', html=False)
+        self.assertContains(response, '<label for="id_name">Name</label>', html=True)
+        self.assertContains(response, '<label for="id_email">Email</label>', html=True)
+        self.assertContains(response, "Subject <span>(optional)</span>", html=True)
+        self.assertContains(response, '<label for="id_message">Message</label>', html=True)
+        self.assertContains(response, '<button type="submit">Submit', html=False)
+        self.assertNotContains(
+            response,
+            'href="mailto:omnilab-bk8q@mail.tin.computer">Contact</a>',
+        )
+
+    def test_valid_contact_message_is_delivered_to_managed_mailbox(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "subject": "Reaction question",
+                "message": "Could you add another acid-base example?",
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            "/contact/?sent=1",
+            fetch_redirect_response=False,
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(message.to, ["omnilab-bk8q@mail.tin.computer"])
+        self.assertEqual(message.reply_to, ["amina@example.edu"])
+        self.assertEqual(
+            message.subject,
+            "OmniLab contact: Reaction question",
+        )
+        self.assertIn("Name: Amina Student", message.body)
+        self.assertIn("Could you add another acid-base example?", message.body)
+        self.assertNotIn("amina@example.edu", response["Location"])
+
+    def test_subject_is_optional_and_uses_neutral_email_subject(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "subject": "",
+                "message": "I have a question about the lab.",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            mail.outbox[0].subject,
+            "OmniLab contact: New website message",
+        )
+
+    def test_invalid_contact_message_stays_on_page_with_field_values(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "not-an-email",
+                "subject": "Question",
+                "message": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Enter a valid email address.")
+        self.assertContains(response, "Enter a message.")
+        self.assertContains(response, 'value="Amina Student"', html=False)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @patch("omnilab.views.EmailMessage.send", side_effect=OSError("SMTP detail"))
+    def test_delivery_failure_stays_on_page_without_exposing_details(self, send):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "subject": "Question",
+                "message": "I have a question about the lab.",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Your message couldn&#x27;t be sent right now.",
+        )
+        self.assertNotContains(response, "SMTP detail")
+        self.assertContains(
+            response,
+            'value="Amina Student"',
+            html=False,
+        )
+        send.assert_called_once_with(fail_silently=False)
+
+    def test_honeypot_submission_is_not_delivered(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "message": "Automated submission",
+                "website": "https://example.com",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(OMNILAB_CONTACT_RATE_LIMIT_REQUESTS=1)
+    def test_contact_rate_limit_blocks_second_valid_submission(self):
+        data = {
+            "name": "Amina Student",
+            "email": "amina@example.edu",
+            "message": "I have a question about the lab.",
+        }
+
+        first = self.client.post("/contact/", data)
+        second = self.client.post("/contact/", data)
+
+        self.assertEqual(first.status_code, 302)
+        self.assertEqual(second.status_code, 429)
+        self.assertContains(
+            second,
+            "Too many messages were sent from this network.",
+            status_code=429,
+        )
+        self.assertIn("Retry-After", second)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_contact_form_requires_csrf_token(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+        rejected = csrf_client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "message": "Question",
+            },
+        )
+
+        self.assertEqual(rejected.status_code, 403)
+
+        page = csrf_client.get("/contact/")
+        token = page.cookies["csrftoken"].value
+        accepted = csrf_client.post(
+            "/contact/",
+            {
+                "csrfmiddlewaretoken": token,
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "message": "Question",
+            },
+        )
+        self.assertEqual(accepted.status_code, 302)
+
+
 class SearchDiscoveryTests(TestCase):
     def test_chemical_reaction_virtual_lab_page_is_complete_and_discoverable(self):
         response = self.client.get("/guides/chemical-reaction-virtual-lab/")
@@ -242,6 +416,7 @@ class SearchDiscoveryTests(TestCase):
         routes = {
             "/": "index",
             "/pricing/": "pricing",
+            "/contact/": "contact",
             "/privacy/": "privacy",
             "/terms/": "terms",
         }

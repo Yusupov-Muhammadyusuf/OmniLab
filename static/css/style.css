@@ -1258,6 +1258,255 @@ body {
     text-underline-offset: 3px;
 }
 
+.contact-page {
+    min-height: 100vh;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--bg-canvas);
+    background-image: radial-gradient(var(--grid-color) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+}
+
+.contact-shell {
+    width: min(1180px, calc(100% - 48px));
+    margin: 44px auto 80px;
+    display: grid;
+    grid-template-columns: minmax(280px, 0.78fr) minmax(520px, 1.22fr);
+    align-items: start;
+    gap: clamp(56px, 8vw, 112px);
+}
+
+.contact-intro {
+    position: sticky;
+    top: 32px;
+}
+
+.contact-intro h1 {
+    max-width: 10ch;
+    margin: 0;
+    font-size: clamp(50px, 6vw, 76px);
+    line-height: 0.98;
+    letter-spacing: -3.2px;
+    text-wrap: balance;
+}
+
+.contact-lede {
+    max-width: 44ch;
+    margin: 24px 0 40px;
+    color: var(--muted-text);
+    font-size: 17px;
+    line-height: 1.7;
+    text-wrap: pretty;
+}
+
+.contact-expectation {
+    max-width: 410px;
+    padding-top: 22px;
+    display: grid;
+    grid-template-columns: 12px 1fr;
+    gap: 14px;
+    border-top: 1px solid rgba(30, 30, 30, 0.2);
+}
+
+.contact-expectation-mark {
+    width: 12px;
+    height: 12px;
+    margin-top: 4px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+}
+
+.contact-expectation h2 {
+    margin: 0 0 7px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.contact-expectation p {
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.contact-form-card {
+    padding: clamp(24px, 4vw, 42px);
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--panel-bg);
+    box-shadow: var(--shadow);
+}
+
+.contact-form-heading {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.contact-form-heading h2 {
+    margin: 0;
+    font-size: clamp(26px, 3vw, 36px);
+    letter-spacing: -1px;
+}
+
+.contact-step {
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.contact-alert {
+    margin-bottom: 24px;
+    padding: 16px 18px;
+    display: grid;
+    gap: 4px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.contact-alert--success {
+    border-color: #2e7651;
+    background: rgba(102, 220, 157, 0.15);
+}
+
+.contact-alert--error {
+    border-color: #b51d32;
+    background: rgba(227, 56, 79, 0.09);
+}
+
+.contact-alert span {
+    color: var(--muted-text);
+}
+
+.contact-form {
+    display: grid;
+    gap: 22px;
+}
+
+.contact-field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.contact-field {
+    display: grid;
+    gap: 8px;
+}
+
+.contact-field label {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.contact-field label span {
+    color: var(--muted-text);
+    font-weight: 600;
+}
+
+.contact-field input,
+.contact-field textarea {
+    width: 100%;
+    padding: 13px 14px;
+    border: 2px solid rgba(30, 30, 30, 0.28);
+    border-radius: 9px;
+    background: var(--bg-main);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 15px;
+    line-height: 1.5;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.contact-field textarea {
+    min-height: 166px;
+    resize: vertical;
+}
+
+.contact-field input:hover,
+.contact-field textarea:hover {
+    border-color: rgba(30, 30, 30, 0.55);
+}
+
+.contact-field input:focus,
+.contact-field textarea:focus {
+    border-color: var(--border-color);
+    box-shadow: 0 0 0 3px rgba(30, 30, 30, 0.11);
+    outline: none;
+}
+
+.contact-field input[aria-invalid="true"],
+.contact-field textarea[aria-invalid="true"] {
+    border-color: #b51d32;
+}
+
+.contact-field-error {
+    color: #a4162a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.contact-submit-row {
+    padding-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+}
+
+.contact-submit-row p {
+    max-width: 39ch;
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.contact-submit-row a {
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+.contact-submit-row button {
+    min-width: 150px;
+    min-height: 50px;
+    padding: 12px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    border: 2px solid var(--text-color);
+    border-radius: 10px;
+    background: var(--text-color);
+    color: var(--bg-main);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.contact-submit-row button:hover {
+    opacity: 0.88;
+}
+
+.contact-submit-row button:active {
+    transform: translateY(1px);
+}
+
+.contact-submit-row button:focus-visible {
+    outline: 3px solid #e3384f;
+    outline-offset: 3px;
+}
+
 .guide-page {
     min-height: 100vh;
     height: auto;
@@ -2060,6 +2309,9 @@ body {
         border-top: 1px solid rgba(255, 255, 255, .3);
         border-left: 0;
     }
+    .contact-shell { grid-template-columns: 1fr; gap: 48px; }
+    .contact-intro { position: static; }
+    .contact-intro h1 { max-width: 13ch; }
 }
 
 @media (max-width: 991.98px) {
@@ -2076,6 +2328,7 @@ body {
     .pricing-shell,
     .site-footer,
     .info-shell,
+    .contact-shell,
     .guide-library-shell,
     .faq-shell { width: min(100% - 32px, 1180px); }
     .pricing-site-header { padding: 20px 0; }
@@ -2092,6 +2345,14 @@ body {
     .info-hero h1 { font-size: 48px; letter-spacing: -2.2px; }
     .info-lede { font-size: 16px; }
     .info-layout { margin-top: 56px; }
+    .contact-shell { margin-top: 24px; margin-bottom: 64px; gap: 40px; }
+    .contact-intro h1 { font-size: 48px; letter-spacing: -2.2px; }
+    .contact-lede { margin-bottom: 28px; font-size: 16px; }
+    .contact-form-card { padding: 22px; }
+    .contact-form-heading { margin-bottom: 24px; }
+    .contact-field-row { grid-template-columns: 1fr; }
+    .contact-submit-row { align-items: stretch; flex-direction: column; gap: 16px; }
+    .contact-submit-row button { width: 100%; }
     .guide-library-shell { padding: 64px 0 56px; gap: 40px; }
     .guide-library-intro h2 { font-size: 36px; letter-spacing: -1.4px; }
     .guide-library-link {

@@ -6,10 +6,12 @@ import time
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.mail import EmailMessage
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from .forms import ContactForm
 from .reactions import (
     PRECIPITATE_COLORS,
     get_reaction,
@@ -27,6 +29,7 @@ SOCIAL_PREVIEW_ALT = (
 PUBLIC_CANONICAL_URLS = {
     "index": f"{PRODUCTION_BASE_URL}/",
     "pricing": f"{PRODUCTION_BASE_URL}/pricing/",
+    "contact": f"{PRODUCTION_BASE_URL}/contact/",
     "privacy": f"{PRODUCTION_BASE_URL}/privacy/",
     "terms": f"{PRODUCTION_BASE_URL}/terms/",
     "sodium_chlorine_reaction": (
@@ -564,6 +567,7 @@ HOMEPAGE_FAQS = [
 REACTION_RETRY_MESSAGE = (
     "OmniLab couldn't complete this prediction. Please try again."
 )
+CONTACT_EMAIL_ADDRESS = "omnilab-bk8q@mail.tin.computer"
 
 
 def get_client_network_address(request):
@@ -620,6 +624,33 @@ def reaction_rate_limit(request):
     )
     response["Retry-After"] = str(retry_after)
     return response
+
+
+def contact_rate_limit(request):
+    limit = max(1, settings.OMNILAB_CONTACT_RATE_LIMIT_REQUESTS)
+    window_seconds = max(
+        1, settings.OMNILAB_CONTACT_RATE_LIMIT_WINDOW_SECONDS
+    )
+    now = int(time.time())
+    window_number = now // window_seconds
+    retry_after = window_seconds - (now % window_seconds)
+    client_address = get_client_network_address(request)
+    client_digest = hashlib.sha256(client_address.encode()).hexdigest()
+    cache_key = f"omnilab:contact:{client_digest}:{window_number}"
+
+    if cache.add(cache_key, 1, timeout=retry_after):
+        request_count = 1
+    else:
+        try:
+            request_count = cache.incr(cache_key)
+        except ValueError:
+            cache.set(cache_key, 1, timeout=retry_after)
+            request_count = 1
+
+    if request_count <= limit:
+        return None
+
+    return retry_after
 
 
 def parse_selected_chemicals(user_query):
@@ -981,6 +1012,97 @@ def pricing(request):
         "pricing.html",
         {"canonical_url": PUBLIC_CANONICAL_URLS["pricing"]},
     )
+
+
+def contact(request):
+    sent = request.GET.get("sent") == "1"
+
+    if request.method != "POST":
+        return render(
+            request,
+            "contact.html",
+            {
+                "canonical_url": PUBLIC_CANONICAL_URLS["contact"],
+                "form": ContactForm(),
+                "sent": sent,
+            },
+        )
+
+    form = ContactForm(request.POST)
+    if not form.is_valid():
+        return render(
+            request,
+            "contact.html",
+            {
+                "canonical_url": PUBLIC_CANONICAL_URLS["contact"],
+                "form": form,
+                "sent": False,
+            },
+        )
+
+    # Quietly accept bot-filled honeypot submissions without forwarding them.
+    if form.cleaned_data["website"]:
+        return redirect("/contact/?sent=1")
+
+    retry_after = contact_rate_limit(request)
+    if retry_after is not None:
+        form.add_error(
+            None,
+            "Too many messages were sent from this network. "
+            "Please try again later.",
+        )
+        response = render(
+            request,
+            "contact.html",
+            {
+                "canonical_url": PUBLIC_CANONICAL_URLS["contact"],
+                "form": form,
+                "sent": False,
+            },
+            status=429,
+        )
+        response["Retry-After"] = str(retry_after)
+        return response
+
+    subject = form.cleaned_data["subject"] or "New website message"
+    body = "\n".join(
+        [
+            f"Name: {form.cleaned_data['name']}",
+            f"Email: {form.cleaned_data['email']}",
+            f"Subject: {form.cleaned_data['subject'] or '(not provided)'}",
+            "",
+            "Message:",
+            form.cleaned_data["message"],
+        ]
+    )
+    message = EmailMessage(
+        subject=f"OmniLab contact: {subject}",
+        body=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[CONTACT_EMAIL_ADDRESS],
+        reply_to=[form.cleaned_data["email"]],
+    )
+
+    try:
+        message.send(fail_silently=False)
+    except Exception:
+        form.add_error(
+            None,
+            "Your message couldn't be sent right now. "
+            "Please try again later.",
+        )
+        return render(
+            request,
+            "contact.html",
+            {
+                "canonical_url": PUBLIC_CANONICAL_URLS["contact"],
+                "form": form,
+                "sent": False,
+            },
+        )
+
+    return redirect("/contact/?sent=1")
+
 
 def privacy(request):
     return render(
