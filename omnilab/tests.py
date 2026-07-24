@@ -94,6 +94,9 @@ class HomepageFaqTests(TestCase):
 
 class HomepageGuideLinksTests(TestCase):
     guide_links = {
+        "/guides/chemical-reaction-virtual-lab/": (
+            "See how the chemical reaction virtual lab works"
+        ),
         "/guides/sodium-and-chlorine-reaction/": (
             "What happens when sodium reacts with chlorine?"
         ),
@@ -103,18 +106,31 @@ class HomepageGuideLinksTests(TestCase):
         "/guides/sodium-and-chlorine-ionic-bond/": (
             "Why do sodium and chlorine form an ionic bond?"
         ),
+        "/guides/why-limewater-turns-cloudy-with-carbon-dioxide/": (
+            "Why does limewater turn cloudy with carbon dioxide?"
+        ),
+        "/guides/why-sodium-carbonate-fizzes-with-hydrochloric-acid/": (
+            "Why does sodium carbonate fizz with hydrochloric acid?"
+        ),
+        "/guides/silver-nitrate-potassium-iodide-precipitate/": (
+            "What precipitate forms from silver nitrate and potassium iodide?"
+        ),
     }
 
-    def test_homepage_links_all_three_guides_with_descriptive_text(self):
+    def test_homepage_links_all_seven_guides_with_descriptive_text(self):
         response = self.client.get("/")
         html = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Study the supported pair")
-        self.assertEqual(html.count('class="guide-library-link"'), 3)
+        self.assertContains(response, "Seven chemistry guides")
+        self.assertEqual(html.count('class="guide-library-link"'), 6)
+        self.assertEqual(
+            html.count('class="guide-library-overview-link"'),
+            1,
+        )
         for path, title in self.guide_links.items():
             with self.subTest(path=path):
-                self.assertContains(response, f'href="{path}"')
+                self.assertEqual(html.count(f'href="{path}"'), 1)
                 self.assertContains(response, title)
 
     def test_guide_links_are_secondary_to_the_single_analyze_action(self):
@@ -129,7 +145,7 @@ class HomepageGuideLinksTests(TestCase):
         response = self.client.get("/demo/sodium-chlorine/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Study the supported pair")
+        self.assertNotContains(response, "Seven chemistry guides")
         self.assertNotContains(response, 'class="guide-library-link"')
 
 
@@ -1996,16 +2012,19 @@ class LabJourneyRepairTests(TestCase):
             with self.subTest(non_guide_value=non_guide_value):
                 self.assertNotIn(non_guide_value, feedback)
 
-    def test_sodium_chlorine_result_links_all_three_guides_as_secondary_paths(self):
+    def test_reaction_results_render_only_mapped_guides_as_secondary_paths(self):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
         ).read_text()
         render_block = interactions.split(
             "export function renderReactionResult", 1
         )[1].split("\n}\n\nfunction renderStatusMessage", 1)[0]
 
         self.assertIn(
-            "config.hasMatchingReactionGuides(selectedChemicals)",
+            "config.getMatchingReactionGuides(",
             render_block,
         )
         self.assertEqual(render_block.count('class="reaction-study"'), 1)
@@ -2024,8 +2043,16 @@ class LabJourneyRepairTests(TestCase):
             ),
         ):
             with self.subTest(path=path):
-                self.assertIn(f'href="{path}"', render_block)
-                self.assertIn(guide["title"], render_block)
+                self.assertIn(f"href: '{path}'", configuration)
+                self.assertIn(guide["title"], configuration)
+        for guide in OBSERVATION_GUIDE_PAGES.values():
+            path = PUBLIC_CANONICAL_URLS[guide["canonical_key"]].removeprefix(
+                PRODUCTION_BASE_URL
+            )
+            with self.subTest(path=path):
+                self.assertIn(f"href: '{path}'", configuration)
+                self.assertIn(guide["title"], configuration)
+        self.assertIn("matchingReactionGuides.map(guide =>", render_block)
         self.assertNotIn('class="btn', render_block)
         self.assertNotIn("action-btn-primary", render_block)
         self.assertNotIn("guide-primary", render_block)

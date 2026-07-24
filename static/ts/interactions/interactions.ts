@@ -111,24 +111,21 @@ export function renderReactionResult(
     reaction: ReactionResult,
     selectedChemicals: string[]
 ): void {
-    const reactionStudyMarkup = config.hasMatchingReactionGuides(selectedChemicals)
+    const matchingReactionGuides = config.getMatchingReactionGuides(
+        selectedChemicals
+    );
+    const reactionStudyMarkup = matchingReactionGuides.length > 0
         ? `
             <nav class="reaction-study" aria-labelledby="reaction-study-title">
                 <p class="reaction-study-label">Study this result</p>
                 <h3 class="reaction-study-title" id="reaction-study-title">Follow the chemistry behind the prediction</h3>
                 <div class="reaction-study-links">
-                    <a href="/guides/sodium-and-chlorine-reaction/">
-                        <span>What happens when sodium reacts with chlorine?</span>
+                    ${matchingReactionGuides.map(guide => `
+                    <a href="${guide.href}">
+                        <span>${guide.title}</span>
                         <span aria-hidden="true">→</span>
                     </a>
-                    <a href="/guides/sodium-and-chlorine-formula/">
-                        <span>What formula forms from sodium and chlorine?</span>
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    <a href="/guides/sodium-and-chlorine-ionic-bond/">
-                        <span>Why do sodium and chlorine form an ionic bond?</span>
-                        <span aria-hidden="true">→</span>
-                    </a>
+                    `).join('')}
                 </div>
             </nav>
         `
