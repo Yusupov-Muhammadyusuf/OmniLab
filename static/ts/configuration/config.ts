@@ -55,14 +55,16 @@ type SupportedReactionPair = [string, string];
 export type GuideVisitSource =
     | 'guide_reaction'
     | 'guide_formula'
-    | 'guide_ionic_bond';
+    | 'guide_ionic_bond'
+    | 'guide_virtual_lab';
 
 export type VisitSource = 'student_invite' | GuideVisitSource;
 
 const GUIDE_VISIT_SOURCES = new Set<GuideVisitSource>([
     'guide_reaction',
     'guide_formula',
-    'guide_ionic_bond'
+    'guide_ionic_bond',
+    'guide_virtual_lab'
 ]);
 
 const ALLOWED_VISIT_SOURCES = new Set<VisitSource>([

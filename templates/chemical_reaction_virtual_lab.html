@@ -43,8 +43,8 @@
                     <p class="guide-context">Free in the current release · No account required</p>
                     <h1 id="reaction-lab-heading">Try a chemical reaction in a virtual lab</h1>
                     <p class="reaction-lab-lede">Choose two chemicals from a supported pair. OmniLab returns a balanced equation, a plain-language explanation, three safety notes, and a visible reaction cue when the result includes bubbling or a precipitate.</p>
-                    <a class="guide-primary" href="{% url 'index' %}#lab-workspace">
-                        Open the reaction lab
+                    <a class="guide-primary" href="{% url 'sodium_chlorine_demo' %}?source={{ visit_source }}">
+                        Try Sodium + Chlorine
                         <span aria-hidden="true">→</span>
                     </a>
                     <p class="guide-cta-note">You stay in control of when to request a prediction.</p>
@@ -164,8 +164,7 @@
                 <h2 id="final-heading">Turn a reaction question into a result you can inspect.</h2>
                 <p>Start with the full catalog, or use the prepared Sodium and Chlorine journey if you want one known setup ready to analyze.</p>
                 <div class="reaction-lab-final-links">
-                    <a class="guide-primary" href="{% url 'index' %}#lab-workspace">Open the reaction lab <span aria-hidden="true">→</span></a>
-                    <a href="{% url 'sodium_chlorine_demo' %}">Try the prepared Sodium + Chlorine setup</a>
+                    <a href="{% url 'index' %}#lab-workspace">Open the full reaction lab <span aria-hidden="true">→</span></a>
                 </div>
             </section>
 
@@ -184,5 +183,9 @@
     </main>
 
     {% include "partials/site_footer.html" %}
+    <script>
+        window.guideVisitSource = "{{ visit_source }}";
+    </script>
+    <script type="module" src="{% static 'js/root/guide.js' %}"></script>
 </body>
 </html>

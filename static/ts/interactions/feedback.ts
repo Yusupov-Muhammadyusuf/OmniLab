@@ -6,7 +6,9 @@ const FEEDBACK_PROMPTS = [
     'What do you plan to do next?'
 ].join('\n\n');
 
-const FEEDBACK_GUIDE_LABELS: Readonly<Record<GuideVisitSource, string>> = {
+const FEEDBACK_GUIDE_LABELS: Readonly<
+    Partial<Record<GuideVisitSource, string>>
+> = {
     guide_reaction: 'Reaction guide',
     guide_formula: 'Formula guide',
     guide_ionic_bond: 'Ionic bond guide'
