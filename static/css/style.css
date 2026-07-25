@@ -144,6 +144,9 @@ body {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
     background: var(--panel-bg);
     border: var(--toolbar-border);
     border-radius: 12px;
@@ -151,6 +154,7 @@ body {
     padding: 6px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     z-index: 1050;
     backdrop-filter: blur(10px);
@@ -898,13 +902,30 @@ body {
     body { overflow-y: auto; height: auto; }
     #canvas-zone { height: 500px; }
     .ai-sidebar { height: auto; border-left: none; border-top: 2px solid var(--text-color); }
-    .excalidraw-floating-toolbar { position: sticky; top: 10px; transform: none; left: 0; margin: 10px auto; }
+    .excalidraw-floating-toolbar {
+        position: sticky;
+        top: 10px;
+        left: 0;
+        transform: none;
+        margin: 10px auto;
+        gap: 4px;
+    }
+    .toolbar-trigger-btn {
+        min-height: 44px;
+        min-width: 0;
+        padding: 8px 10px;
+    }
     .floating-popover-panel { position: absolute; top: 70px; }
     .home-page .excalidraw-floating-toolbar { position: sticky; }
+    .home-page .app-title-card { display: none; }
 }
 
 @media (min-width: 1200px) {
     .app-title-card { top: 24px; }
+    .home-page .excalidraw-floating-toolbar {
+        /* Center the controls between the title card and the lab column edge. */
+        left: calc(33.333333% + 192px);
+    }
 }
 
 .pricing-page {
@@ -1630,17 +1651,20 @@ body {
 
 .guide-primary {
     min-height: 52px;
+    max-width: 100%;
     padding: 14px 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 18px;
+    box-sizing: border-box;
     border: 2px solid var(--text-color);
     border-radius: 10px;
     background: var(--text-color);
     color: var(--bg-main);
     font-size: 15px;
     font-weight: 700;
+    text-align: center;
     text-decoration: none;
     transition: opacity 0.16s ease, transform 0.16s ease;
 }
