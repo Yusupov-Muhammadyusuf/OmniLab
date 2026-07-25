@@ -119,6 +119,14 @@ class FaqPageTests(TestCase):
             supported_inputs_faq["answer"],
         )
 
+    def test_mobile_faq_action_stays_inside_its_content_column(self):
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+
+        self.assertRegex(
+            css,
+            r"\.faq-primary\s*\{[^}]*box-sizing:\s*border-box;",
+        )
+
 
 class HomepageGuideLinksTests(TestCase):
     guide_links = {
@@ -199,6 +207,30 @@ class ContactFormTests(TestCase):
         self.assertNotContains(
             response,
             'href="mailto:omnilab-bk8q@mail.tin.computer">Contact</a>',
+        )
+
+    def test_contact_fields_stay_inside_the_form_card(self):
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+
+        self.assertRegex(
+            css,
+            (
+                r"\.contact-field input,\s*"
+                r"\.contact-field textarea\s*\{[^}]*"
+                r"box-sizing:\s*border-box;"
+            ),
+        )
+
+    def test_mobile_contact_heading_stacks_without_crowding(self):
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+
+        mobile_rules = css.split("@media (max-width: 560px)", 1)[1]
+        self.assertRegex(
+            mobile_rules,
+            (
+                r"\.contact-form-heading\s*\{[^}]*"
+                r"flex-direction:\s*column;"
+            ),
         )
 
     def test_valid_contact_message_is_delivered_to_managed_mailbox(self):
