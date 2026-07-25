@@ -171,6 +171,50 @@ class FaqPageTests(TestCase):
         )
 
 
+class HomepageResponsiveLayoutTests(SimpleTestCase):
+    def setUp(self):
+        self.css = (settings.BASE_DIR / "static/css/style.css").read_text()
+
+    def test_toolbar_stays_aligned_and_contained(self):
+        self.assertRegex(
+            self.css,
+            r"\.excalidraw-floating-toolbar\s*\{[^}]*"
+            r"width:\s*max-content;[^}]*"
+            r"max-width:\s*calc\(100vw - 32px\);[^}]*"
+            r"box-sizing:\s*border-box;",
+        )
+        self.assertRegex(
+            self.css,
+            re.compile(
+                r"@media\s*\(max-width:\s*991\.98px\)\s*\{.*?"
+                r"\.excalidraw-floating-toolbar\s*\{[^}]*"
+                r"left:\s*0;[^}]*"
+                r"transform:\s*none;[^}]*"
+                r"margin:\s*10px auto;",
+                re.DOTALL,
+            ),
+        )
+        self.assertRegex(
+            self.css,
+            re.compile(
+                r"@media\s*\(min-width:\s*1200px\)\s*\{.*?"
+                r"\.home-page \.excalidraw-floating-toolbar\s*\{[^}]*"
+                r"left:\s*calc\(33\.333333% \+ 192px\);",
+                re.DOTALL,
+            ),
+        )
+
+    def test_mobile_lab_hides_the_overlapping_title_card(self):
+        self.assertRegex(
+            self.css,
+            re.compile(
+                r"@media\s*\(max-width:\s*991\.98px\)\s*\{.*?"
+                r"\.home-page \.app-title-card\s*\{\s*display:\s*none;\s*\}",
+                re.DOTALL,
+            ),
+        )
+
+
 class GuideLibraryPageTests(TestCase):
     def setUp(self):
         self.response = self.client.get("/guides/")
@@ -220,6 +264,15 @@ class GuideLibraryPageTests(TestCase):
                     re.DOTALL,
                 )
             ),
+        )
+
+    def test_mobile_primary_action_stays_inside_its_content_column(self):
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+
+        self.assertRegex(
+            css,
+            r"\.guide-primary\s*\{[^}]*max-width:\s*100%;"
+            r"[^}]*box-sizing:\s*border-box;",
         )
 
     def test_library_has_collection_schema_for_the_visible_guides(self):
