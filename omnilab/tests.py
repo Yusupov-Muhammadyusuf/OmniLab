@@ -209,9 +209,20 @@ class HomepageResponsiveLayoutTests(SimpleTestCase):
             self.css,
             re.compile(
                 r"@media\s*\(max-width:\s*991\.98px\)\s*\{.*?"
-                r"\.home-page \.app-title-card\s*\{\s*display:\s*none;\s*\}",
+                r"\.home-page \.app-title-card:not\("
+                r"\.app-title-card--guided\)\s*\{\s*display:\s*none;\s*\}",
                 re.DOTALL,
             ),
+        )
+
+    def test_guided_demo_keeps_its_mobile_instruction_card(self):
+        homepage = self.client.get("/")
+        guided_demo = self.client.get("/demo/sodium-chlorine/")
+
+        self.assertContains(homepage, '<header class="app-title-card">')
+        self.assertContains(
+            guided_demo,
+            '<header class="app-title-card app-title-card--guided">',
         )
 
 

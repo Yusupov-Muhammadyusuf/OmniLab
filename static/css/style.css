@@ -917,7 +917,7 @@ body {
     }
     .floating-popover-panel { position: absolute; top: 70px; }
     .home-page .excalidraw-floating-toolbar { position: sticky; }
-    .home-page .app-title-card { display: none; }
+    .home-page .app-title-card:not(.app-title-card--guided) { display: none; }
 }
 
 @media (min-width: 1200px) {
