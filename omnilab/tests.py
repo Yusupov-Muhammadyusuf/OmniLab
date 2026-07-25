@@ -880,7 +880,10 @@ class GuidedExperimentPageTests(TestCase):
     def test_guides_use_privacy_limited_product_analytics(self):
         for path in self.routes:
             with self.subTest(path=path):
-                response = self.client.get(path)
+                response = self.client.get(
+                    path,
+                    HTTP_HOST="omnilab-bk8q.onrender.com",
+                )
 
                 for setting in (
                     "autocapture: false",
@@ -1177,7 +1180,10 @@ class SocialPreviewTests(TestCase):
 
 class AnalyticsInstrumentationTests(TestCase):
     def test_homepage_uses_privacy_limited_posthog_configuration(self):
-        response = self.client.get("/")
+        response = self.client.get(
+            "/",
+            HTTP_HOST="omnilab-bk8q.onrender.com",
+        )
 
         for setting in (
             "autocapture: false",
@@ -1194,6 +1200,40 @@ class AnalyticsInstrumentationTests(TestCase):
             '<script type="module" src="/static/js/root/main.js"></script>',
             html=True,
         )
+
+    def test_live_posthog_is_rendered_only_for_the_production_hostname(self):
+        analytics_paths = (
+            "/",
+            "/guides/",
+            "/guides/sodium-and-chlorine-reaction/",
+            "/guides/chemical-reaction-virtual-lab/",
+            "/guides/why-limewater-turns-cloudy-with-carbon-dioxide/",
+        )
+        live_analytics_markers = (
+            "posthog.init(",
+            "https://us.i.posthog.com",
+            "phc_qHnj5nPFZW9VcTqT82jtjsEHkQk6PTh8g65RrqUBSST7",
+        )
+
+        for hostname in ("testserver", "localhost"):
+            for path in analytics_paths:
+                with self.subTest(hostname=hostname, path=path):
+                    response = self.client.get(path, HTTP_HOST=hostname)
+
+                    self.assertEqual(response.status_code, 200)
+                    for marker in live_analytics_markers:
+                        self.assertNotContains(response, marker)
+
+        for path in analytics_paths:
+            with self.subTest(hostname="production", path=path):
+                response = self.client.get(
+                    path,
+                    HTTP_HOST="omnilab-bk8q.onrender.com",
+                )
+
+                self.assertEqual(response.status_code, 200)
+                for marker in live_analytics_markers:
+                    self.assertContains(response, marker, count=1)
 
     def test_lab_setup_event_contains_only_coarse_setup_properties(self):
         source = "\n".join(
