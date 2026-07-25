@@ -32,7 +32,7 @@
     <script type="application/ld+json">{{ software_schema_json|safe }}</script>
 </head>
 <body class="home-page">
-    <header class="app-title-card">
+    <header class="app-title-card{% if reaction_demo %} app-title-card--guided{% endif %}">
         {% if reaction_demo %}
         <p class="app-wordmark">OmniLab guided demo</p>
         <h1>{{ reaction_demo.title }}</h1>
