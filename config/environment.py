@@ -12,10 +12,14 @@ LOCAL_DEVELOPMENT_SECRET_KEY = (
 )
 
 
-def _is_production_environment(environ: Mapping[str, str]) -> bool:
+def is_production_environment(
+    environ: Mapping[str, str] | None = None,
+) -> bool:
+    """Return whether the current process is running in production."""
+    environment = os.environ if environ is None else environ
     return (
-        environ.get("RENDER", "").lower() == "true"
-        or environ.get("OMNILAB_ENVIRONMENT", "").lower() == "production"
+        environment.get("RENDER", "").lower() == "true"
+        or environment.get("OMNILAB_ENVIRONMENT", "").lower() == "production"
     )
 
 
@@ -31,7 +35,7 @@ def get_django_secret_key(
 
     if configured_key:
         return configured_key
-    if _is_production_environment(environment):
+    if is_production_environment(environment):
         raise ImproperlyConfigured(
             f"{DJANGO_SECRET_KEY_ENVIRONMENT_VARIABLE} must be set in production."
         )

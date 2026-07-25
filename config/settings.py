@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
-from .environment import get_django_secret_key
+from .environment import get_django_secret_key, is_production_environment
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +34,32 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
 ]
+
+# Render terminates HTTPS before forwarding requests to Django. Trust its
+# forwarded protocol only in production so SecurityMiddleware recognizes the
+# original HTTPS request and does not redirect it back through the proxy.
+IS_PRODUCTION_ENVIRONMENT = is_production_environment()
+SECURE_PROXY_SSL_HEADER = (
+    ("HTTP_X_FORWARDED_PROTO", "https")
+    if IS_PRODUCTION_ENVIRONMENT
+    else None
+)
+SECURE_SSL_REDIRECT = IS_PRODUCTION_ENVIRONMENT
+SESSION_COOKIE_SECURE = IS_PRODUCTION_ENVIRONMENT
+CSRF_COOKIE_SECURE = IS_PRODUCTION_ENVIRONMENT
+
+# Start with a one-hour HSTS window. Keep subdomains and preload disabled until
+# the production proxy behavior has a longer observation history. Silence only
+# the two deployment warnings that recommend those intentionally deferred
+# HSTS extensions.
+SECURE_HSTS_SECONDS = 3600 if IS_PRODUCTION_ENVIRONMENT else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SECURE_HSTS_PRELOAD = False
+SILENCED_SYSTEM_CHECKS = (
+    ["security.W005", "security.W021"]
+    if IS_PRODUCTION_ENVIRONMENT
+    else []
+)
 
 
 # Application definition
