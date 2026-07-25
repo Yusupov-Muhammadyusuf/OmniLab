@@ -9,6 +9,7 @@ urlpatterns = [
     path('faq/', views.faq, name="faq"),
     path('privacy/', views.privacy, name="privacy"),
     path('terms/', views.terms, name="terms"),
+    path('guides/', views.guide_library, name="guide_library"),
     path(
         'demo/sodium-chlorine/',
         views.sodium_chlorine_demo,
