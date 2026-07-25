@@ -1,19 +1,31 @@
 import json
+import os
 import re
 import struct
+import subprocess
+import sys
 import xml.etree.ElementTree as ET
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.core import mail
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
-from django.test import Client, SimpleTestCase, TestCase, override_settings
+from django.http import HttpResponse
+from django.test import (
+    Client,
+    RequestFactory,
+    SimpleTestCase,
+    TestCase,
+    override_settings,
+)
 from django.urls import reverse
 
 from config.environment import (
     LOCAL_DEVELOPMENT_SECRET_KEY,
     get_django_secret_key,
+    is_production_environment,
 )
 
 from .views import (
@@ -74,6 +86,118 @@ class DjangoSecretConfigurationTests(SimpleTestCase):
             get_django_secret_key({}),
             LOCAL_DEVELOPMENT_SECRET_KEY,
         )
+
+
+class ProductionTransportSecurityTests(SimpleTestCase):
+    production_security_settings = {
+        "SECURE_PROXY_SSL_HEADER": ("HTTP_X_FORWARDED_PROTO", "https"),
+        "SECURE_SSL_REDIRECT": True,
+        "SESSION_COOKIE_SECURE": True,
+        "CSRF_COOKIE_SECURE": True,
+        "SECURE_HSTS_SECONDS": 3600,
+        "SECURE_HSTS_INCLUDE_SUBDOMAINS": False,
+        "SECURE_HSTS_PRELOAD": False,
+    }
+
+    def test_render_and_explicit_production_are_detected(self):
+        self.assertTrue(is_production_environment({"RENDER": "true"}))
+        self.assertTrue(
+            is_production_environment(
+                {"OMNILAB_ENVIRONMENT": "production"}
+            )
+        )
+        self.assertFalse(is_production_environment({}))
+
+    @override_settings(**production_security_settings)
+    def test_forwarded_https_request_is_not_redirected(self):
+        response = self.client.get(
+            "/contact/",
+            HTTP_HOST="omnilab-bk8q.onrender.com",
+            HTTP_X_FORWARDED_PROTO="https",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["Strict-Transport-Security"],
+            "max-age=3600",
+        )
+
+    @override_settings(**production_security_settings)
+    def test_plain_http_request_redirects_to_https(self):
+        response = self.client.get(
+            "/contact/",
+            HTTP_HOST="omnilab-bk8q.onrender.com",
+        )
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(
+            response["Location"],
+            "https://omnilab-bk8q.onrender.com/contact/",
+        )
+
+    @override_settings(
+        SESSION_ENGINE="django.contrib.sessions.backends.signed_cookies",
+        **production_security_settings,
+    )
+    def test_production_csrf_and_session_cookies_are_secure(self):
+        response = self.client.get(
+            "/contact/",
+            HTTP_HOST="omnilab-bk8q.onrender.com",
+            HTTP_X_FORWARDED_PROTO="https",
+        )
+
+        def use_session(request):
+            request.session["security-check"] = True
+            return HttpResponse()
+
+        session_response = SessionMiddleware(use_session)(
+            RequestFactory().get("/", secure=True)
+        )
+
+        self.assertTrue(response.cookies["csrftoken"]["secure"])
+        self.assertTrue(
+            session_response.cookies[settings.SESSION_COOKIE_NAME]["secure"]
+        )
+
+    def test_local_http_development_stays_enabled(self):
+        self.assertFalse(settings.SECURE_SSL_REDIRECT)
+        self.assertFalse(settings.SESSION_COOKIE_SECURE)
+        self.assertFalse(settings.CSRF_COOKIE_SECURE)
+        self.assertEqual(settings.SECURE_HSTS_SECONDS, 0)
+        self.assertIsNone(settings.SECURE_PROXY_SSL_HEADER)
+        self.assertEqual(self.client.get("/contact/").status_code, 200)
+
+    def test_production_deployment_check_is_clean(self):
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "RENDER": "true",
+                "OMNILAB_DJANGO_SECRET_KEY": (
+                    "production-check-only-secret-with-enough-randomness-"
+                    "6f57cf4d6ce349d0b7c8161b2308e4e9"
+                ),
+            }
+        )
+        result = subprocess.run(
+            [sys.executable, "manage.py", "check", "--deploy"],
+            cwd=settings.BASE_DIR,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=result.stdout + result.stderr,
+        )
+        output = result.stdout + result.stderr
+        self.assertIn(
+            "System check identified no issues",
+            output,
+        )
+        self.assertNotIn("WARNINGS:", output)
 
 
 class FaqPageTests(TestCase):
