@@ -8,9 +8,11 @@ from django.conf import settings
 from django.core import mail
 from django.core.cache import cache
 from django.test import Client, TestCase, override_settings
+from django.urls import reverse
 
 from .views import (
     CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
+    GUIDE_LIBRARY_GROUPS,
     GUIDED_EXPERIMENT_PAGES,
     OBSERVATION_GUIDE_PAGES,
     PRODUCT_FAQS,
@@ -126,6 +128,117 @@ class FaqPageTests(TestCase):
             css,
             r"\.faq-primary\s*\{[^}]*box-sizing:\s*border-box;",
         )
+
+
+class GuideLibraryPageTests(TestCase):
+    def setUp(self):
+        self.response = self.client.get("/guides/")
+        self.html = self.response.content.decode()
+        self.guides = [
+            guide
+            for group in GUIDE_LIBRARY_GROUPS
+            for guide in group["guides"]
+        ]
+
+    def test_library_groups_all_seven_guides_once(self):
+        self.assertEqual(self.response.status_code, 200)
+        self.assertEqual(len(self.guides), 7)
+        self.assertEqual(self.html.count('class="guide-index-link"'), 7)
+
+        guide_hrefs = re.findall(
+            r'<a class="guide-index-link" href="([^"]+)">',
+            self.html,
+        )
+        expected_hrefs = [
+            reverse(guide["route_name"]) for guide in self.guides
+        ]
+        self.assertEqual(guide_hrefs, expected_hrefs)
+        self.assertEqual(len(set(guide_hrefs)), 7)
+
+        for group in GUIDE_LIBRARY_GROUPS:
+            with self.subTest(group=group["label"]):
+                self.assertContains(self.response, group["label"])
+        for guide in self.guides:
+            with self.subTest(guide=guide["title"]):
+                self.assertContains(self.response, guide["title"])
+                self.assertContains(self.response, guide["summary"])
+
+    def test_library_keeps_one_primary_lab_action(self):
+        self.assertEqual(self.html.count('class="guide-primary"'), 1)
+        self.assertContains(
+            self.response,
+            '<a class="guide-primary" href="/#lab-workspace">',
+            html=False,
+        )
+        self.assertNotIn(
+            'class="guide-primary"',
+            "\n".join(
+                re.findall(
+                    r'<a class="guide-index-link".*?</a>',
+                    self.html,
+                    re.DOTALL,
+                )
+            ),
+        )
+
+    def test_library_has_collection_schema_for_the_visible_guides(self):
+        schema_match = re.search(
+            r'<script type="application/ld\+json">(.*?)</script>',
+            self.html,
+            re.DOTALL,
+        )
+
+        self.assertIsNotNone(schema_match)
+        schema = json.loads(schema_match.group(1))
+        self.assertEqual(schema["@type"], "CollectionPage")
+        self.assertEqual(schema["url"], PUBLIC_CANONICAL_URLS["guides"])
+        item_list = schema["mainEntity"]
+        self.assertEqual(item_list["@type"], "ItemList")
+        self.assertEqual(item_list["numberOfItems"], 7)
+        self.assertEqual(len(item_list["itemListElement"]), 7)
+
+        for position, (guide, item) in enumerate(
+            zip(self.guides, item_list["itemListElement"]),
+            start=1,
+        ):
+            with self.subTest(guide=guide["title"]):
+                self.assertEqual(item["@type"], "ListItem")
+                self.assertEqual(item["position"], position)
+                self.assertEqual(item["item"]["@type"], "LearningResource")
+                self.assertEqual(item["item"]["name"], guide["title"])
+                self.assertEqual(
+                    item["item"]["url"],
+                    PUBLIC_CANONICAL_URLS[guide["canonical_key"]],
+                )
+
+    def test_library_has_canonical_sitemap_and_sitewide_footer_discovery(self):
+        self.assertContains(
+            self.response,
+            (
+                '<link rel="canonical" '
+                f'href="{PUBLIC_CANONICAL_URLS["guides"]}">'
+            ),
+            html=True,
+        )
+        sitemap = self.client.get("/sitemap.xml")
+        root = ET.fromstring(sitemap.content)
+        namespace = {"sitemap": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        locations = [
+            node.text
+            for node in root.findall("sitemap:url/sitemap:loc", namespace)
+        ]
+        self.assertEqual(
+            locations.count(PUBLIC_CANONICAL_URLS["guides"]),
+            1,
+        )
+        for path in ("/", "/faq/", "/guides/"):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertContains(
+                    response,
+                    '<a href="/guides/">Guides</a>',
+                    html=True,
+                )
 
 
 class HomepageGuideLinksTests(TestCase):
@@ -477,6 +590,7 @@ class SearchDiscoveryTests(TestCase):
             "/pricing/": "pricing",
             "/contact/": "contact",
             "/faq/": "faq",
+            "/guides/": "guides",
             "/privacy/": "privacy",
             "/terms/": "terms",
         }

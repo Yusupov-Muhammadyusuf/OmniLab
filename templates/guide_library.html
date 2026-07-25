@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ page_description }}">
+    <title>Chemistry guides | OmniLab</title>
+    <link rel="canonical" href="{{ canonical_url }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="OmniLab">
+    <meta property="og:title" content="Chemistry guides | OmniLab">
+    <meta property="og:description" content="{{ page_description }}">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:image" content="{{ social_preview_url }}">
+    <meta property="og:image:alt" content="{{ social_preview_alt }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Chemistry guides | OmniLab">
+    <meta name="twitter:description" content="{{ page_description }}">
+    <meta name="twitter:image" content="{{ social_preview_url }}">
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% include "partials/product_analytics.html" %}
+    <script type="application/ld+json">{{ page_schema_json|safe }}</script>
+</head>
+<body class="guide-page">
+    <header class="guide-site-header">
+        <a class="guide-brand" href="{% url 'index' %}">OmniLab</a>
+        <span class="guide-site-label">Chemistry guides</span>
+    </header>
+
+    <main class="guide-index-shell">
+        <nav class="guide-breadcrumb" aria-label="Breadcrumb">
+            <a href="{% url 'index' %}">Virtual lab</a>
+            <span aria-hidden="true">/</span>
+            <span>Chemistry guides</span>
+        </nav>
+
+        <section class="guide-index-hero" aria-labelledby="guide-index-heading">
+            <div class="guide-index-hero-copy">
+                <p class="guide-context">Seven questions · One connected library</p>
+                <h1 id="guide-index-heading">Understand the reaction, then try it in the lab</h1>
+                <p>Choose a guide for the question in front of you. Each one connects a supported reaction, formula, bond, or visible observation to the chemistry behind it.</p>
+                <a class="guide-primary" href="{% url 'index' %}#lab-workspace">
+                    Open the virtual lab
+                    <span aria-hidden="true">&rarr;</span>
+                </a>
+                <p class="guide-cta-note">No account or payment required in the current public release.</p>
+            </div>
+
+            <figure class="guide-index-preview">
+                <div class="guide-preview-frame">
+                    <img src="{% static 'images/omnilab-social-preview.png' %}" alt="The OmniLab workspace showing selected chemicals, an equation, explanation, and safety guidance">
+                    <span class="guide-preview-label">Real OmniLab workspace</span>
+                </div>
+                <figcaption>Use a guide to prepare your question, then inspect the matching result in the virtual lab.</figcaption>
+            </figure>
+        </section>
+
+        <section class="guide-index-library" aria-labelledby="library-heading">
+            <div class="guide-index-library-intro">
+                <p class="guide-section-label">Browse the library</p>
+                <h2 id="library-heading">Start where your chemistry question starts</h2>
+                <p>The seven guides are grouped by the job they help you do, not by publication date.</p>
+            </div>
+
+            <div class="guide-index-groups">
+                {% for group in guide_groups %}
+                <section class="guide-index-group{% if forloop.first %} guide-index-group--first{% endif %}" aria-labelledby="guide-group-{{ forloop.counter }}">
+                    <header>
+                        <p class="guide-index-group-number" aria-hidden="true">0{{ forloop.counter }}</p>
+                        <div>
+                            <h3 id="guide-group-{{ forloop.counter }}">{{ group.label }}</h3>
+                            <p>{{ group.description }}</p>
+                        </div>
+                    </header>
+                    <nav class="guide-index-list" aria-label="{{ group.label }}">
+                        {% for guide in group.guides %}
+                        <a class="guide-index-link" href="{% url guide.route_name %}">
+                            <span class="guide-index-link-number" aria-hidden="true">{{ guide.number }}</span>
+                            <span class="guide-index-link-copy">
+                                <strong>{{ guide.title }}</strong>
+                                <span>{{ guide.summary }}</span>
+                            </span>
+                            <span class="guide-index-link-arrow" aria-hidden="true">&rarr;</span>
+                        </a>
+                        {% endfor %}
+                    </nav>
+                </section>
+                {% endfor %}
+            </div>
+        </section>
+
+        <aside class="guide-index-boundary" aria-labelledby="guide-index-boundary-heading">
+            <p class="guide-section-label">Study boundary</p>
+            <div>
+                <h2 id="guide-index-boundary-heading">Use the guides to learn, not to run a physical procedure.</h2>
+                <p>OmniLab provides simplified educational predictions for supported chemical pairs. Check important details against trusted course materials and follow trained supervision and your laboratory's safety rules.</p>
+            </div>
+        </aside>
+    </main>
+
+    {% include "partials/site_footer.html" %}
+</body>
+</html>

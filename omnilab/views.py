@@ -31,6 +31,7 @@ PUBLIC_CANONICAL_URLS = {
     "pricing": f"{PRODUCTION_BASE_URL}/pricing/",
     "contact": f"{PRODUCTION_BASE_URL}/contact/",
     "faq": f"{PRODUCTION_BASE_URL}/faq/",
+    "guides": f"{PRODUCTION_BASE_URL}/guides/",
     "privacy": f"{PRODUCTION_BASE_URL}/privacy/",
     "terms": f"{PRODUCTION_BASE_URL}/terms/",
     "sodium_chlorine_reaction": (
@@ -479,6 +480,131 @@ OBSERVATION_GUIDE_PAGES = {
         ),
     },
 }
+
+GUIDE_LIBRARY_GROUPS = [
+    {
+        "label": "Start with the virtual lab",
+        "description": (
+            "See what OmniLab supports, how to choose a reaction pair, and "
+            "how to read the result."
+        ),
+        "guides": [
+            {
+                "number": "01",
+                "title": "How does the chemical reaction virtual lab work?",
+                "summary": (
+                    "Choose a supported pair, request a prediction, and read "
+                    "the equation, explanation, safety notes, and visible cue."
+                ),
+                "route_name": "chemical_reaction_virtual_lab",
+                "canonical_key": "chemical_reaction_virtual_lab",
+            },
+        ],
+    },
+    {
+        "label": "Study sodium and chlorine",
+        "description": (
+            "Follow one reaction from reactants and electron transfer to its "
+            "formula and ionic bond."
+        ),
+        "guides": [
+            {
+                "number": "02",
+                "title": GUIDED_EXPERIMENT_PAGES["reaction"]["title"],
+                "summary": (
+                    "Follow the reactants, electron transfer, and sodium "
+                    "chloride product."
+                ),
+                "route_name": GUIDED_EXPERIMENT_PAGES["reaction"]["route_name"],
+                "canonical_key": GUIDED_EXPERIMENT_PAGES["reaction"][
+                    "canonical_key"
+                ],
+            },
+            {
+                "number": "03",
+                "title": GUIDED_EXPERIMENT_PAGES["formula"]["title"],
+                "summary": (
+                    "Connect the ion charges to NaCl and the balanced "
+                    "equation."
+                ),
+                "route_name": GUIDED_EXPERIMENT_PAGES["formula"]["route_name"],
+                "canonical_key": GUIDED_EXPERIMENT_PAGES["formula"][
+                    "canonical_key"
+                ],
+            },
+            {
+                "number": "04",
+                "title": GUIDED_EXPERIMENT_PAGES["ionic-bond"]["title"],
+                "summary": (
+                    "Trace the electron transfer from atoms to an ionic "
+                    "lattice."
+                ),
+                "route_name": GUIDED_EXPERIMENT_PAGES["ionic-bond"][
+                    "route_name"
+                ],
+                "canonical_key": GUIDED_EXPERIMENT_PAGES["ionic-bond"][
+                    "canonical_key"
+                ],
+            },
+        ],
+    },
+    {
+        "label": "Follow a visible result",
+        "description": (
+            "Use cloudiness, fizzing, or a colored precipitate to connect an "
+            "observation to its equation."
+        ),
+        "guides": [
+            {
+                "number": "05",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "limewater-carbon-dioxide"
+                ]["title"],
+                "summary": (
+                    "Connect the equation to the cloudy white calcium "
+                    "carbonate precipitate."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "limewater-carbon-dioxide"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "limewater-carbon-dioxide"
+                ]["canonical_key"],
+            },
+            {
+                "number": "06",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "sodium-carbonate-hydrochloric-acid"
+                ]["title"],
+                "summary": (
+                    "Identify the carbon dioxide behind the visible bubbles."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "sodium-carbonate-hydrochloric-acid"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "sodium-carbonate-hydrochloric-acid"
+                ]["canonical_key"],
+            },
+            {
+                "number": "07",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "silver-nitrate-potassium-iodide"
+                ]["title"],
+                "summary": (
+                    "Trace the ions that produce the yellow silver iodide "
+                    "solid."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "silver-nitrate-potassium-iodide"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "silver-nitrate-potassium-iodide"
+                ]["canonical_key"],
+            },
+        ],
+    },
+]
 
 CHEMICAL_REACTION_LAB_FAQS = [
     {
@@ -989,6 +1115,62 @@ def chemical_reaction_virtual_lab(request):
             "observation_guides": list(OBSERVATION_GUIDE_PAGES.values()),
         },
     )
+
+
+def guide_library(request):
+    canonical_url = PUBLIC_CANONICAL_URLS["guides"]
+    description = (
+        "Browse seven chemistry guides about virtual reaction labs, sodium "
+        "and chlorine, gas evolution, and precipitate observations."
+    )
+    guides = [
+        guide
+        for group in GUIDE_LIBRARY_GROUPS
+        for guide in group["guides"]
+    ]
+    page_schema = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "OmniLab chemistry guides",
+        "description": description,
+        "url": canonical_url,
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "OmniLab",
+            "url": PUBLIC_CANONICAL_URLS["index"],
+        },
+        "mainEntity": {
+            "@type": "ItemList",
+            "numberOfItems": len(guides),
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": position,
+                    "item": {
+                        "@type": "LearningResource",
+                        "name": guide["title"],
+                        "url": PUBLIC_CANONICAL_URLS[
+                            guide["canonical_key"]
+                        ],
+                    },
+                }
+                for position, guide in enumerate(guides, start=1)
+            ],
+        },
+    }
+    return render(
+        request,
+        "guide_library.html",
+        {
+            "page_description": description,
+            "canonical_url": canonical_url,
+            "social_preview_url": SOCIAL_PREVIEW_URL,
+            "social_preview_alt": SOCIAL_PREVIEW_ALT,
+            "page_schema_json": json.dumps(page_schema),
+            "guide_groups": GUIDE_LIBRARY_GROUPS,
+        },
+    )
+
 
 def pricing(request):
     return render(
