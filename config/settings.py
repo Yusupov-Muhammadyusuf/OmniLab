@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+from .environment import get_django_secret_key
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,8 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ybe*(4vg#nit#m@o7y_%&rwn4)-k$-@c5e&tt0k3$&yus#m&8$'
+# Production reads this value from a protected environment setting. Local
+# development uses an explicitly non-production fallback from the helper.
+SECRET_KEY = get_django_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
