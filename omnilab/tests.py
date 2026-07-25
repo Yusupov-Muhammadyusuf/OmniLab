@@ -7,8 +7,14 @@ from unittest.mock import patch
 from django.conf import settings
 from django.core import mail
 from django.core.cache import cache
-from django.test import Client, TestCase, override_settings
+from django.core.exceptions import ImproperlyConfigured
+from django.test import Client, SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
+
+from config.environment import (
+    LOCAL_DEVELOPMENT_SECRET_KEY,
+    get_django_secret_key,
+)
 
 from .views import (
     CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
@@ -33,6 +39,41 @@ from .reactions import (
     get_reaction,
     supported_reaction_pairs,
 )
+
+
+class DjangoSecretConfigurationTests(SimpleTestCase):
+    def test_configured_secret_is_used(self):
+        configured_key = "a-protected-production-secret"
+
+        self.assertEqual(
+            get_django_secret_key(
+                {
+                    "RENDER": "true",
+                    "OMNILAB_DJANGO_SECRET_KEY": configured_key,
+                }
+            ),
+            configured_key,
+        )
+
+    def test_render_production_requires_secret(self):
+        with self.assertRaisesMessage(
+            ImproperlyConfigured,
+            "OMNILAB_DJANGO_SECRET_KEY must be set in production.",
+        ):
+            get_django_secret_key({"RENDER": "true"})
+
+    def test_explicit_production_environment_requires_secret(self):
+        with self.assertRaisesMessage(
+            ImproperlyConfigured,
+            "OMNILAB_DJANGO_SECRET_KEY must be set in production.",
+        ):
+            get_django_secret_key({"OMNILAB_ENVIRONMENT": "production"})
+
+    def test_local_development_uses_non_production_fallback(self):
+        self.assertEqual(
+            get_django_secret_key({}),
+            LOCAL_DEVELOPMENT_SECRET_KEY,
+        )
 
 
 class FaqPageTests(TestCase):
