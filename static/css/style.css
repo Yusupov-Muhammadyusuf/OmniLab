@@ -795,6 +795,7 @@ body {
 }
 
 .faq-primary {
+    box-sizing: border-box;
     min-height: 48px;
     margin-top: 32px;
     padding: 12px 18px;
@@ -1449,6 +1450,7 @@ body {
 
 .contact-field input,
 .contact-field textarea {
+    box-sizing: border-box;
     width: 100%;
     padding: 13px 14px;
     border: 2px solid rgba(30, 30, 30, 0.28);
@@ -2384,7 +2386,12 @@ body {
     .contact-intro h1 { font-size: 48px; letter-spacing: -2.2px; }
     .contact-lede { margin-bottom: 28px; font-size: 16px; }
     .contact-form-card { padding: 22px; }
-    .contact-form-heading { margin-bottom: 24px; }
+    .contact-form-heading {
+        margin-bottom: 24px;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
     .contact-field-row { grid-template-columns: 1fr; }
     .contact-submit-row { align-items: stretch; flex-direction: column; gap: 16px; }
     .contact-submit-row button { width: 100%; }
