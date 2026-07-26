@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 from .environment import get_django_secret_key, is_production_environment
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -177,6 +179,11 @@ EMAIL_PORT = int(os.getenv("OMNILAB_EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("OMNILAB_EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("OMNILAB_EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.getenv("OMNILAB_EMAIL_USE_TLS", "true").lower() == "true"
+EMAIL_USE_SSL = os.getenv("OMNILAB_EMAIL_USE_SSL", "false").lower() == "true"
+if EMAIL_USE_TLS and EMAIL_USE_SSL:
+    raise ImproperlyConfigured(
+        "OMNILAB_EMAIL_USE_TLS and OMNILAB_EMAIL_USE_SSL cannot both be true."
+    )
 EMAIL_TIMEOUT = min(
     max(int(os.getenv("OMNILAB_EMAIL_TIMEOUT", "8")), 1),
     8,
