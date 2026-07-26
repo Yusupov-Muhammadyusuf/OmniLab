@@ -200,6 +200,71 @@ class ProductionTransportSecurityTests(SimpleTestCase):
         self.assertNotIn("WARNINGS:", output)
 
 
+class ContactEmailConfigurationTests(SimpleTestCase):
+    @staticmethod
+    def email_environment(**overrides):
+        environment = os.environ.copy()
+        environment.pop("RENDER", None)
+        environment.pop("OMNILAB_ENVIRONMENT", None)
+        environment.pop("OMNILAB_DJANGO_SECRET_KEY", None)
+        environment.update(overrides)
+        return environment
+
+    def test_port_465_can_use_ssl_without_tls(self):
+        result = subprocess.run(
+            [
+                sys.executable,
+                "manage.py",
+                "shell",
+                "-c",
+                (
+                    "from django.conf import settings; "
+                    "print(settings.EMAIL_PORT, "
+                    "settings.EMAIL_USE_TLS, settings.EMAIL_USE_SSL)"
+                ),
+            ],
+            cwd=settings.BASE_DIR,
+            env=self.email_environment(
+                OMNILAB_EMAIL_PORT="465",
+                OMNILAB_EMAIL_USE_TLS="false",
+                OMNILAB_EMAIL_USE_SSL="true",
+            ),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(
+            result.returncode,
+            0,
+            msg=result.stdout + result.stderr,
+        )
+        self.assertIn("465 False True", result.stdout)
+
+    def test_tls_and_ssl_cannot_both_be_enabled(self):
+        result = subprocess.run(
+            [sys.executable, "manage.py", "check"],
+            cwd=settings.BASE_DIR,
+            env=self.email_environment(
+                OMNILAB_EMAIL_USE_TLS="true",
+                OMNILAB_EMAIL_USE_SSL="true",
+            ),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        output = result.stdout + result.stderr
+        self.assertIn(
+            (
+                "OMNILAB_EMAIL_USE_TLS and OMNILAB_EMAIL_USE_SSL "
+                "cannot both be true."
+            ),
+            output,
+        )
+
+
 class FaqPageTests(TestCase):
     def setUp(self):
         self.response = self.client.get("/faq/")
