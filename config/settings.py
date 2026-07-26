@@ -177,6 +177,10 @@ EMAIL_PORT = int(os.getenv("OMNILAB_EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("OMNILAB_EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("OMNILAB_EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.getenv("OMNILAB_EMAIL_USE_TLS", "true").lower() == "true"
+EMAIL_TIMEOUT = min(
+    max(int(os.getenv("OMNILAB_EMAIL_TIMEOUT", "8")), 1),
+    8,
+)
 DEFAULT_FROM_EMAIL = os.getenv(
     "OMNILAB_CONTACT_FROM_EMAIL",
     "omnilab-bk8q@mail.tin.computer",

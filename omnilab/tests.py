@@ -662,6 +662,42 @@ class ContactFormTests(TestCase):
         )
         send.assert_called_once_with(fail_silently=False)
 
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend",
+        EMAIL_HOST="smtp.invalid",
+        EMAIL_PORT=587,
+        EMAIL_USE_TLS=False,
+    )
+    @patch("django.core.mail.backends.smtp.EmailBackend.connection_class")
+    def test_delivery_timeout_uses_bounded_setting_and_safe_error(
+        self,
+        connection_class,
+    ):
+        connection_class.side_effect = TimeoutError("SMTP timed out")
+
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "subject": "Question",
+                "message": "I have a question about the lab.",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Your message couldn&#x27;t be sent right now.",
+        )
+        self.assertNotContains(response, "SMTP timed out")
+        self.assertLessEqual(settings.EMAIL_TIMEOUT, 8)
+        connection_class.assert_called_once()
+        self.assertEqual(
+            connection_class.call_args.kwargs["timeout"],
+            settings.EMAIL_TIMEOUT,
+        )
+
     def test_honeypot_submission_is_not_delivered(self):
         response = self.client.post(
             "/contact/",
