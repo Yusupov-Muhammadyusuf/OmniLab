@@ -595,6 +595,7 @@ class HomepageGuideLinksTests(TestCase):
 @override_settings(
     EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
     DEFAULT_FROM_EMAIL="omnilab-bk8q@mail.tin.computer",
+    OMNILAB_CONTACT_TO_EMAIL="founder@example.com",
 )
 class ContactFormTests(TestCase):
     def tearDown(self):
@@ -683,7 +684,7 @@ class ContactFormTests(TestCase):
             ),
         )
 
-    def test_valid_contact_message_is_delivered_to_managed_mailbox(self):
+    def test_valid_contact_message_is_delivered_to_configured_mailbox(self):
         response = self.client.post(
             "/contact/",
             {
@@ -701,7 +702,7 @@ class ContactFormTests(TestCase):
         )
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
-        self.assertEqual(message.to, ["omnilab-bk8q@mail.tin.computer"])
+        self.assertEqual(message.to, ["founder@example.com"])
         self.assertEqual(message.reply_to, ["amina@example.edu"])
         self.assertEqual(
             message.subject,

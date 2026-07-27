@@ -192,6 +192,10 @@ DEFAULT_FROM_EMAIL = os.getenv(
     "OMNILAB_CONTACT_FROM_EMAIL",
     "omnilab-bk8q@mail.tin.computer",
 )
+OMNILAB_CONTACT_TO_EMAIL = os.getenv(
+    "OMNILAB_CONTACT_TO_EMAIL",
+    "omnilab-bk8q@mail.tin.computer",
+)
 OMNILAB_CONTACT_RATE_LIMIT_REQUESTS = int(
     os.getenv("OMNILAB_CONTACT_RATE_LIMIT_REQUESTS", "5")
 )
