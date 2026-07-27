@@ -891,6 +891,23 @@ body {
     text-wrap: pretty;
 }
 
+.faq-answer-link {
+    color: var(--text-color);
+    font-weight: 700;
+    text-underline-offset: 4px;
+}
+
+.faq-answer-link:hover {
+    color: var(--text-color);
+    text-decoration-thickness: 2px;
+}
+
+.faq-answer-link:focus-visible {
+    border-radius: 3px;
+    outline: 3px solid #e3384f;
+    outline-offset: 3px;
+}
+
 .tin-mark {
     width: 1em;
     height: 1em;

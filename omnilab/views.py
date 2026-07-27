@@ -689,6 +689,24 @@ PRODUCT_FAQS = [
             "may change as the product develops."
         ),
     },
+    {
+        "question": "How can I contact and get help?",
+        "answer": (
+            "Use the Contact page to ask a question, report something that "
+            "isn't working, or suggest an improvement. Submit only the details "
+            "needed to understand your request, and OmniLab will show whether "
+            "your message was sent."
+        ),
+        "answer_before_link": "Use the ",
+        "answer_link_text": "Contact page",
+        "answer_after_link": (
+            " to ask a question, report something that isn't working, or "
+            "suggest an improvement. Submit only the details needed to "
+            "understand your request, and OmniLab will show whether your "
+            "message was sent."
+        ),
+        "link_url": "/contact/",
+    },
 ]
 
 REACTION_RETRY_MESSAGE = (
