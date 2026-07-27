@@ -11,7 +11,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-from .forms import ContactForm
+from .forms import ContactForm, REACTION_FEEDBACK_SOURCE
 from .reactions import (
     PRECIPITATE_COLORS,
     get_reaction,
@@ -695,6 +695,13 @@ REACTION_RETRY_MESSAGE = (
     "OmniLab couldn't complete this prediction. Please try again."
 )
 CONTACT_EMAIL_ADDRESS = "omnilab-bk8q@mail.tin.computer"
+REACTION_FEEDBACK_LABEL = "Reaction feedback"
+REACTION_FEEDBACK_PROMPTS = "\n\n".join(
+    [
+        "What were you trying to predict?",
+        "What do you plan to do next?",
+    ]
+)
 
 
 def get_client_network_address(request):
@@ -1209,6 +1216,15 @@ def faq(request):
 
 def contact(request):
     sent = request.GET.get("sent") == "1"
+    is_feedback = request.GET.get("source") == REACTION_FEEDBACK_SOURCE
+    feedback_initial = (
+        {
+            "message": REACTION_FEEDBACK_PROMPTS,
+            "source": REACTION_FEEDBACK_SOURCE,
+        }
+        if is_feedback
+        else None
+    )
 
     if request.method != "POST":
         return render(
@@ -1216,12 +1232,14 @@ def contact(request):
             "contact.html",
             {
                 "canonical_url": PUBLIC_CANONICAL_URLS["contact"],
-                "form": ContactForm(),
+                "form": ContactForm(initial=feedback_initial),
                 "sent": sent,
+                "is_feedback": is_feedback,
             },
         )
 
     form = ContactForm(request.POST)
+    is_feedback = request.POST.get("source") == REACTION_FEEDBACK_SOURCE
     if not form.is_valid():
         return render(
             request,
@@ -1230,6 +1248,7 @@ def contact(request):
                 "canonical_url": PUBLIC_CANONICAL_URLS["contact"],
                 "form": form,
                 "sent": False,
+                "is_feedback": is_feedback,
             },
         )
 
@@ -1251,18 +1270,33 @@ def contact(request):
                 "canonical_url": PUBLIC_CANONICAL_URLS["contact"],
                 "form": form,
                 "sent": False,
+                "is_feedback": is_feedback,
             },
             status=429,
         )
         response["Retry-After"] = str(retry_after)
         return response
 
-    subject = form.cleaned_data["subject"] or "New website message"
+    source = form.cleaned_data["source"]
+    is_feedback = source == REACTION_FEEDBACK_SOURCE
+    subject = (
+        "Learner feedback"
+        if is_feedback
+        else form.cleaned_data["subject"] or "New website message"
+    )
+    submitted_subject = (
+        "" if is_feedback else form.cleaned_data["subject"]
+    )
     body = "\n".join(
         [
             f"Name: {form.cleaned_data['name']}",
             f"Email: {form.cleaned_data['email']}",
-            f"Subject: {form.cleaned_data['subject'] or '(not provided)'}",
+            f"Subject: {submitted_subject or '(not provided)'}",
+            *(
+                [f"Source: {REACTION_FEEDBACK_LABEL}"]
+                if is_feedback
+                else []
+            ),
             "",
             "Message:",
             form.cleaned_data["message"],
@@ -1291,9 +1325,14 @@ def contact(request):
                 "canonical_url": PUBLIC_CANONICAL_URLS["contact"],
                 "form": form,
                 "sent": False,
+                "is_feedback": is_feedback,
             },
         )
 
+    if is_feedback:
+        return redirect(
+            f"/contact/?sent=1&source={REACTION_FEEDBACK_SOURCE}"
+        )
     return redirect("/contact/?sent=1")
 
 
