@@ -615,6 +615,49 @@ class ContactFormTests(TestCase):
             response,
             'href="mailto:omnilab-bk8q@mail.tin.computer">Contact</a>',
         )
+        self.assertNotContains(response, "What were you trying to predict?")
+
+    def test_reaction_feedback_prefills_only_the_fixed_questions_and_source(self):
+        response = self.client.get(
+            "/contact/?source=reaction_feedback"
+            "&result=NaCl&title=Private+page&next=https://example.com"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<h1 id="contact-heading">What were you trying to do?</h1>',
+            html=True,
+        )
+        self.assertContains(
+            response,
+            'name="source" value="reaction_feedback"',
+            html=False,
+        )
+        self.assertContains(response, "What were you trying to predict?")
+        self.assertContains(response, "What do you plan to do next?")
+        self.assertNotContains(response, '<label for="id_subject">', html=False)
+        for private_value in (
+            "NaCl",
+            "Private page",
+            "https://example.com",
+        ):
+            with self.subTest(private_value=private_value):
+                self.assertNotContains(response, private_value)
+
+    def test_arbitrary_contact_source_does_not_prefill_feedback(self):
+        response = self.client.get(
+            "/contact/?source=guide_reaction&message=Injected"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<h1 id="contact-heading">What can we help with?</h1>',
+            html=True,
+        )
+        self.assertNotContains(response, "What were you trying to predict?")
+        self.assertNotContains(response, "Injected")
 
     def test_contact_fields_stay_inside_the_form_card(self):
         css = (settings.BASE_DIR / "static/css/style.css").read_text()
@@ -684,6 +727,53 @@ class ContactFormTests(TestCase):
             mail.outbox[0].subject,
             "OmniLab contact: New website message",
         )
+
+    def test_reaction_feedback_uses_fixed_delivery_label(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "subject": "Tampered subject",
+                "message": (
+                    "What were you trying to predict?\n\n"
+                    "An acid-base reaction.\n\n"
+                    "What do you plan to do next?\n\n"
+                    "Compare it with my notes."
+                ),
+                "source": "reaction_feedback",
+            },
+        )
+
+        self.assertRedirects(
+            response,
+            "/contact/?sent=1&source=reaction_feedback",
+            fetch_redirect_response=False,
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(
+            message.subject,
+            "OmniLab contact: Learner feedback",
+        )
+        self.assertIn("Source: Reaction feedback", message.body)
+        self.assertNotIn("Tampered subject", message.subject)
+        self.assertNotIn("Tampered subject", message.body)
+
+    def test_arbitrary_posted_source_is_not_forwarded(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "message": "Question",
+                "source": "guide_reaction",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response["Location"], "/contact/?sent=1")
+        self.assertNotIn("Source:", mail.outbox[0].body)
 
     def test_invalid_contact_message_stays_on_page_with_field_values(self):
         response = self.client.post(
@@ -2642,7 +2732,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertNotIn("${reaction.explanation}", render_block)
         self.assertNotIn("${reaction.safety}", render_block)
 
-    def test_successful_result_offers_optional_content_free_feedback_email(self):
+    def test_successful_result_offers_optional_in_page_feedback(self):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
@@ -2660,16 +2750,20 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("reaction-feedback", render_block)
         self.assertIn("Optional feedback", render_block)
         self.assertIn(
-            "feedbackLink.href = buildFeedbackMailtoUrl(feedbackGuideSource)",
+            "feedbackLink.href = buildFeedbackContactUrl()",
             render_block,
         )
         self.assertIn(
-            "const FEEDBACK_EMAIL_ADDRESS = 'omnilab-bk8q@mail.tin.computer'",
+            "const FEEDBACK_SOURCE = 'reaction_feedback'",
             feedback,
         )
-        self.assertIn("'What were you trying to predict?'", feedback)
-        self.assertIn("'What do you plan to do next?'", feedback)
-        self.assertIn("encodeURIComponent(feedbackBody)", feedback)
+        self.assertIn(
+            "return `/contact/?source=${FEEDBACK_SOURCE}`",
+            feedback,
+        )
+        self.assertIn("Stays in OmniLab. No lab details are added.", render_block)
+        self.assertNotIn("mailto:", feedback)
+        self.assertNotIn("FEEDBACK_EMAIL_ADDRESS", feedback)
         for private_value in (
             "selectedChemicals",
             "reaction.equation",
@@ -2681,10 +2775,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn(".reaction-feedback-link", css)
         self.assertIn("min-height: 44px;", css)
 
-    def test_feedback_email_labels_only_the_fixed_guide_sources(self):
-        configuration = (
-            settings.BASE_DIR / "static/ts/configuration/config.ts"
-        ).read_text()
+    def test_feedback_link_uses_no_visit_or_guide_source(self):
         interactions = (
             settings.BASE_DIR / "static/ts/interactions/interactions.ts"
         ).read_text()
@@ -2692,32 +2783,10 @@ class LabJourneyRepairTests(TestCase):
             settings.BASE_DIR / "static/ts/interactions/feedback.ts"
         ).read_text()
 
-        expected_labels = {
-            "guide_reaction": "Reaction guide",
-            "guide_formula": "Formula guide",
-            "guide_ionic_bond": "Ionic bond guide",
-            "guide_observation_a": "Limewater observation guide",
-            "guide_observation_b": "Sodium carbonate observation guide",
-            "guide_observation_c": "Silver iodide observation guide",
-        }
-        label_block = feedback.split(
-            "const FEEDBACK_GUIDE_LABELS", 1
-        )[1].split("};", 1)[0]
-        found_labels = dict(
-            re.findall(r"(guide_[a-z_]+): '([^']+)'", label_block)
-        )
-
-        self.assertEqual(found_labels, expected_labels)
-        self.assertIn("getGuideVisitSource", configuration)
-        self.assertIn(
-            "config.getGuideVisitSource(config.getVisitSource())",
-            interactions,
-        )
-        self.assertIn(
-            "Object.prototype.hasOwnProperty.call(FEEDBACK_GUIDE_LABELS, source)",
-            feedback,
-        )
-        self.assertIn("? [`Guide source: ${guideLabel}`", feedback)
+        self.assertIn("buildFeedbackContactUrl()", interactions)
+        self.assertNotIn("getGuideVisitSource", feedback)
+        self.assertNotIn("getVisitSource", feedback)
+        self.assertNotIn("Guide source:", feedback)
         for non_guide_value in (
             "student_invite",
             "window.location",

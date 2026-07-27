@@ -1,6 +1,9 @@
 from django import forms
 
 
+REACTION_FEEDBACK_SOURCE = "reaction_feedback"
+
+
 class ContactForm(forms.Form):
     name = forms.CharField(
         max_length=100,
@@ -21,8 +24,13 @@ class ContactForm(forms.Form):
         widget=forms.Textarea,
         error_messages={"required": "Enter a message."},
     )
+    source = forms.CharField(required=False, widget=forms.HiddenInput)
     website = forms.CharField(required=False, widget=forms.HiddenInput)
 
     def clean_subject(self):
         subject = self.cleaned_data["subject"]
         return " ".join(subject.splitlines())
+
+    def clean_source(self):
+        source = self.cleaned_data["source"]
+        return source if source == REACTION_FEEDBACK_SOURCE else ""

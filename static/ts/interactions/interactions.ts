@@ -9,7 +9,7 @@ import {
     triggerThermalBlast
 } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
-import { buildFeedbackMailtoUrl } from './feedback.js';
+import { buildFeedbackContactUrl } from './feedback.js';
 import {
     normalizeReactionEffect,
     normalizePrecipitateColor,
@@ -161,11 +161,11 @@ export function renderReactionResult(
             <aside class="reaction-feedback" aria-labelledby="reaction-feedback-title">
                 <p class="reaction-feedback-label">Optional feedback</p>
                 <h3 class="reaction-feedback-title" id="reaction-feedback-title">Help us understand your goal</h3>
-                <a class="reaction-feedback-link" href="#" aria-label="Answer two quick questions by email">
+                <a class="reaction-feedback-link" href="#" aria-label="Answer two quick questions in OmniLab">
                     Answer two quick questions
                     <span class="lab-control-arrow" aria-hidden="true">&nearr;</span>
                 </a>
-                <p class="reaction-feedback-note">Opens your email app. No lab details are added.</p>
+                <p class="reaction-feedback-note">Stays in OmniLab. No lab details are added.</p>
             </aside>
 
         </div>
@@ -179,8 +179,7 @@ export function renderReactionResult(
 
     equation.textContent = reaction.equation;
     explanation.textContent = reaction.explanation;
-    const feedbackGuideSource = config.getGuideVisitSource(config.getVisitSource());
-    feedbackLink.href = buildFeedbackMailtoUrl(feedbackGuideSource);
+    feedbackLink.href = buildFeedbackContactUrl();
 
     const safetyPoints = reaction.safety
         .split('|')
