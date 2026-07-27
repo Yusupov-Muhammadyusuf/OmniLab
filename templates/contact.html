@@ -10,8 +10,15 @@
     <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% if is_feedback %}
+        {% include "partials/product_analytics.html" %}
+        <script type="module" src="{% static 'js/root/feedback.js' %}"></script>
+    {% endif %}
 </head>
-<body class="contact-page">
+<body
+    class="contact-page"
+    {% if is_feedback %}data-feedback-event="{{ feedback_event }}"{% endif %}
+>
     <header class="pricing-site-header">
         <a class="pricing-brand" href="{% url 'index' %}">OmniLab</a>
         <span class="pricing-page-label">{% if is_feedback %}Feedback{% else %}Contact{% endif %}</span>

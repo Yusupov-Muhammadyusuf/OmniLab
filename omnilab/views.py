@@ -60,6 +60,15 @@ PUBLIC_CANONICAL_URLS = {
     ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
+REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
+REACTION_FEEDBACK_ACCEPTED_EVENT = "reaction_feedback_accepted"
+REACTION_FEEDBACK_VALIDATION_FAILED_EVENT = (
+    "reaction_feedback_validation_failed"
+)
+REACTION_FEEDBACK_RATE_LIMITED_EVENT = "reaction_feedback_rate_limited"
+REACTION_FEEDBACK_DELIVERY_FAILED_EVENT = (
+    "reaction_feedback_delivery_failed"
+)
 SODIUM_CHLORINE_DEMO = {
     "id": "first-supported-reaction",
     "version": "v1",
@@ -1234,6 +1243,13 @@ def faq(request):
 def contact(request):
     sent = request.GET.get("sent") == "1"
     is_feedback = request.GET.get("source") == REACTION_FEEDBACK_SOURCE
+    feedback_event = None
+    if is_feedback:
+        feedback_event = (
+            REACTION_FEEDBACK_ACCEPTED_EVENT
+            if sent
+            else REACTION_FEEDBACK_VIEWED_EVENT
+        )
     feedback_initial = (
         {
             "message": REACTION_FEEDBACK_PROMPTS,
@@ -1252,6 +1268,7 @@ def contact(request):
                 "form": ContactForm(initial=feedback_initial),
                 "sent": sent,
                 "is_feedback": is_feedback,
+                "feedback_event": feedback_event,
             },
         )
 
@@ -1266,6 +1283,11 @@ def contact(request):
                 "form": form,
                 "sent": False,
                 "is_feedback": is_feedback,
+                "feedback_event": (
+                    REACTION_FEEDBACK_VALIDATION_FAILED_EVENT
+                    if is_feedback
+                    else None
+                ),
             },
         )
 
@@ -1288,6 +1310,11 @@ def contact(request):
                 "form": form,
                 "sent": False,
                 "is_feedback": is_feedback,
+                "feedback_event": (
+                    REACTION_FEEDBACK_RATE_LIMITED_EVENT
+                    if is_feedback
+                    else None
+                ),
             },
             status=429,
         )
@@ -1355,6 +1382,11 @@ def contact(request):
                 "form": form,
                 "sent": False,
                 "is_feedback": is_feedback,
+                "feedback_event": (
+                    REACTION_FEEDBACK_DELIVERY_FAILED_EVENT
+                    if is_feedback
+                    else None
+                ),
             },
         )
 
