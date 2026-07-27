@@ -143,6 +143,24 @@
                     {% endif %}
                 </div>
 
+                {% if is_feedback %}
+                    <fieldset class="contact-session-interest">
+                        <legend>Open to a short student session? <span>(optional)</span></legend>
+                        <label class="contact-session-option" for="id_session_interest">
+                            <input
+                                id="id_session_interest"
+                                name="session_interest"
+                                type="checkbox"
+                                {% if form.session_interest.value %}checked{% endif %}
+                            >
+                            <span>
+                                <strong>Yes, I'd be open to a short, unrecorded conversation.</strong>
+                                <small>Checking this shares your interest only. It doesn't schedule anything.</small>
+                            </span>
+                        </label>
+                    </fieldset>
+                {% endif %}
+
                 <div class="contact-submit-row">
                     <p>By submitting, you agree that OmniLab can use these details to respond. See <a href="{% url 'privacy' %}">Privacy</a>.</p>
                     <button type="submit">{% if is_feedback %}Send feedback{% else %}Submit{% endif %} <span aria-hidden="true">↗</span></button>

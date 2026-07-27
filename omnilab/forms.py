@@ -24,6 +24,7 @@ class ContactForm(forms.Form):
         widget=forms.Textarea,
         error_messages={"required": "Enter a message."},
     )
+    session_interest = forms.BooleanField(required=False)
     source = forms.CharField(required=False, widget=forms.HiddenInput)
     website = forms.CharField(required=False, widget=forms.HiddenInput)
 

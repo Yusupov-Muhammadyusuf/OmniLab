@@ -1512,6 +1512,69 @@ body {
     font-weight: 700;
 }
 
+.contact-session-interest {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.contact-session-interest legend {
+    margin-bottom: 10px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.contact-session-interest legend span {
+    color: var(--muted-text);
+    font-weight: 600;
+}
+
+.contact-session-option {
+    min-height: 44px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    border: 2px solid rgba(30, 30, 30, 0.22);
+    border-radius: 9px;
+    background: var(--bg-main);
+    cursor: pointer;
+}
+
+.contact-session-option:hover {
+    border-color: rgba(30, 30, 30, 0.5);
+}
+
+.contact-session-option:has(input:focus-visible) {
+    border-color: var(--border-color);
+    box-shadow: 0 0 0 3px rgba(30, 30, 30, 0.11);
+}
+
+.contact-session-option input {
+    width: 18px;
+    height: 18px;
+    margin: 2px 0 0;
+    accent-color: var(--text-color);
+}
+
+.contact-session-option span {
+    display: grid;
+    gap: 4px;
+}
+
+.contact-session-option strong {
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.contact-session-option small {
+    color: var(--muted-text);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
 .contact-submit-row {
     padding-top: 4px;
     display: flex;
