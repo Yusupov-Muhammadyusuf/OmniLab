@@ -694,7 +694,6 @@ PRODUCT_FAQS = [
 REACTION_RETRY_MESSAGE = (
     "OmniLab couldn't complete this prediction. Please try again."
 )
-CONTACT_EMAIL_ADDRESS = "omnilab-bk8q@mail.tin.computer"
 REACTION_FEEDBACK_LABEL = "Reaction feedback"
 REACTION_FEEDBACK_PROMPTS = "\n\n".join(
     [
@@ -1306,7 +1305,7 @@ def contact(request):
         subject=f"OmniLab contact: {subject}",
         body=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[CONTACT_EMAIL_ADDRESS],
+        to=[settings.OMNILAB_CONTACT_TO_EMAIL],
         reply_to=[form.cleaned_data["email"]],
     )
 
