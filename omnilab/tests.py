@@ -271,11 +271,40 @@ class FaqPageTests(TestCase):
 
     def test_faq_content_is_visible_on_dedicated_page(self):
         self.assertEqual(self.response.status_code, 200)
-        self.assertEqual(len(PRODUCT_FAQS), 5)
+        self.assertEqual(len(PRODUCT_FAQS), 6)
 
         for faq in PRODUCT_FAQS:
             self.assertContains(self.response, faq["question"])
             self.assertContains(self.response, faq["answer"])
+
+    def test_contact_help_faq_links_to_the_contact_form(self):
+        contact_help_faq = next(
+            faq
+            for faq in PRODUCT_FAQS
+            if faq["question"] == "How can I contact and get help?"
+        )
+
+        self.assertEqual(contact_help_faq["link_url"], "/contact/")
+        rendered_answer = (
+            contact_help_faq["answer_before_link"]
+            + contact_help_faq["answer_link_text"]
+            + contact_help_faq["answer_after_link"]
+        )
+        self.assertEqual(rendered_answer, contact_help_faq["answer"])
+        self.assertContains(
+            self.response,
+            (
+                "<p>"
+                "Use the "
+                '<a class="faq-answer-link" href="/contact/">Contact page</a>'
+                " to ask a question, report something that isn't working, or "
+                "suggest an improvement. Submit only the details needed to "
+                "understand your request, and OmniLab will show whether your "
+                "message was sent."
+                "</p>"
+            ),
+            html=True,
+        )
 
     def test_faq_schema_matches_visible_content(self):
         html = self.response.content.decode()
