@@ -1296,6 +1296,18 @@ def contact(request):
                 if is_feedback
                 else []
             ),
+            *(
+                [
+                    "Student session interest: "
+                    + (
+                        "Yes"
+                        if form.cleaned_data["session_interest"]
+                        else "No"
+                    )
+                ]
+                if is_feedback
+                else []
+            ),
             "",
             "Message:",
             form.cleaned_data["message"],

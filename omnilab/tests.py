@@ -637,6 +637,19 @@ class ContactFormTests(TestCase):
         )
         self.assertContains(response, "What were you trying to predict?")
         self.assertContains(response, "What do you plan to do next?")
+        self.assertContains(
+            response,
+            '<label class="contact-session-option" for="id_session_interest">',
+            html=False,
+        )
+        self.assertContains(
+            response,
+            "Yes, I'd be open to a short, unrecorded conversation.",
+        )
+        self.assertContains(
+            response,
+            "It doesn't schedule anything.",
+        )
         self.assertNotContains(response, '<label for="id_subject">', html=False)
         for private_value in (
             "NaCl",
@@ -657,6 +670,7 @@ class ContactFormTests(TestCase):
             '<h1 id="contact-heading">What can we help with?</h1>',
             html=True,
         )
+        self.assertNotContains(response, 'name="session_interest"', html=False)
         self.assertNotContains(response, "What were you trying to predict?")
         self.assertNotContains(response, "Injected")
 
@@ -743,6 +757,7 @@ class ContactFormTests(TestCase):
                     "Compare it with my notes."
                 ),
                 "source": "reaction_feedback",
+                "session_interest": "on",
             },
         )
 
@@ -758,8 +773,45 @@ class ContactFormTests(TestCase):
             "OmniLab contact: Learner feedback",
         )
         self.assertIn("Source: Reaction feedback", message.body)
+        self.assertIn("Student session interest: Yes", message.body)
         self.assertNotIn("Tampered subject", message.subject)
         self.assertNotIn("Tampered subject", message.body)
+
+    def test_reaction_feedback_without_opt_in_records_no_interest(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "message": (
+                    "What were you trying to predict?\n\n"
+                    "An acid-base reaction.\n\n"
+                    "What do you plan to do next?\n\n"
+                    "Compare it with my notes."
+                ),
+                "source": "reaction_feedback",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(
+            "Student session interest: No",
+            mail.outbox[0].body,
+        )
+
+    def test_general_contact_never_forwards_session_interest(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "message": "Question",
+                "session_interest": "on",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn("Student session interest:", mail.outbox[0].body)
 
     def test_arbitrary_posted_source_is_not_forwarded(self):
         response = self.client.post(
