@@ -2,7 +2,7 @@ import * as config from '../configuration/config.js';
 import { closeAllPopovers, refreshChemicalMenuGuidance } from '../userInterface/ui.js';
 import { cancelReactionEffects, drawVesselAndFluid, triggerThermalBlast } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
-import { buildFeedbackContactUrl } from './feedback.js';
+import { bindFeedbackOpenCapture, buildFeedbackContactUrl } from './feedback.js';
 import { normalizeReactionEffect, normalizePrecipitateColor, parseSavedReactionResult } from './reactionResult.js';
 import { readStorageValue, removeStorageValue, writeStorageValue } from '../storage/storage.js';
 const DEFAULT_REACTION_INSTRUCTION = `
@@ -131,6 +131,7 @@ export function renderReactionResult(panel, reaction, selectedChemicals) {
     equation.textContent = reaction.equation;
     explanation.textContent = reaction.explanation;
     feedbackLink.href = buildFeedbackContactUrl();
+    bindFeedbackOpenCapture(feedbackLink);
     const safetyPoints = reaction.safety
         .split('|')
         .map(point => point.trim())

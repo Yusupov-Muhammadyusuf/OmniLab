@@ -703,6 +703,148 @@ class ContactFormTests(TestCase):
         self.assertNotContains(response, "What were you trying to predict?")
         self.assertNotContains(response, "Injected")
 
+    def test_feedback_analytics_are_production_only(self):
+        production_response = self.client.get(
+            "/contact/?source=reaction_feedback",
+            HTTP_HOST="omnilab-bk8q.onrender.com",
+        )
+        local_response = self.client.get(
+            "/contact/?source=reaction_feedback",
+            HTTP_HOST="testserver",
+        )
+
+        for marker in (
+            "posthog.init(",
+            "https://us.i.posthog.com",
+            "phc_qHnj5nPFZW9VcTqT82jtjsEHkQk6PTh8g65RrqUBSST7",
+        ):
+            with self.subTest(marker=marker):
+                self.assertContains(production_response, marker, count=1)
+                self.assertNotContains(local_response, marker)
+
+        for response in (production_response, local_response):
+            self.assertContains(
+                response,
+                '<script type="module" src="/static/js/root/feedback.js"></script>',
+                html=True,
+            )
+            self.assertContains(
+                response,
+                'data-feedback-event="reaction_feedback_viewed"',
+                html=False,
+            )
+
+    def test_ordinary_contact_route_remains_uninstrumented(self):
+        response = self.client.get(
+            "/contact/",
+            HTTP_HOST="omnilab-bk8q.onrender.com",
+        )
+
+        self.assertNotContains(response, "posthog.init(")
+        self.assertNotContains(response, "/static/js/root/feedback.js")
+        self.assertNotContains(response, "data-feedback-event")
+
+    def test_feedback_success_uses_accepted_event(self):
+        response = self.client.get(
+            "/contact/?sent=1&source=reaction_feedback"
+        )
+
+        self.assertContains(
+            response,
+            'data-feedback-event="reaction_feedback_accepted"',
+            html=False,
+        )
+        self.assertNotContains(response, "reaction_feedback_viewed")
+
+    def test_invalid_feedback_uses_validation_failed_event(self):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "not-an-email",
+                "message": "",
+                "source": "reaction_feedback",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'data-feedback-event="reaction_feedback_validation_failed"',
+            html=False,
+        )
+
+    @override_settings(OMNILAB_CONTACT_RATE_LIMIT_REQUESTS=1)
+    def test_rate_limited_feedback_uses_rate_limited_event(self):
+        data = {
+            "name": "Amina Student",
+            "email": "amina@example.edu",
+            "message": "I was comparing this result with my notes.",
+            "source": "reaction_feedback",
+        }
+
+        first = self.client.post("/contact/", data)
+        second = self.client.post("/contact/", data)
+
+        self.assertEqual(first.status_code, 302)
+        self.assertEqual(second.status_code, 429)
+        self.assertContains(
+            second,
+            'data-feedback-event="reaction_feedback_rate_limited"',
+            html=False,
+            status_code=429,
+        )
+
+    @patch("omnilab.views.EmailMessage.send", side_effect=OSError("SMTP detail"))
+    def test_failed_feedback_delivery_uses_delivery_failed_event(self, send):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "message": "I was comparing this result with my notes.",
+                "source": "reaction_feedback",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'data-feedback-event="reaction_feedback_delivery_failed"',
+            html=False,
+        )
+        send.assert_called_once_with(fail_silently=False)
+
+    def test_feedback_events_have_no_custom_properties(self):
+        source = "\n".join(
+            (
+                (
+                    settings.BASE_DIR
+                    / "static/ts/interactions/feedback.ts"
+                ).read_text(),
+                (
+                    settings.BASE_DIR / "static/ts/root/feedback.ts"
+                ).read_text(),
+            )
+        )
+        events = re.findall(r"'(reaction_feedback_[a-z_]+)'", source)
+
+        self.assertEqual(
+            events,
+            [
+                "reaction_feedback_opened",
+                "reaction_feedback_viewed",
+                "reaction_feedback_accepted",
+                "reaction_feedback_validation_failed",
+                "reaction_feedback_rate_limited",
+                "reaction_feedback_delivery_failed",
+            ],
+        )
+        self.assertIn("capture('reaction_feedback_opened');", source)
+        self.assertIn("capture(feedbackEvent);", source)
+        self.assertNotIn("capture('reaction_feedback_opened',", source)
+        self.assertNotIn("capture(feedbackEvent,", source)
+
     def test_contact_fields_stay_inside_the_form_card(self):
         css = (settings.BASE_DIR / "static/css/style.css").read_text()
 
@@ -2841,6 +2983,15 @@ class LabJourneyRepairTests(TestCase):
         )
         self.assertIn(
             "return `/contact/?source=${FEEDBACK_SOURCE}`",
+            feedback,
+        )
+        self.assertIn(
+            "bindFeedbackOpenCapture(feedbackLink)",
+            render_block,
+        )
+        self.assertIn("feedbackLink.onclick = captureFeedbackOpened", feedback)
+        self.assertIn(
+            "capture('reaction_feedback_opened');",
             feedback,
         )
         self.assertIn("Stays in OmniLab. No lab details are added.", render_block)

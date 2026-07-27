@@ -9,7 +9,10 @@ import {
     triggerThermalBlast
 } from '../rendering/render.js';
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
-import { buildFeedbackContactUrl } from './feedback.js';
+import {
+    bindFeedbackOpenCapture,
+    buildFeedbackContactUrl
+} from './feedback.js';
 import {
     normalizeReactionEffect,
     normalizePrecipitateColor,
@@ -180,6 +183,7 @@ export function renderReactionResult(
     equation.textContent = reaction.equation;
     explanation.textContent = reaction.explanation;
     feedbackLink.href = buildFeedbackContactUrl();
+    bindFeedbackOpenCapture(feedbackLink);
 
     const safetyPoints = reaction.safety
         .split('|')
