@@ -18,7 +18,7 @@
     <meta name="twitter:title" content="{{ guide.title }}">
     <meta name="twitter:description" content="{{ guide.description }}">
     <meta name="twitter:image" content="{{ social_preview_url }}">
-    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+    <link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% include "partials/product_analytics.html" %}
@@ -97,6 +97,34 @@
                     <strong>{{ guide.observation_label }}</strong>
                 </div>
             </section>
+
+            {% if guide.net_ionic_equation %}
+            <section class="observation-guide-ions" aria-labelledby="ionic-heading">
+                <div class="observation-guide-ions-intro">
+                    <p class="guide-section-label">Net ionic equation</p>
+                    <h2 id="ionic-heading">Which ions actually form the precipitate?</h2>
+                    <p>{{ guide.ionic_explanation }}</p>
+                    <div class="observation-guide-ionic-equation">
+                        <span>Particles that change</span>
+                        <strong>{{ guide.net_ionic_equation }}</strong>
+                    </div>
+                    <p class="observation-guide-spectators">
+                        <strong>Spectator ions:</strong> {{ guide.spectator_ions }}
+                    </p>
+                </div>
+                <ol class="observation-guide-ion-steps">
+                    {% for step in guide.study_steps %}
+                    <li>
+                        <span>0{{ forloop.counter }}</span>
+                        <div>
+                            <h3>{{ step.title }}</h3>
+                            <p>{{ step.body }}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </section>
+            {% endif %}
 
             <section class="observation-guide-notes" aria-label="Safety and product limits">
                 <div class="observation-guide-safety">

@@ -34,6 +34,12 @@ urlpatterns = [
         name="demo_silver_nitrate_potassium_iodide",
     ),
     path(
+        'demo/copper-sulfate-potassium-hydroxide/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'copper-sulfate-potassium-hydroxide'},
+        name="demo_copper_sulfate_potassium_hydroxide",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -73,6 +79,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'silver-nitrate-potassium-iodide'},
         name="guide_silver_nitrate_potassium_iodide",
+    ),
+    path(
+        'guides/copper-ii-sulfate-potassium-hydroxide-precipitate/',
+        views.observation_guide,
+        {'guide_key': 'copper-sulfate-potassium-hydroxide'},
+        name="guide_copper_sulfate_potassium_hydroxide",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]
