@@ -64,7 +64,8 @@ export type GuideVisitSource =
     | 'guide_virtual_lab'
     | 'guide_observation_a'
     | 'guide_observation_b'
-    | 'guide_observation_c';
+    | 'guide_observation_c'
+    | 'guide_observation_d';
 
 export type VisitSource = 'student_invite' | GuideVisitSource;
 
@@ -75,7 +76,8 @@ const GUIDE_VISIT_SOURCES = new Set<GuideVisitSource>([
     'guide_virtual_lab',
     'guide_observation_a',
     'guide_observation_b',
-    'guide_observation_c'
+    'guide_observation_c',
+    'guide_observation_d'
 ]);
 
 const ALLOWED_VISIT_SOURCES = new Set<VisitSource>([
@@ -136,6 +138,15 @@ const reactionGuidesByPairKey = new Map<string, readonly ReactionGuide[]>([
             {
                 href: '/guides/silver-nitrate-potassium-iodide-precipitate/',
                 title: 'What precipitate forms when silver nitrate reacts with potassium iodide?'
+            }
+        ]
+    ],
+    [
+        'CuSO4+KOH',
+        [
+            {
+                href: '/guides/copper-ii-sulfate-potassium-hydroxide-precipitate/',
+                title: 'What precipitate forms from copper(II) sulfate and potassium hydroxide?'
             }
         ]
     ]

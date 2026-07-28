@@ -58,6 +58,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "silver-nitrate-potassium-iodide-precipitate/"
     ),
+    "copper_sulfate_potassium_hydroxide": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "copper-ii-sulfate-potassium-hydroxide-precipitate/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
@@ -138,6 +142,29 @@ REACTION_DEMOS = {
         "url": (
             f"{PRODUCTION_BASE_URL}/demo/"
             "silver-nitrate-potassium-iodide/"
+        ),
+    },
+    "copper-sulfate-potassium-hydroxide": {
+        "id": "copper-sulfate-potassium-hydroxide",
+        "version": "v1",
+        "selectedChemicals": ["CuSO4", "KOH"],
+        "vessel": "beaker",
+        "liquidColor": "#5ba7d1",
+        "mixture_label": "CuSO4 + KOH",
+        "title": (
+            "Copper(II) sulfate and potassium hydroxide, ready to analyze"
+        ),
+        "page_title": (
+            "OmniLab - Copper(II) sulfate and potassium hydroxide demo"
+        ),
+        "page_description": (
+            "Open a prepared Copper(II) sulfate and Potassium hydroxide "
+            "setup, then choose whether to request an educational reaction "
+            "prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "copper-sulfate-potassium-hydroxide/"
         ),
     },
 }
@@ -488,6 +515,102 @@ OBSERVATION_GUIDE_PAGES = {
             "decomposition, or waste handling."
         ),
     },
+    "copper-sulfate-potassium-hydroxide": {
+        "route_name": "guide_copper_sulfate_potassium_hydroxide",
+        "canonical_key": "copper_sulfate_potassium_hydroxide",
+        "visit_source": "guide_observation_d",
+        "demo_route_name": "demo_copper_sulfate_potassium_hydroxide",
+        "title": (
+            "What precipitate forms from copper(II) sulfate and potassium "
+            "hydroxide?"
+        ),
+        "page_title": (
+            "Copper(II) sulfate and potassium hydroxide precipitate | OmniLab"
+        ),
+        "description": (
+            "Identify the blue precipitate from copper(II) sulfate and "
+            "potassium hydroxide, read the ionic equation, and try it in "
+            "OmniLab."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Copper(II) sulfate and potassium hydroxide form copper(II) "
+            "hydroxide, an insoluble blue precipitate. Potassium and sulfate "
+            "ions remain dissolved in the solution."
+        ),
+        "reactants": [
+            {"name": "Copper(II) sulfate", "formula": "CuSO4"},
+            {"name": "Potassium hydroxide", "formula": "KOH"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Copper(II) sulfate and Potassium "
+            "hydroxide. The burner stays off, and you decide when to analyze."
+        ),
+        "cta_label": "Try the blue precipitate setup",
+        "equation": (
+            "CuSO4(aq) + 2KOH(aq) -> Cu(OH)2(s) + K2SO4(aq)"
+        ),
+        "explanation": (
+            "Copper(II) sulfate and potassium hydroxide undergo a double "
+            "displacement reaction. Insoluble copper(II) hydroxide forms as "
+            "a blue precipitate while potassium sulfate remains in solution. "
+            "Two hydroxide ions are required for each copper(II) ion."
+        ),
+        "observation_title": "A blue copper(II) hydroxide precipitate",
+        "observation": (
+            "OmniLab shows a bounded blue precipitate cue inside the beaker "
+            "to represent the expected copper(II) hydroxide solid."
+        ),
+        "observation_class": "observation-blue",
+        "observation_label": "Blue solid",
+        "net_ionic_equation": (
+            "Cu2+(aq) + 2OH-(aq) -> Cu(OH)2(s)"
+        ),
+        "spectator_ions": "K+(aq) and SO4^2-(aq)",
+        "ionic_explanation": (
+            "Copper(II) ions combine with hydroxide ions because copper(II) "
+            "hydroxide is insoluble in water. Potassium and sulfate ions do "
+            "not form the solid, so they cancel from the complete ionic "
+            "equation."
+        ),
+        "study_steps": [
+            {
+                "title": "Split the soluble reactants into ions",
+                "body": (
+                    "CuSO4 provides Cu2+ and SO4^2-. Each KOH provides K+ "
+                    "and OH-."
+                ),
+            },
+            {
+                "title": "Identify the insoluble product",
+                "body": (
+                    "Cu2+ combines with two OH- ions to form solid Cu(OH)2, "
+                    "the blue precipitate."
+                ),
+            },
+            {
+                "title": "Cancel the spectator ions",
+                "body": (
+                    "K+ and SO4^2- remain aqueous on both sides, leaving the "
+                    "net ionic equation for precipitation."
+                ),
+            },
+        ],
+        "safety": [
+            "Wear splash goggles and chemical-resistant gloves.",
+            (
+                "Avoid skin contact with copper sulfate and potassium "
+                "hydroxide."
+            ),
+            "Collect copper-containing waste for proper disposal.",
+        ],
+        "boundary": (
+            "The blue cue is a simplified expected observation. OmniLab does "
+            "not model concentration, yield, particle size, temperature, "
+            "addition order, or waste handling. Vessel and burner choices do "
+            "not affect the prediction."
+        ),
+    },
 }
 
 GUIDE_LIBRARY_GROUPS = [
@@ -609,6 +732,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "silver-nitrate-potassium-iodide"
+                ]["canonical_key"],
+            },
+            {
+                "number": "08",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "copper-sulfate-potassium-hydroxide"
+                ]["title"],
+                "summary": (
+                    "Connect the double displacement equation to a blue "
+                    "copper(II) hydroxide precipitate."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "copper-sulfate-potassium-hydroxide"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "copper-sulfate-potassium-hydroxide"
                 ]["canonical_key"],
             },
         ],
@@ -1153,7 +1292,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse seven chemistry guides about virtual reaction labs, sodium "
+        "Browse eight chemistry guides about virtual reaction labs, sodium "
         "and chlorine, gas evolution, and precipitate observations."
     )
     guides = [

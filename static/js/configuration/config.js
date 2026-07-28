@@ -7,7 +7,8 @@ const GUIDE_VISIT_SOURCES = new Set([
     'guide_virtual_lab',
     'guide_observation_a',
     'guide_observation_b',
-    'guide_observation_c'
+    'guide_observation_c',
+    'guide_observation_d'
 ]);
 const ALLOWED_VISIT_SOURCES = new Set([
     'student_invite',
@@ -57,6 +58,15 @@ const reactionGuidesByPairKey = new Map([
             {
                 href: '/guides/silver-nitrate-potassium-iodide-precipitate/',
                 title: 'What precipitate forms when silver nitrate reacts with potassium iodide?'
+            }
+        ]
+    ],
+    [
+        'CuSO4+KOH',
+        [
+            {
+                href: '/guides/copper-ii-sulfate-potassium-hydroxide-precipitate/',
+                title: 'What precipitate forms from copper(II) sulfate and potassium hydroxide?'
             }
         ]
     ]
