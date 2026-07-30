@@ -128,6 +128,41 @@ export function getVisitSource() {
         ? source
         : null;
 }
+export function getLabEntryAttribution() {
+    const reactionDemo = getReactionDemoConfig();
+    const rawSource = new URLSearchParams(window.location.search).get('source');
+    const visitSource = getVisitSource();
+    const preparedReaction = reactionDemo?.id
+        ? { prepared_reaction_id: reactionDemo.id }
+        : {};
+    if (reactionDemo && visitSource && getGuideVisitSource(visitSource)) {
+        return {
+            entry_source: 'guide',
+            visit_source: visitSource,
+            ...preparedReaction
+        };
+    }
+    if (reactionDemo && !rawSource) {
+        return {
+            entry_source: 'prepared_demo',
+            ...preparedReaction
+        };
+    }
+    if (reactionDemo && visitSource) {
+        return {
+            entry_source: 'prepared_demo',
+            visit_source: visitSource,
+            ...preparedReaction
+        };
+    }
+    if (!reactionDemo && !rawSource) {
+        return { entry_source: 'direct' };
+    }
+    return {
+        entry_source: 'unknown',
+        ...preparedReaction
+    };
+}
 export function isSupportedReactionSetup(selectedChemicals) {
     if (selectedChemicals.length !== 2)
         return false;

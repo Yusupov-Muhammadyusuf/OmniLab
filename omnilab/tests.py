@@ -1847,6 +1847,43 @@ class AnalyticsInstrumentationTests(TestCase):
         self.assertIn("if (labSetupCaptured) return;", analytics)
         self.assertIn("capture('lab_setup_started', properties);", analytics)
 
+    def test_setup_and_completion_share_the_same_entry_attribution(self):
+        analytics = (
+            settings.BASE_DIR / "static/ts/analytics/analytics.ts"
+        ).read_text()
+        interactions = (
+            settings.BASE_DIR / "static/ts/interactions/interactions.ts"
+        ).read_text()
+        interface = (
+            settings.BASE_DIR / "static/ts/userInterface/ui.ts"
+        ).read_text()
+
+        self.assertEqual(
+            interactions.count("...config.getLabEntryAttribution()"),
+            2,
+        )
+        self.assertEqual(
+            interface.count("...config.getLabEntryAttribution()"),
+            1,
+        )
+        completed_capture = interactions.split(
+            "capture('reaction_analysis_completed', {", 1
+        )[1].split("});", 1)[0]
+        self.assertIn("...config.getLabEntryAttribution()", completed_capture)
+        self.assertNotIn("selectedChemicals:", completed_capture)
+
+    def test_entry_attribution_has_four_bounded_privacy_safe_paths(self):
+        configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+
+        for entry_source in ("guide", "prepared_demo", "direct", "unknown"):
+            with self.subTest(entry_source=entry_source):
+                self.assertIn(f"entry_source: '{entry_source}'", configuration)
+        self.assertIn("prepared_reaction_id: reactionDemo.id", configuration)
+        self.assertNotIn("entry_source: rawSource", configuration)
+        self.assertNotIn("visit_source: rawSource", configuration)
+
     def test_runtime_entry_uses_browser_resolvable_module_imports(self):
         entry = (settings.BASE_DIR / "static/ts/root/main.ts").read_text()
 
@@ -1951,7 +1988,10 @@ class AnalyticsInstrumentationTests(TestCase):
         completed_capture = interactions.split(
             "capture('reaction_analysis_completed', {", 1
         )[1].split("});", 1)[0]
-        self.assertEqual(completed_capture.count("visit_source: visitSource"), 1)
+        self.assertEqual(
+            completed_capture.count("...config.getLabEntryAttribution()"),
+            1,
+        )
         for private_value in (
             "selectedChemicals:",
             "chemical_name",

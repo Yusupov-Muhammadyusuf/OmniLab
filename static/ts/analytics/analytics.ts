@@ -1,7 +1,9 @@
-type AnalyticsProperty = string | number | boolean;
+import type { LabEntryAttribution } from '../configuration/config.js';
+
+type AnalyticsProperty = string | number | boolean | undefined;
 type AnalyticsProperties = Record<string, AnalyticsProperty>;
 
-interface LabSetupProperties extends AnalyticsProperties {
+interface LabSetupProperties extends AnalyticsProperties, LabEntryAttribution {
     vessel: string;
     burner_active: boolean;
 }
