@@ -69,6 +69,14 @@ export type GuideVisitSource =
 
 export type VisitSource = 'student_invite' | GuideVisitSource;
 
+export type LabEntrySource = 'guide' | 'prepared_demo' | 'direct' | 'unknown';
+
+export interface LabEntryAttribution {
+    entry_source: LabEntrySource;
+    visit_source?: VisitSource;
+    prepared_reaction_id?: string;
+}
+
 const GUIDE_VISIT_SOURCES = new Set<GuideVisitSource>([
     'guide_reaction',
     'guide_formula',
@@ -214,6 +222,43 @@ export function getVisitSource(): VisitSource | null {
     return source && ALLOWED_VISIT_SOURCES.has(source as VisitSource)
         ? source as VisitSource
         : null;
+}
+
+export function getLabEntryAttribution(): LabEntryAttribution {
+    const reactionDemo = getReactionDemoConfig();
+    const rawSource = new URLSearchParams(window.location.search).get('source');
+    const visitSource = getVisitSource();
+    const preparedReaction = reactionDemo?.id
+        ? { prepared_reaction_id: reactionDemo.id }
+        : {};
+
+    if (reactionDemo && visitSource && getGuideVisitSource(visitSource)) {
+        return {
+            entry_source: 'guide',
+            visit_source: visitSource,
+            ...preparedReaction
+        };
+    }
+    if (reactionDemo && !rawSource) {
+        return {
+            entry_source: 'prepared_demo',
+            ...preparedReaction
+        };
+    }
+    if (reactionDemo && visitSource) {
+        return {
+            entry_source: 'prepared_demo',
+            visit_source: visitSource,
+            ...preparedReaction
+        };
+    }
+    if (!reactionDemo && !rawSource) {
+        return { entry_source: 'direct' };
+    }
+    return {
+        entry_source: 'unknown',
+        ...preparedReaction
+    };
 }
 
 export function isSupportedReactionSetup(selectedChemicals: string[]): boolean {

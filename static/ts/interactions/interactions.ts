@@ -323,7 +323,8 @@ export function addChemicalToLab(
         if (updatedChemicals.length === 1) {
             captureLabSetupStarted({
                 vessel: state.currentVessel,
-                burner_active: state.burnerActive
+                burner_active: state.burnerActive,
+                ...config.getLabEntryAttribution()
             });
         }
 
@@ -488,13 +489,12 @@ export function fireAIAnalysis(): void {
             );
         } else if (resData.status === 'success' && resData.data) {
             const reaction = normalizeReactionResult(resData.data);
-            const visitSource = config.getVisitSource();
             capture('reaction_analysis_completed', {
                 chemical_count: state.selectedChemicals.length,
                 vessel: state.currentVessel,
                 effect: reaction.effect,
                 duration_ms: Math.round(performance.now() - analysisStartedAt),
-                ...(visitSource ? { visit_source: visitSource } : {})
+                ...config.getLabEntryAttribution()
             });
             writeStorageValue(
                 config.getLabStorageKey('savedReaction'),

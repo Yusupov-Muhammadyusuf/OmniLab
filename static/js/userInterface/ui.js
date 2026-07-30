@@ -186,7 +186,8 @@ export function selectVessel(type) {
     const updatedState = config.getLabState();
     captureLabSetupStarted({
         vessel: updatedState.currentVessel,
-        burner_active: updatedState.burnerActive
+        burner_active: updatedState.burnerActive,
+        ...config.getLabEntryAttribution()
     });
     closeAllPopovers();
 }
