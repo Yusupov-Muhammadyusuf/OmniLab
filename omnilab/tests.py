@@ -756,6 +756,20 @@ class ContactFormTests(TestCase):
         self.assertNotContains(response, "/static/js/root/feedback.js")
         self.assertNotContains(response, "data-feedback-event")
 
+    def test_contact_success_acknowledges_acceptance_without_delivery_claim(self):
+        response = self.client.get("/contact/?sent=1")
+
+        self.assertContains(
+            response,
+            "<strong>Message accepted.</strong>",
+            html=True,
+        )
+        self.assertContains(
+            response,
+            "Your note was accepted for delivery.",
+        )
+        self.assertNotContains(response, "Message sent.")
+
     def test_feedback_success_uses_accepted_event(self):
         response = self.client.get(
             "/contact/?sent=1&source=reaction_feedback"
