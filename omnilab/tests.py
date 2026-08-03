@@ -859,6 +859,7 @@ class ContactFormTests(TestCase):
             events,
             [
                 "reaction_feedback_opened",
+                "reaction_feedback_prompt_viewed",
                 "reaction_feedback_viewed",
                 "reaction_feedback_accepted",
                 "reaction_feedback_validation_failed",
@@ -866,8 +867,10 @@ class ContactFormTests(TestCase):
                 "reaction_feedback_delivery_failed",
             ],
         )
+        self.assertIn("capture('reaction_feedback_prompt_viewed');", source)
         self.assertIn("capture('reaction_feedback_opened');", source)
         self.assertIn("capture(feedbackEvent);", source)
+        self.assertNotIn("capture('reaction_feedback_prompt_viewed',", source)
         self.assertNotIn("capture('reaction_feedback_opened',", source)
         self.assertNotIn("capture(feedbackEvent,", source)
 
@@ -3076,7 +3079,19 @@ class LabJourneyRepairTests(TestCase):
             "bindFeedbackOpenCapture(feedbackLink)",
             render_block,
         )
+        self.assertIn(
+            "captureFeedbackPromptViewed(feedbackLink)",
+            render_block,
+        )
+        self.assertIn(
+            "const viewedFeedbackPrompts = new WeakSet<HTMLAnchorElement>()",
+            feedback,
+        )
         self.assertIn("feedbackLink.onclick = captureFeedbackOpened", feedback)
+        self.assertIn(
+            "capture('reaction_feedback_prompt_viewed');",
+            feedback,
+        )
         self.assertIn(
             "capture('reaction_feedback_opened');",
             feedback,

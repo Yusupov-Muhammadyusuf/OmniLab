@@ -11,7 +11,8 @@ import {
 import { capture, captureLabSetupStarted } from '../analytics/analytics.js';
 import {
     bindFeedbackOpenCapture,
-    buildFeedbackContactUrl
+    buildFeedbackContactUrl,
+    captureFeedbackPromptViewed
 } from './feedback.js';
 import {
     normalizeReactionEffect,
@@ -184,6 +185,7 @@ export function renderReactionResult(
     explanation.textContent = reaction.explanation;
     feedbackLink.href = buildFeedbackContactUrl();
     bindFeedbackOpenCapture(feedbackLink);
+    captureFeedbackPromptViewed(feedbackLink);
 
     const safetyPoints = reaction.safety
         .split('|')

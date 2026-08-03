@@ -19,10 +19,15 @@ globalThis.window = {
 };
 
 test('focused feedback events fire once without custom properties', async () => {
-    const { bindFeedbackOpenCapture } = await import(
+    const {
+        bindFeedbackOpenCapture,
+        captureFeedbackPromptViewed
+    } = await import(
         '../static/js/interactions/feedback.js'
     );
     const feedbackLink = { onclick: null };
+    captureFeedbackPromptViewed(feedbackLink);
+    captureFeedbackPromptViewed(feedbackLink);
     bindFeedbackOpenCapture(feedbackLink);
     bindFeedbackOpenCapture(feedbackLink);
     feedbackLink.onclick();
@@ -41,6 +46,7 @@ test('focused feedback events fire once without custom properties', async () => 
     }
 
     const expectedEvents = [
+        'reaction_feedback_prompt_viewed',
         'reaction_feedback_opened',
         ...expectedRouteEvents
     ];
