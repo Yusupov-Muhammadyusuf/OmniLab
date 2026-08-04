@@ -40,6 +40,12 @@ urlpatterns = [
         name="demo_copper_sulfate_potassium_hydroxide",
     ),
     path(
+        'demo/sodium-water/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'sodium-water'},
+        name="demo_sodium_water",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -85,6 +91,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'copper-sulfate-potassium-hydroxide'},
         name="guide_copper_sulfate_potassium_hydroxide",
+    ),
+    path(
+        'guides/reaction-of-sodium-in-water/',
+        views.observation_guide,
+        {'guide_key': 'sodium-water'},
+        name="guide_sodium_water",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]

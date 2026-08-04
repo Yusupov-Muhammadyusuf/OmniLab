@@ -2668,6 +2668,126 @@ body {
     line-height: 1.65;
 }
 
+.observation-guide-study,
+.observation-guide-details,
+.observation-guide-questions {
+    margin-top: 112px;
+}
+
+.observation-guide-study-intro,
+.observation-guide-details-intro,
+.observation-guide-questions-intro {
+    max-width: 720px;
+}
+
+.observation-guide-study-intro h2,
+.observation-guide-details-intro h2,
+.observation-guide-questions-intro h2 {
+    max-width: 17ch;
+    margin: 12px 0 16px;
+    color: var(--text-color);
+    font-size: clamp(34px, 4vw, 52px);
+    line-height: 1.04;
+    letter-spacing: -2px;
+    text-wrap: balance;
+}
+
+.observation-guide-study-intro > p:last-child,
+.observation-guide-details-intro > p:last-child,
+.observation-guide-questions-intro > p:last-child {
+    max-width: 650px;
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 16px;
+    line-height: 1.75;
+}
+
+.observation-guide-study-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 36px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.observation-guide-study-grid li,
+.observation-guide-question-list article {
+    padding: 28px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: var(--panel-bg);
+    box-shadow: var(--shadow);
+}
+
+.observation-guide-study-grid li > span,
+.observation-guide-detail-list article > span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    border-radius: 50%;
+    background: var(--text-color);
+    color: var(--bg-main);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.observation-guide-study-grid h3,
+.observation-guide-detail-list h3,
+.observation-guide-question-list h3 {
+    margin: 22px 0 10px;
+    color: var(--text-color);
+    font-size: 19px;
+    line-height: 1.35;
+}
+
+.observation-guide-study-grid p,
+.observation-guide-detail-list p,
+.observation-guide-question-list p {
+    margin: 0;
+    color: var(--muted-text);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.observation-guide-details,
+.observation-guide-questions {
+    display: grid;
+    grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr);
+    gap: 64px;
+    align-items: start;
+    padding-top: 28px;
+    border-top: 2px solid var(--border-color);
+}
+
+.observation-guide-detail-list article {
+    padding: 24px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    border-bottom: 1px solid rgba(30, 30, 30, .22);
+}
+
+.observation-guide-detail-list article:first-child {
+    border-top: 1px solid rgba(30, 30, 30, .22);
+}
+
+.observation-guide-detail-list h3 {
+    margin-top: 2px;
+}
+
+.observation-guide-question-list {
+    display: grid;
+    gap: 12px;
+}
+
+.observation-guide-question-list h3 {
+    margin-top: 0;
+}
+
 .observation-guide-notes {
     margin-top: 112px;
     display: grid;
@@ -2777,11 +2897,14 @@ body {
     .observation-guide-result,
     .observation-guide-observation,
     .observation-guide-ions,
+    .observation-guide-details,
+    .observation-guide-questions,
     .observation-guide-notes,
     .observation-guide-next {
         grid-template-columns: 1fr;
         gap: 48px;
     }
+    .observation-guide-study-grid { grid-template-columns: 1fr; }
     .observation-guide-explanation {
         padding: 24px 0 0;
         border-top: 1px solid rgba(255, 255, 255, .3);
@@ -2914,6 +3037,9 @@ body {
     .observation-guide-equation h2 { font-size: 25px; }
     .observation-guide-observation,
     .observation-guide-ions,
+    .observation-guide-study,
+    .observation-guide-details,
+    .observation-guide-questions,
     .observation-guide-notes,
     .observation-guide-next { margin-top: 72px; }
     .observation-vessel { height: 300px; }
