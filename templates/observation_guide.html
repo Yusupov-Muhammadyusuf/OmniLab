@@ -126,6 +126,46 @@
             </section>
             {% endif %}
 
+            {% if guide.study_steps and not guide.net_ionic_equation %}
+            <section class="observation-guide-study" aria-labelledby="study-heading">
+                <div class="observation-guide-study-intro">
+                    <p class="guide-section-label">Read the equation</p>
+                    <h2 id="study-heading">Three details that explain the result</h2>
+                    <p>Connect the coefficients and formulas to the gas, solution, and visible cue.</p>
+                </div>
+                <ol class="observation-guide-study-grid">
+                    {% for step in guide.study_steps %}
+                    <li>
+                        <span aria-hidden="true">0{{ forloop.counter }}</span>
+                        <h3>{{ step.title }}</h3>
+                        <p>{{ step.body }}</p>
+                    </li>
+                    {% endfor %}
+                </ol>
+            </section>
+            {% endif %}
+
+            {% if guide.detail_sections %}
+            <section class="observation-guide-details" aria-labelledby="details-heading">
+                <div class="observation-guide-details-intro">
+                    <p class="guide-section-label">What you would observe</p>
+                    <h2 id="details-heading">From floating metal to an alkaline solution</h2>
+                    <p>The balanced equation explains the products. Physical observations add clues about heat, gas release, and the material left behind.</p>
+                </div>
+                <div class="observation-guide-detail-list">
+                    {% for section in guide.detail_sections %}
+                    <article>
+                        <span aria-hidden="true">0{{ forloop.counter }}</span>
+                        <div>
+                            <h3>{{ section.title }}</h3>
+                            <p>{{ section.body }}</p>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
+
             <section class="observation-guide-notes" aria-label="Safety and product limits">
                 <div class="observation-guide-safety">
                     <p class="guide-section-label">Three safety notes</p>
@@ -143,6 +183,24 @@
                     <p class="guide-boundary-warning">The result can be incomplete or wrong. Verify it with trusted course materials and follow trained laboratory supervision.</p>
                 </aside>
             </section>
+
+            {% if guide.common_questions %}
+            <section class="observation-guide-questions" aria-labelledby="questions-heading">
+                <div class="observation-guide-questions-intro">
+                    <p class="guide-section-label">Common questions</p>
+                    <h2 id="questions-heading">What students usually ask next</h2>
+                    <p>Use these distinctions to move from the visible reaction to the particle-level explanation.</p>
+                </div>
+                <div class="observation-guide-question-list">
+                    {% for item in guide.common_questions %}
+                    <article>
+                        <h3>{{ item.question }}</h3>
+                        <p>{{ item.answer }}</p>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endif %}
 
             <section class="observation-guide-next" aria-labelledby="next-heading">
                 <div>

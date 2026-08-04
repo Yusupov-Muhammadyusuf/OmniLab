@@ -8,7 +8,8 @@ const GUIDE_VISIT_SOURCES = new Set([
     'guide_observation_a',
     'guide_observation_b',
     'guide_observation_c',
-    'guide_observation_d'
+    'guide_observation_d',
+    'guide_observation_e'
 ]);
 const ALLOWED_VISIT_SOURCES = new Set([
     'student_invite',
@@ -67,6 +68,15 @@ const reactionGuidesByPairKey = new Map([
             {
                 href: '/guides/copper-ii-sulfate-potassium-hydroxide-precipitate/',
                 title: 'What precipitate forms from copper(II) sulfate and potassium hydroxide?'
+            }
+        ]
+    ],
+    [
+        'H2O+Na',
+        [
+            {
+                href: '/guides/reaction-of-sodium-in-water/',
+                title: 'What happens when sodium reacts with water?'
             }
         ]
     ]

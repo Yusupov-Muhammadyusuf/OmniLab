@@ -62,6 +62,9 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "copper-ii-sulfate-potassium-hydroxide-precipitate/"
     ),
+    "sodium_water": (
+        f"{PRODUCTION_BASE_URL}/guides/reaction-of-sodium-in-water/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
@@ -166,6 +169,21 @@ REACTION_DEMOS = {
             f"{PRODUCTION_BASE_URL}/demo/"
             "copper-sulfate-potassium-hydroxide/"
         ),
+    },
+    "sodium-water": {
+        "id": "sodium-water",
+        "version": "v1",
+        "selectedChemicals": ["Na", "H2O"],
+        "vessel": "beaker",
+        "liquidColor": "#2b9ed8",
+        "mixture_label": "Na + H2O",
+        "title": "Sodium and water, ready to analyze",
+        "page_title": "OmniLab - Sodium and water reaction demo",
+        "page_description": (
+            "Open a prepared Sodium and Water setup, then choose whether to "
+            "request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/sodium-water/",
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -611,6 +629,146 @@ OBSERVATION_GUIDE_PAGES = {
             "not affect the prediction."
         ),
     },
+    "sodium-water": {
+        "route_name": "guide_sodium_water",
+        "canonical_key": "sodium_water",
+        "visit_source": "guide_observation_e",
+        "demo_route_name": "demo_sodium_water",
+        "title": "What happens when sodium reacts with water?",
+        "page_title": (
+            "Sodium reacts with water: equation and result | OmniLab"
+        ),
+        "description": (
+            "See what happens when sodium reacts with water, including the "
+            "balanced equation, hydrogen bubbles, sodium hydroxide, and "
+            "safety limits."
+        ),
+        "reading_time": "6 minute read",
+        "direct_answer": (
+            "Sodium reacts with water to form sodium hydroxide and hydrogen "
+            "gas. The reaction releases substantial heat, and the escaping "
+            "hydrogen appears as bubbles."
+        ),
+        "reactants": [
+            {"name": "Sodium", "formula": "Na"},
+            {"name": "Water", "formula": "H2O"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Sodium and Water. The burner stays off, "
+            "and you decide when to request the supported prediction."
+        ),
+        "cta_label": "Try the sodium and water setup",
+        "equation": "2Na(s) + 2H2O(l) -> 2NaOH(aq) + H2(g)",
+        "explanation": (
+            "Sodium reacts with water to form sodium hydroxide and hydrogen "
+            "gas. Hydrogen evolution produces bubbles while the strongly "
+            "exothermic reaction heats the mixture. Two sodium atoms react "
+            "with two water molecules in the balanced equation."
+        ),
+        "observation_title": "Hydrogen bubbles and released heat",
+        "observation": (
+            "OmniLab shows a bounded bubble cue inside the beaker to represent "
+            "hydrogen gas forming. It does not reproduce the speed, surface "
+            "motion, flame, or heat of a physical demonstration."
+        ),
+        "observation_class": "observation-bubbles",
+        "observation_label": "Hydrogen bubbles",
+        "study_steps": [
+            {
+                "title": "Balance sodium and water",
+                "body": (
+                    "The coefficient 2 appears before Na and H2O. It also "
+                    "appears before NaOH, leaving two hydrogen atoms to form "
+                    "one H2 molecule."
+                ),
+            },
+            {
+                "title": "Identify the gas",
+                "body": (
+                    "H2 is hydrogen gas. The bubbles are evidence of gas "
+                    "evolution, not simply water boiling."
+                ),
+            },
+            {
+                "title": "Identify the solution",
+                "body": (
+                    "NaOH is sodium hydroxide. It remains dissolved, making "
+                    "the resulting solution alkaline and corrosive."
+                ),
+            },
+        ],
+        "detail_sections": [
+            {
+                "title": "Why sodium floats and moves",
+                "body": (
+                    "Sodium is less dense than water, so a small piece floats. "
+                    "The reaction heats the metal, which may melt into a ball, "
+                    "while uneven hydrogen release can push it across the "
+                    "surface. Those physical effects are not part of "
+                    "OmniLab's simplified bubble cue."
+                ),
+            },
+            {
+                "title": "Why the reaction may show a flame",
+                "body": (
+                    "The reaction is strongly exothermic and creates flammable "
+                    "hydrogen. In some demonstrations, enough heat can ignite "
+                    "the hydrogen. A yellow-orange color may also appear from "
+                    "excited sodium atoms. OmniLab does not predict ignition."
+                ),
+            },
+            {
+                "title": "What remains in the beaker",
+                "body": (
+                    "The gas leaves the mixture, but sodium hydroxide stays in "
+                    "solution. That means the liquid is not merely unchanged "
+                    "water: it becomes alkaline and can cause chemical burns."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What type of reaction is sodium with water?",
+                "answer": (
+                    "It is a redox reaction and a metal displacement reaction. "
+                    "Sodium is oxidized to Na+ while hydrogen in water is "
+                    "reduced to H2 gas."
+                ),
+            },
+            {
+                "question": "Why does sodium move on the surface of water?",
+                "answer": (
+                    "Sodium floats because it is less dense than water. Gas "
+                    "formation and uneven heat release can make it move."
+                ),
+            },
+            {
+                "question": "Why is sodium and water dangerous?",
+                "answer": (
+                    "The reaction releases substantial heat, produces "
+                    "flammable hydrogen, and leaves corrosive sodium hydroxide. "
+                    "It belongs only in a controlled laboratory."
+                ),
+            },
+            {
+                "question": "Is the liquid product still water?",
+                "answer": (
+                    "Water remains, but the reaction also creates dissolved "
+                    "sodium hydroxide. The resulting solution is alkaline."
+                ),
+            },
+        ],
+        "safety": [
+            "Do not attempt this reaction outside a controlled laboratory.",
+            "Keep flames and sparks away from the hydrogen produced.",
+            "Use face protection and trained supervision.",
+        ],
+        "boundary": (
+            "OmniLab predicts the balanced products and shows a simplified "
+            "bubble cue. It does not model sodium mass, water volume, reaction "
+            "rate, temperature, motion, ignition, or a physical procedure."
+        ),
+    },
 }
 
 GUIDE_LIBRARY_GROUPS = [
@@ -683,8 +841,8 @@ GUIDE_LIBRARY_GROUPS = [
     {
         "label": "Follow a visible result",
         "description": (
-            "Use cloudiness, fizzing, or a colored precipitate to connect an "
-            "observation to its equation."
+            "Use cloudiness, fizzing, gas bubbles, or a colored precipitate "
+            "to connect an observation to its equation."
         ),
         "guides": [
             {
@@ -748,6 +906,20 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "copper-sulfate-potassium-hydroxide"
+                ]["canonical_key"],
+            },
+            {
+                "number": "09",
+                "title": OBSERVATION_GUIDE_PAGES["sodium-water"]["title"],
+                "summary": (
+                    "Connect hydrogen bubbles, heat release, and sodium "
+                    "hydroxide to the balanced equation."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "sodium-water"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "sodium-water"
                 ]["canonical_key"],
             },
         ],
@@ -1292,7 +1464,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse eight chemistry guides about virtual reaction labs, sodium "
+        "Browse nine chemistry guides about virtual reaction labs, sodium "
         "and chlorine, gas evolution, and precipitate observations."
     )
     guides = [
