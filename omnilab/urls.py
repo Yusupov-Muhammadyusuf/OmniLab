@@ -46,6 +46,12 @@ urlpatterns = [
         name="demo_sodium_water",
     ),
     path(
+        'demo/zinc-hydrochloric-acid/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'zinc-hydrochloric-acid'},
+        name="demo_zinc_hydrochloric_acid",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -97,6 +103,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'sodium-water'},
         name="guide_sodium_water",
+    ),
+    path(
+        'guides/zinc-and-hydrochloric-acid-reaction/',
+        views.observation_guide,
+        {'guide_key': 'zinc-hydrochloric-acid'},
+        name="guide_zinc_hydrochloric_acid",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]

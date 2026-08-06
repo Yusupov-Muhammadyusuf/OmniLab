@@ -65,6 +65,10 @@ PUBLIC_CANONICAL_URLS = {
     "sodium_water": (
         f"{PRODUCTION_BASE_URL}/guides/reaction-of-sodium-in-water/"
     ),
+    "zinc_hydrochloric_acid": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "zinc-and-hydrochloric-acid-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
@@ -184,6 +188,23 @@ REACTION_DEMOS = {
             "request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/sodium-water/",
+    },
+    "zinc-hydrochloric-acid": {
+        "id": "zinc-hydrochloric-acid",
+        "version": "v1",
+        "selectedChemicals": ["Zn", "HCl"],
+        "vessel": "beaker",
+        "liquidColor": "#8d98a3",
+        "mixture_label": "Zn + HCl",
+        "title": "Zinc and hydrochloric acid, ready to analyze",
+        "page_title": "OmniLab - Zinc and hydrochloric acid demo",
+        "page_description": (
+            "Open a prepared Zinc and Hydrochloric acid setup, then choose "
+            "whether to request an educational reaction prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/zinc-hydrochloric-acid/"
+        ),
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -769,6 +790,117 @@ OBSERVATION_GUIDE_PAGES = {
             "rate, temperature, motion, ignition, or a physical procedure."
         ),
     },
+    "zinc-hydrochloric-acid": {
+        "route_name": "guide_zinc_hydrochloric_acid",
+        "canonical_key": "zinc_hydrochloric_acid",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_zinc_hydrochloric_acid",
+        "title": "What happens when zinc reacts with hydrochloric acid?",
+        "page_title": (
+            "Zinc and hydrochloric acid reaction | OmniLab"
+        ),
+        "description": (
+            "See the zinc and hydrochloric acid reaction, balanced equation, "
+            "hydrogen bubbles, zinc chloride product, and safety limits."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Zinc reacts with hydrochloric acid to form zinc chloride and "
+            "hydrogen gas. Zinc is oxidized, hydrogen ions are reduced, and "
+            "the escaping hydrogen appears as bubbles."
+        ),
+        "student_job": (
+            "Use this guide to balance the equation, identify the gas, and "
+            "connect the bubbles to a metal-acid displacement reaction."
+        ),
+        "reactants": [
+            {"name": "Zinc", "formula": "Zn"},
+            {"name": "Hydrochloric acid", "formula": "HCl"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Zinc and Hydrochloric acid. The burner "
+            "stays off, and you decide when to request the supported prediction."
+        ),
+        "cta_label": "Try the zinc and acid setup",
+        "equation": "Zn(s) + 2HCl(aq) -> ZnCl2(aq) + H2(g)",
+        "explanation": (
+            "Zinc displaces hydrogen from hydrochloric acid to form zinc "
+            "chloride and hydrogen gas. The bubbles are hydrogen leaving the "
+            "solution. Zinc is oxidized while hydrogen ions are reduced in "
+            "this single-displacement reaction."
+        ),
+        "observation_title": "Hydrogen bubbles as zinc is consumed",
+        "observation": (
+            "OmniLab shows a bounded bubble cue inside the beaker to represent "
+            "hydrogen gas forming. It does not reproduce the reaction rate, "
+            "temperature change, or gradual loss of the zinc surface."
+        ),
+        "observation_class": "observation-bubbles",
+        "observation_label": "Hydrogen bubbles",
+        "study_steps": [
+            {
+                "title": "Balance the acid",
+                "body": (
+                    "The coefficient 2 before HCl supplies two chloride ions "
+                    "for ZnCl2 and two hydrogen atoms for one H2 molecule."
+                ),
+            },
+            {
+                "title": "Track the electrons",
+                "body": (
+                    "Zinc loses two electrons to become Zn2+. Two hydrogen "
+                    "ions gain those electrons and combine as H2 gas."
+                ),
+            },
+            {
+                "title": "Identify the evidence",
+                "body": (
+                    "The bubbles are hydrogen leaving the solution. Zinc is "
+                    "consumed while aqueous zinc chloride remains."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What gas forms when zinc reacts with hydrochloric acid?",
+                "answer": (
+                    "Hydrogen gas forms. In the balanced equation, two H+ "
+                    "ions gain electrons and combine to make H2."
+                ),
+            },
+            {
+                "question": "What type of reaction is zinc with hydrochloric acid?",
+                "answer": (
+                    "It is a single-displacement and redox reaction. Zinc "
+                    "displaces hydrogen from the acid."
+                ),
+            },
+            {
+                "question": "What is oxidized and what is reduced?",
+                "answer": (
+                    "Zinc is oxidized from Zn to Zn2+. Hydrogen ions are "
+                    "reduced to H2 gas."
+                ),
+            },
+            {
+                "question": "What remains in the solution?",
+                "answer": (
+                    "Zinc chloride remains dissolved in water while hydrogen "
+                    "gas leaves the mixture."
+                ),
+            },
+        ],
+        "safety": [
+            "Keep flames and sparks away from the hydrogen produced.",
+            "Work in a ventilated area under trained supervision.",
+            "Wear acid-resistant gloves and splash goggles.",
+        ],
+        "boundary": (
+            "OmniLab predicts the products and shows a simplified bubble cue. "
+            "It does not model reagent concentration, zinc surface area, gas "
+            "volume, temperature, reaction rate, or a physical procedure."
+        ),
+    },
 }
 
 GUIDE_LIBRARY_GROUPS = [
@@ -920,6 +1052,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "sodium-water"
+                ]["canonical_key"],
+            },
+            {
+                "number": "10",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "zinc-hydrochloric-acid"
+                ]["title"],
+                "summary": (
+                    "Connect hydrogen bubbles and electron transfer to the "
+                    "balanced metal-acid reaction."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "zinc-hydrochloric-acid"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "zinc-hydrochloric-acid"
                 ]["canonical_key"],
             },
         ],
@@ -1464,8 +1612,8 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse nine chemistry guides about virtual reaction labs, sodium "
-        "and chlorine, gas evolution, and precipitate observations."
+        "Browse ten chemistry guides about virtual reaction labs, sodium "
+        "and chlorine, metal-acid reactions, gas evolution, and precipitates."
     )
     guides = [
         guide
