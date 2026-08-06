@@ -2574,6 +2574,14 @@ body {
     background: #5ba7d1;
 }
 
+.observation-clear .observation-vessel-liquid {
+    background: rgba(177, 218, 238, .32);
+}
+
+.observation-clear .observation-particle {
+    display: none;
+}
+
 .observation-bubbles .observation-particle {
     width: 24px;
     height: 24px;

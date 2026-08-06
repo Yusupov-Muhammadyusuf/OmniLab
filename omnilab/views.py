@@ -73,6 +73,9 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "acetic-acid-and-sodium-bicarbonate-reaction/"
     ),
+    "hydrogen_oxygen": (
+        f"{PRODUCTION_BASE_URL}/guides/hydrogen-and-oxygen-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
@@ -229,6 +232,21 @@ REACTION_DEMOS = {
             f"{PRODUCTION_BASE_URL}/demo/"
             "acetic-acid-sodium-bicarbonate/"
         ),
+    },
+    "hydrogen-oxygen": {
+        "id": "hydrogen-oxygen",
+        "version": "v1",
+        "selectedChemicals": ["H2", "O2"],
+        "vessel": "beaker",
+        "liquidColor": "#d7edf7",
+        "mixture_label": "H2 + O2",
+        "title": "Hydrogen and oxygen, ready to analyze",
+        "page_title": "OmniLab - Hydrogen and oxygen reaction demo",
+        "page_description": (
+            "Open a prepared Hydrogen and Oxygen setup, then choose whether "
+            "to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/hydrogen-oxygen/",
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -1048,6 +1066,120 @@ OBSERVATION_GUIDE_PAGES = {
             "temperature change, reaction rate, or a physical procedure."
         ),
     },
+    "hydrogen-oxygen": {
+        "route_name": "guide_hydrogen_oxygen",
+        "canonical_key": "hydrogen_oxygen",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_hydrogen_oxygen",
+        "title": "What happens when hydrogen reacts with oxygen?",
+        "page_title": "Hydrogen and oxygen reaction: equation and result | OmniLab",
+        "description": (
+            "See the hydrogen and oxygen reaction, balanced equation, water "
+            "product, energy release, initiation requirement, and safety limits."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Hydrogen reacts with oxygen to form water when the mixture is "
+            "initiated. The reaction is strongly exothermic, and the balanced "
+            "equation uses two hydrogen molecules for each oxygen molecule."
+        ),
+        "student_job": (
+            "Use this guide to balance the equation, identify the product, and "
+            "separate the reaction conditions from the chemical result."
+        ),
+        "reactants": [
+            {"name": "Hydrogen", "formula": "H2"},
+            {"name": "Oxygen", "formula": "O2"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Hydrogen and Oxygen. The burner stays "
+            "off, and you decide when to request the supported prediction."
+        ),
+        "cta_label": "Try the hydrogen and oxygen setup",
+        "equation": "2H2(g) + O2(g) -> 2H2O(l)",
+        "explanation": (
+            "Hydrogen and oxygen form water when the mixture is initiated. "
+            "The reaction is strongly exothermic as O-H bonds form. "
+            "Two hydrogen molecules react with one oxygen molecule to "
+            "produce two water molecules."
+        ),
+        "observation_title": "Water forms in a strongly exothermic reaction",
+        "observation": (
+            "The supported prediction identifies water as the product. OmniLab "
+            "does not add a flame, blast, or motion cue for this pair because "
+            "its visual effects are simplified, not a physical simulation."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Water product",
+        "study_steps": [
+            {
+                "title": "Balance the two-to-one ratio",
+                "body": (
+                    "Two H2 molecules supply four hydrogen atoms. One O2 "
+                    "molecule supplies two oxygen atoms, producing two H2O "
+                    "molecules."
+                ),
+            },
+            {
+                "title": "Separate initiation from the products",
+                "body": (
+                    "Hydrogen and oxygen need an initiation source before the "
+                    "reaction proceeds rapidly. That condition is not written "
+                    "as another reactant in the balanced equation."
+                ),
+            },
+            {
+                "title": "Account for the energy release",
+                "body": (
+                    "Forming strong O-H bonds releases substantial energy, so "
+                    "the reaction is exothermic even though energy does not "
+                    "appear as a product formula."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What is the product of hydrogen and oxygen?",
+                "answer": (
+                    "The product is water. The balanced equation forms two "
+                    "water molecules from two hydrogen molecules and one "
+                    "oxygen molecule."
+                ),
+            },
+            {
+                "question": "Why is the equation 2H2 + O2 -> 2H2O?",
+                "answer": (
+                    "Those coefficients balance four hydrogen atoms and two "
+                    "oxygen atoms on each side of the equation."
+                ),
+            },
+            {
+                "question": "Does hydrogen react with oxygen on its own?",
+                "answer": (
+                    "A hydrogen-oxygen mixture generally needs initiation, "
+                    "such as a spark, before it reacts rapidly. That same fact "
+                    "also makes the mixture hazardous."
+                ),
+            },
+            {
+                "question": "What type of reaction is hydrogen with oxygen?",
+                "answer": (
+                    "It is a combustion and redox reaction. Hydrogen is "
+                    "oxidized, oxygen is reduced, and water forms."
+                ),
+            },
+        ],
+        "safety": [
+            "Keep the gas mixture away from ignition sources.",
+            "Use blast shielding in a supervised laboratory.",
+            "Wear splash goggles and protective clothing.",
+        ],
+        "boundary": (
+            "OmniLab predicts water as the product without simulating ignition, "
+            "flame, pressure, temperature, gas ratio, reaction rate, or a "
+            "physical procedure."
+        ),
+    },
 }
 
 GUIDE_LIBRARY_GROUPS = [
@@ -1231,6 +1363,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "acetic-acid-sodium-bicarbonate"
+                ]["canonical_key"],
+            },
+            {
+                "number": "12",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "hydrogen-oxygen"
+                ]["title"],
+                "summary": (
+                    "Balance the two-to-one gas ratio and connect the "
+                    "exothermic reaction to its water product."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "hydrogen-oxygen"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "hydrogen-oxygen"
                 ]["canonical_key"],
             },
         ],
@@ -1775,8 +1923,8 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse eleven chemistry guides about virtual reaction labs, sodium "
-        "and chlorine, acid reactions, gas evolution, and precipitates."
+        "Browse twelve chemistry guides about virtual reaction labs, sodium "
+        "and chlorine, combustion, acid reactions, gas evolution, and precipitates."
     )
     guides = [
         guide

@@ -97,6 +97,15 @@ const reactionGuidesByPairKey = new Map([
                 title: 'What happens when acetic acid reacts with sodium bicarbonate?'
             }
         ]
+    ],
+    [
+        'H2+O2',
+        [
+            {
+                href: '/guides/hydrogen-and-oxygen-reaction/',
+                title: 'What happens when hydrogen reacts with oxygen?'
+            }
+        ]
     ]
 ]);
 const supportedChemicalIds = new Set(supportedReactionPairs.flat());
