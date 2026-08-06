@@ -29,8 +29,11 @@ from config.environment import (
 )
 
 from .views import (
+    CHEMICAL_REACTION_VIRTUAL_LAB_PAGE,
     CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
     GUIDE_LIBRARY_GROUPS,
+    GUIDE_PAGE_REFERENCES,
+    GUIDE_RELATIONSHIPS,
     GUIDED_EXPERIMENT_PAGES,
     OBSERVATION_GUIDE_PAGES,
     PRODUCT_FAQS,
@@ -484,6 +487,83 @@ class GuideLibraryPageTests(TestCase):
             with self.subTest(guide=guide["title"]):
                 self.assertContains(self.response, guide["title"])
                 self.assertContains(self.response, guide["summary"])
+
+    def test_all_twelve_guides_have_distinct_titles_and_descriptions(self):
+        self.assertEqual(len(GUIDE_PAGE_REFERENCES), 12)
+        self.assertEqual(
+            len(
+                {
+                    guide["page_title"]
+                    for guide in GUIDE_PAGE_REFERENCES.values()
+                }
+            ),
+            12,
+        )
+        self.assertEqual(
+            len(
+                {
+                    guide["description"]
+                    for guide in GUIDE_PAGE_REFERENCES.values()
+                }
+            ),
+            12,
+        )
+
+        for guide in GUIDE_PAGE_REFERENCES.values():
+            with self.subTest(guide=guide["title"]):
+                response = self.client.get(reverse(guide["route_name"]))
+
+                self.assertContains(
+                    response,
+                    f'<title>{guide["page_title"]}</title>',
+                    html=True,
+                )
+                self.assertContains(
+                    response,
+                    (
+                        '<meta name="description" '
+                        f'content="{guide["description"]}">'
+                    ),
+                    html=True,
+                )
+
+    def test_every_guide_has_a_small_explicit_relationship_set(self):
+        self.assertEqual(
+            set(GUIDE_RELATIONSHIPS),
+            set(GUIDE_PAGE_REFERENCES),
+        )
+        for guide_key, relationships in GUIDE_RELATIONSHIPS.items():
+            with self.subTest(guide_key=guide_key):
+                self.assertIn(len(relationships), (2, 3))
+                related_keys = [
+                    related_key for related_key, _reason in relationships
+                ]
+                self.assertEqual(len(related_keys), len(set(related_keys)))
+                self.assertNotIn(guide_key, related_keys)
+                self.assertTrue(
+                    set(related_keys).issubset(GUIDE_PAGE_REFERENCES)
+                )
+
+    def test_virtual_lab_guide_uses_shared_metadata_and_related_links(self):
+        response = self.client.get(
+            reverse(CHEMICAL_REACTION_VIRTUAL_LAB_PAGE["route_name"])
+        )
+        html = response.content.decode()
+        related_block = html.split(
+            'class="guide-related reaction-lab-related"', 1
+        )[1].split("</nav>", 1)[0]
+
+        self.assertEqual(related_block.count("<a href="), 3)
+        for related_key, reason in GUIDE_RELATIONSHIPS[
+            "chemical_reaction_virtual_lab"
+        ]:
+            related_guide = GUIDE_PAGE_REFERENCES[related_key]
+            self.assertIn(
+                f'href="{reverse(related_guide["route_name"])}"',
+                related_block,
+            )
+            self.assertIn(related_guide["title"], related_block)
+            self.assertIn(reason, related_block)
 
     def test_library_keeps_one_primary_lab_action(self):
         self.assertEqual(self.html.count('class="guide-primary"'), 1)
@@ -1388,31 +1468,31 @@ class GuidedExperimentPageTests(TestCase):
                     1,
                 )
 
-    def test_each_guide_links_to_the_other_two_student_questions(self):
-        route_by_key = {
-            guide_key: path for path, guide_key in self.routes.items()
-        }
-
+    def test_each_guide_links_to_three_related_chemistry_questions(self):
         for path, guide_key in self.routes.items():
             with self.subTest(path=path):
+                guide = GUIDED_EXPERIMENT_PAGES[guide_key]
                 html = self.client.get(path).content.decode()
                 related_block = html.split(
                     'class="guide-related"', 1
                 )[1].split("</nav>", 1)[0]
+                relationships = GUIDE_RELATIONSHIPS[
+                    guide["canonical_key"]
+                ]
 
-                self.assertEqual(related_block.count("<a href="), 2)
+                self.assertEqual(related_block.count("<a href="), 3)
                 self.assertNotIn(
-                    GUIDED_EXPERIMENT_PAGES[guide_key]["title"],
+                    guide["title"],
                     related_block,
                 )
-                for related_key, related_guide in GUIDED_EXPERIMENT_PAGES.items():
-                    if related_key == guide_key:
-                        continue
+                for related_key, reason in relationships:
+                    related_guide = GUIDE_PAGE_REFERENCES[related_key]
                     self.assertIn(
-                        f'href="{route_by_key[related_key]}"',
+                        f'href="{reverse(related_guide["route_name"])}"',
                         related_block,
                     )
                     self.assertIn(related_guide["title"], related_block)
+                    self.assertIn(reason, related_block)
 
     def test_related_questions_stay_secondary_to_the_lab_action(self):
         for path in self.routes:
@@ -1791,25 +1871,32 @@ class ObservationGuidePageTests(TestCase):
                 )
                 self.assertNotContains(response, "student-email@example.com")
 
-    def test_guides_cross_link_and_broad_guide_links_all_eight(self):
-        broad_html = self.client.get(
-            "/guides/chemical-reaction-virtual-lab/"
-        ).content.decode()
-
+    def test_guides_link_to_two_or_three_relevant_next_questions(self):
         for path, (guide_key, _demo_path) in self.routes.items():
             with self.subTest(path=path):
+                guide = OBSERVATION_GUIDE_PAGES[guide_key]
                 html = self.client.get(path).content.decode()
                 related_block = html.split(
                     'aria-label="Related observation guides"', 1
                 )[1].split("</nav>", 1)[0]
+                relationships = GUIDE_RELATIONSHIPS[
+                    guide["canonical_key"]
+                ]
 
-                self.assertEqual(related_block.count("<a href="), 7)
-                self.assertNotIn(path, related_block)
-                self.assertEqual(broad_html.count(f'href="{path}"'), 1)
-                self.assertIn(
-                    OBSERVATION_GUIDE_PAGES[guide_key]["title"],
-                    broad_html,
+                self.assertIn(len(relationships), (2, 3))
+                self.assertEqual(
+                    related_block.count("<a href="),
+                    len(relationships),
                 )
+                self.assertNotIn(path, related_block)
+                for related_key, reason in relationships:
+                    related_guide = GUIDE_PAGE_REFERENCES[related_key]
+                    self.assertIn(
+                        f'href="{reverse(related_guide["route_name"])}"',
+                        related_block,
+                    )
+                    self.assertIn(related_guide["title"], related_block)
+                    self.assertIn(reason, related_block)
 
     def test_canonicals_schema_and_sitemap_include_each_guide_once(self):
         sitemap = self.client.get("/sitemap.xml").content.decode()
