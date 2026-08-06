@@ -1729,6 +1729,22 @@ body {
     text-wrap: pretty;
 }
 
+.guide-student-job {
+    max-width: 54ch;
+    margin: -12px 0 24px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--text-color);
+    background: var(--panel-bg);
+    color: var(--muted-text);
+    font-size: 14px;
+    line-height: 1.6;
+    text-wrap: pretty;
+}
+
+.guide-student-job strong {
+    color: var(--text-color);
+}
+
 .guide-primary {
     min-height: 52px;
     max-width: 100%;

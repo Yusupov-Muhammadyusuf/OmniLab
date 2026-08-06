@@ -79,6 +79,15 @@ const reactionGuidesByPairKey = new Map([
                 title: 'What happens when sodium reacts with water?'
             }
         ]
+    ],
+    [
+        'HCl+Zn',
+        [
+            {
+                href: '/guides/zinc-and-hydrochloric-acid-reaction/',
+                title: 'What happens when zinc reacts with hydrochloric acid?'
+            }
+        ]
     ]
 ]);
 const supportedChemicalIds = new Set(supportedReactionPairs.flat());

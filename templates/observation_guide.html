@@ -43,6 +43,9 @@
                     <p class="guide-context">For chemistry students · {{ guide.reading_time }}</p>
                     <h1 id="guide-heading">{{ guide.title }}</h1>
                     <p class="guide-answer">{{ guide.direct_answer }}</p>
+                    {% if guide.student_job %}
+                    <p class="guide-student-job"><strong>Your study goal:</strong> {{ guide.student_job }}</p>
+                    {% endif %}
                     <a class="guide-primary" href="{% url guide.demo_route_name %}?source={{ guide.visit_source }}">
                         {{ guide.cta_label }}
                         <span aria-hidden="true">→</span>
