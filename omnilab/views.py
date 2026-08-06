@@ -69,6 +69,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "zinc-and-hydrochloric-acid-reaction/"
     ),
+    "acetic_acid_sodium_bicarbonate": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "acetic-acid-and-sodium-bicarbonate-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
@@ -204,6 +208,26 @@ REACTION_DEMOS = {
         ),
         "url": (
             f"{PRODUCTION_BASE_URL}/demo/zinc-hydrochloric-acid/"
+        ),
+    },
+    "acetic-acid-sodium-bicarbonate": {
+        "id": "acetic-acid-sodium-bicarbonate",
+        "version": "v1",
+        "selectedChemicals": ["CH3COOH", "NaHCO3"],
+        "vessel": "beaker",
+        "liquidColor": "#b9c4cc",
+        "mixture_label": "CH3COOH + NaHCO3",
+        "title": "Acetic acid and sodium bicarbonate, ready to analyze",
+        "page_title": (
+            "OmniLab - Acetic acid and sodium bicarbonate demo"
+        ),
+        "page_description": (
+            "Open a prepared Acetic acid and Sodium bicarbonate setup, then "
+            "choose whether to request an educational reaction prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "acetic-acid-sodium-bicarbonate/"
         ),
     },
 }
@@ -901,6 +925,129 @@ OBSERVATION_GUIDE_PAGES = {
             "volume, temperature, reaction rate, or a physical procedure."
         ),
     },
+    "acetic-acid-sodium-bicarbonate": {
+        "route_name": "guide_acetic_acid_sodium_bicarbonate",
+        "canonical_key": "acetic_acid_sodium_bicarbonate",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_acetic_acid_sodium_bicarbonate",
+        "title": (
+            "What happens when acetic acid reacts with sodium bicarbonate?"
+        ),
+        "page_title": (
+            "Acetic acid and sodium bicarbonate reaction | OmniLab"
+        ),
+        "description": (
+            "See the acetic acid and sodium bicarbonate reaction, balanced "
+            "equation, carbon dioxide bubbles, products, and safety limits."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Acetic acid reacts with sodium bicarbonate to form sodium "
+            "acetate, carbon dioxide, and water. The carbon dioxide escapes "
+            "as bubbles, which can make the mixture fizz and foam."
+        ),
+        "student_job": (
+            "Use this guide to balance the equation, identify the gas, and "
+            "connect the fizzing to an acid-bicarbonate reaction."
+        ),
+        "reactants": [
+            {"name": "Acetic acid", "formula": "CH3COOH"},
+            {"name": "Sodium bicarbonate", "formula": "NaHCO3"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Acetic acid and Sodium bicarbonate. "
+            "The burner stays off, and you decide when to request the "
+            "supported prediction."
+        ),
+        "cta_label": "Try the fizzing setup",
+        "equation": (
+            "CH3COOH(aq) + NaHCO3(s) -> "
+            "CH3COONa(aq) + CO2(g) + H2O(l)"
+        ),
+        "explanation": (
+            "Acetic acid reacts with sodium bicarbonate to form sodium "
+            "acetate, carbon dioxide, and water. The visible bubbling comes "
+            "from carbon dioxide leaving the mixture. The equation has a "
+            "one-to-one ratio of acid and bicarbonate."
+        ),
+        "observation_title": "Carbon dioxide bubbles and visible fizzing",
+        "observation": (
+            "OmniLab shows a bounded bubble cue inside the beaker to represent "
+            "carbon dioxide leaving the mixture. It does not reproduce foam "
+            "height, reaction rate, cooling, or spillover."
+        ),
+        "observation_class": "observation-bubbles",
+        "observation_label": "Carbon dioxide bubbles",
+        "study_steps": [
+            {
+                "title": "Balance the one-to-one reaction",
+                "body": (
+                    "One acetic acid molecule reacts with one bicarbonate "
+                    "unit, so every coefficient in the balanced equation is 1."
+                ),
+            },
+            {
+                "title": "Identify the gas",
+                "body": (
+                    "Bicarbonate accepts a proton from the acid. The resulting "
+                    "carbonic acid breaks down into CO2 and H2O."
+                ),
+            },
+            {
+                "title": "Identify what stays dissolved",
+                "body": (
+                    "Sodium and acetate ions remain in solution as sodium "
+                    "acetate while carbon dioxide leaves as gas."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": (
+                    "What gas forms when acetic acid reacts with sodium "
+                    "bicarbonate?"
+                ),
+                "answer": (
+                    "Carbon dioxide gas forms. Its escape from the liquid "
+                    "produces the visible fizzing and bubbles."
+                ),
+            },
+            {
+                "question": "What are the products of the reaction?",
+                "answer": (
+                    "The products are aqueous sodium acetate, carbon dioxide "
+                    "gas, and liquid water."
+                ),
+            },
+            {
+                "question": "Why does the mixture foam?",
+                "answer": (
+                    "Rapidly forming carbon dioxide creates many bubbles. "
+                    "Their behavior at the liquid surface can produce foam."
+                ),
+            },
+            {
+                "question": "What type of reaction is this?",
+                "answer": (
+                    "It is an acid-base reaction followed by carbonic acid "
+                    "decomposition, which releases carbon dioxide gas."
+                ),
+            },
+        ],
+        "safety": [
+            (
+                "Keep the reaction vessel open so carbon dioxide cannot "
+                "build pressure."
+            ),
+            "Wear eye protection to guard against splashes.",
+            "Add the bicarbonate in small portions to control foaming.",
+        ],
+        "boundary": (
+            "OmniLab predicts the products and shows a simplified bubble cue. "
+            "It does not model reagent concentration, foam height, gas volume, "
+            "temperature change, reaction rate, or a physical procedure."
+        ),
+    },
 }
 
 GUIDE_LIBRARY_GROUPS = [
@@ -1068,6 +1215,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "zinc-hydrochloric-acid"
+                ]["canonical_key"],
+            },
+            {
+                "number": "11",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "acetic-acid-sodium-bicarbonate"
+                ]["title"],
+                "summary": (
+                    "Connect carbon dioxide bubbles to the balanced "
+                    "acid-bicarbonate reaction."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "acetic-acid-sodium-bicarbonate"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "acetic-acid-sodium-bicarbonate"
                 ]["canonical_key"],
             },
         ],
@@ -1612,8 +1775,8 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse ten chemistry guides about virtual reaction labs, sodium "
-        "and chlorine, metal-acid reactions, gas evolution, and precipitates."
+        "Browse eleven chemistry guides about virtual reaction labs, sodium "
+        "and chlorine, acid reactions, gas evolution, and precipitates."
     )
     guides = [
         guide

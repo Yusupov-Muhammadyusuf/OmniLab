@@ -454,18 +454,18 @@ class GuideLibraryPageTests(TestCase):
             for guide in group["guides"]
         ]
 
-    def test_library_groups_all_ten_guides_once(self):
+    def test_library_groups_all_eleven_guides_once(self):
         self.assertEqual(self.response.status_code, 200)
         self.assertContains(
             self.response,
-            "Ten questions · One connected library",
+            "Eleven questions · One connected library",
         )
         self.assertContains(
             self.response,
-            "The ten guides are grouped by the job they help you do",
+            "The eleven guides are grouped by the job they help you do",
         )
-        self.assertEqual(len(self.guides), 10)
-        self.assertEqual(self.html.count('class="guide-index-link"'), 10)
+        self.assertEqual(len(self.guides), 11)
+        self.assertEqual(self.html.count('class="guide-index-link"'), 11)
 
         guide_hrefs = re.findall(
             r'<a class="guide-index-link" href="([^"]+)">',
@@ -475,7 +475,7 @@ class GuideLibraryPageTests(TestCase):
             reverse(guide["route_name"]) for guide in self.guides
         ]
         self.assertEqual(guide_hrefs, expected_hrefs)
-        self.assertEqual(len(set(guide_hrefs)), 10)
+        self.assertEqual(len(set(guide_hrefs)), 11)
 
         for group in GUIDE_LIBRARY_GROUPS:
             with self.subTest(group=group["label"]):
@@ -525,8 +525,8 @@ class GuideLibraryPageTests(TestCase):
         self.assertEqual(schema["url"], PUBLIC_CANONICAL_URLS["guides"])
         item_list = schema["mainEntity"]
         self.assertEqual(item_list["@type"], "ItemList")
-        self.assertEqual(item_list["numberOfItems"], 10)
-        self.assertEqual(len(item_list["itemListElement"]), 10)
+        self.assertEqual(item_list["numberOfItems"], 11)
+        self.assertEqual(len(item_list["itemListElement"]), 11)
 
         for position, (guide, item) in enumerate(
             zip(self.guides, item_list["itemListElement"]),
@@ -605,15 +605,18 @@ class HomepageGuideLinksTests(TestCase):
         "/guides/zinc-and-hydrochloric-acid-reaction/": (
             "What happens when zinc reacts with hydrochloric acid?"
         ),
+        "/guides/acetic-acid-and-sodium-bicarbonate-reaction/": (
+            "What happens when acetic acid reacts with sodium bicarbonate?"
+        ),
     }
 
-    def test_homepage_links_all_ten_guides_with_descriptive_text(self):
+    def test_homepage_links_all_eleven_guides_with_descriptive_text(self):
         response = self.client.get("/")
         html = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Ten chemistry guides")
-        self.assertEqual(html.count('class="guide-library-link"'), 9)
+        self.assertContains(response, "Eleven chemistry guides")
+        self.assertEqual(html.count('class="guide-library-link"'), 10)
         self.assertEqual(
             html.count('class="guide-library-overview-link"'),
             1,
@@ -635,7 +638,7 @@ class HomepageGuideLinksTests(TestCase):
         response = self.client.get("/demo/sodium-chlorine/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Ten chemistry guides")
+        self.assertNotContains(response, "Eleven chemistry guides")
         self.assertNotContains(response, 'class="guide-library-link"')
 
 
@@ -1552,10 +1555,14 @@ class ObservationGuidePageTests(TestCase):
             "zinc-hydrochloric-acid",
             "/demo/zinc-hydrochloric-acid/",
         ),
+        "/guides/acetic-acid-and-sodium-bicarbonate-reaction/": (
+            "acetic-acid-sodium-bicarbonate",
+            "/demo/acetic-acid-sodium-bicarbonate/",
+        ),
     }
 
-    def test_six_guides_match_the_confirmed_reaction_matrix(self):
-        self.assertEqual(len(OBSERVATION_GUIDE_PAGES), 6)
+    def test_seven_guides_match_the_confirmed_reaction_matrix(self):
+        self.assertEqual(len(OBSERVATION_GUIDE_PAGES), 7)
 
         for path, (guide_key, _demo_path) in self.routes.items():
             with self.subTest(path=path):
@@ -1639,6 +1646,38 @@ class ObservationGuidePageTests(TestCase):
             1,
         )
 
+    def test_acetic_acid_sodium_bicarbonate_guide_answers_query_completely(self):
+        response = self.client.get(
+            "/guides/acetic-acid-and-sodium-bicarbonate-reaction/"
+        )
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            (
+                "<title>Acetic acid and sodium bicarbonate reaction | "
+                "OmniLab</title>"
+            ),
+            html=True,
+        )
+        self.assertContains(
+            response,
+            "Acetic acid reacts with sodium bicarbonate to form sodium acetate",
+        )
+        self.assertIn(
+            "CH3COOH(aq) + NaHCO3(s) -&gt; "
+            "CH3COONa(aq) + CO2(g) + H2O(l)",
+            html,
+        )
+        self.assertContains(response, "Your study goal:")
+        self.assertContains(response, "Three details that explain the result")
+        self.assertContains(response, "Carbon dioxide bubbles and visible fizzing")
+        self.assertEqual(
+            html.count('class="observation-guide-question-list"'),
+            1,
+        )
+
     def test_each_guide_has_one_exact_prepared_lab_action(self):
         for path, (guide_key, demo_path) in self.routes.items():
             with self.subTest(path=path):
@@ -1688,6 +1727,7 @@ class ObservationGuidePageTests(TestCase):
             "copper-sulfate-potassium-hydroxide": "guide_observation_d",
             "sodium-water": "guide_observation_e",
             "zinc-hydrochloric-acid": "guide_virtual_lab",
+            "acetic-acid-sodium-bicarbonate": "guide_virtual_lab",
         }
         self.assertEqual(
             {
@@ -1709,7 +1749,7 @@ class ObservationGuidePageTests(TestCase):
                 )
                 self.assertNotContains(response, "student-email@example.com")
 
-    def test_guides_cross_link_and_broad_guide_links_all_six(self):
+    def test_guides_cross_link_and_broad_guide_links_all_seven(self):
         broad_html = self.client.get(
             "/guides/chemical-reaction-virtual-lab/"
         ).content.decode()
@@ -1721,7 +1761,7 @@ class ObservationGuidePageTests(TestCase):
                     'aria-label="Related observation guides"', 1
                 )[1].split("</nav>", 1)[0]
 
-                self.assertEqual(related_block.count("<a href="), 5)
+                self.assertEqual(related_block.count("<a href="), 6)
                 self.assertNotIn(path, related_block)
                 self.assertEqual(broad_html.count(f'href="{path}"'), 1)
                 self.assertIn(
@@ -1757,7 +1797,7 @@ class ObservationGuidePageTests(TestCase):
                 self.assertEqual(sitemap.count(canonical), 1)
                 canonical_urls.add(canonical)
 
-        self.assertEqual(len(canonical_urls), 6)
+        self.assertEqual(len(canonical_urls), 7)
 
     def test_copper_guide_explains_the_net_ionic_equation(self):
         response = self.client.get(
