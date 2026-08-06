@@ -215,7 +215,10 @@
                 <nav class="guide-related-links" aria-label="Related observation guides">
                     {% for related_guide in related_guides %}
                     <a href="{% url related_guide.route_name %}">
-                        <span>{{ related_guide.title }}</span>
+                        <span class="guide-related-link-copy">
+                            <strong>{{ related_guide.title }}</strong>
+                            <small>{{ related_guide.reason }}</small>
+                        </span>
                         <span aria-hidden="true">→</span>
                     </a>
                     {% endfor %}

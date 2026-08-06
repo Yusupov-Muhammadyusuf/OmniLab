@@ -1182,6 +1182,128 @@ OBSERVATION_GUIDE_PAGES = {
     },
 }
 
+CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
+    "route_name": "chemical_reaction_virtual_lab",
+    "canonical_key": "chemical_reaction_virtual_lab",
+    "title": "How does the chemical reaction virtual lab work?",
+    "page_title": "Chemical reaction virtual lab for students | OmniLab",
+    "description": (
+        "Try 23 supported reaction pairs in OmniLab's free chemical reaction "
+        "virtual lab. See equations, explanations, safety guidance, and "
+        "visible reaction cues."
+    ),
+}
+
+GUIDE_PAGE_REFERENCES = {
+    CHEMICAL_REACTION_VIRTUAL_LAB_PAGE["canonical_key"]: (
+        CHEMICAL_REACTION_VIRTUAL_LAB_PAGE
+    ),
+    **{
+        guide["canonical_key"]: guide
+        for guide in GUIDED_EXPERIMENT_PAGES.values()
+    },
+    **{
+        guide["canonical_key"]: guide
+        for guide in OBSERVATION_GUIDE_PAGES.values()
+    },
+}
+
+# These links stay deliberately small. Each one names the chemistry connection
+# a student can carry from the current guide into the next one.
+GUIDE_RELATIONSHIPS = {
+    "chemical_reaction_virtual_lab": [
+        ("sodium_chlorine_reaction", "Start with one supported reaction"),
+        ("limewater_carbon_dioxide", "See a cloudy precipitate result"),
+        ("zinc_hydrochloric_acid", "See a gas-evolution result"),
+    ],
+    "sodium_chlorine_reaction": [
+        ("sodium_chlorine_formula", "Use the same substances to build NaCl"),
+        ("sodium_chlorine_ionic_bond", "Follow the same electron transfer"),
+        ("sodium_water", "Compare another reaction of sodium"),
+    ],
+    "sodium_chlorine_formula": [
+        ("sodium_chlorine_reaction", "Put NaCl into the balanced reaction"),
+        ("sodium_chlorine_ionic_bond", "Connect the formula to ion charges"),
+        ("sodium_water", "Compare another reaction of sodium"),
+    ],
+    "sodium_chlorine_ionic_bond": [
+        ("sodium_chlorine_formula", "Use the ion charges to build NaCl"),
+        ("sodium_chlorine_reaction", "See the same ions in the full reaction"),
+        ("sodium_water", "Compare another reaction of sodium"),
+    ],
+    "limewater_carbon_dioxide": [
+        (
+            "sodium_carbonate_hydrochloric_acid",
+            "Follow carbon dioxide from gas to precipitate",
+        ),
+        (
+            "acetic_acid_sodium_bicarbonate",
+            "See another reaction that produces carbon dioxide",
+        ),
+        (
+            "silver_nitrate_potassium_iodide",
+            "Compare a yellow precipitate result",
+        ),
+    ],
+    "sodium_carbonate_hydrochloric_acid": [
+        ("zinc_hydrochloric_acid", "Compare another hydrochloric acid reaction"),
+        ("limewater_carbon_dioxide", "Use the carbon dioxide in limewater"),
+        (
+            "acetic_acid_sodium_bicarbonate",
+            "Compare another carbon dioxide-producing reaction",
+        ),
+    ],
+    "silver_nitrate_potassium_iodide": [
+        (
+            "copper_sulfate_potassium_hydroxide",
+            "Compare a blue precipitate result",
+        ),
+        ("limewater_carbon_dioxide", "Compare a cloudy precipitate result"),
+    ],
+    "copper_sulfate_potassium_hydroxide": [
+        (
+            "silver_nitrate_potassium_iodide",
+            "Compare a yellow precipitate result",
+        ),
+        ("limewater_carbon_dioxide", "Compare a cloudy precipitate result"),
+    ],
+    "sodium_water": [
+        ("sodium_chlorine_reaction", "Compare another reaction of sodium"),
+        ("zinc_hydrochloric_acid", "Compare another hydrogen-producing reaction"),
+        ("hydrogen_oxygen", "Follow hydrogen into a water-forming reaction"),
+    ],
+    "zinc_hydrochloric_acid": [
+        (
+            "sodium_carbonate_hydrochloric_acid",
+            "Compare another hydrochloric acid reaction",
+        ),
+        ("sodium_water", "Compare another hydrogen-producing reaction"),
+        ("hydrogen_oxygen", "Follow hydrogen into a water-forming reaction"),
+    ],
+    "acetic_acid_sodium_bicarbonate": [
+        (
+            "sodium_carbonate_hydrochloric_acid",
+            "Compare another carbon dioxide-producing reaction",
+        ),
+        ("limewater_carbon_dioxide", "Use the carbon dioxide in limewater"),
+    ],
+    "hydrogen_oxygen": [
+        ("sodium_water", "Trace hydrogen from a water reaction"),
+        ("zinc_hydrochloric_acid", "Trace hydrogen from a metal-acid reaction"),
+    ],
+}
+
+
+def related_guides_for(canonical_key):
+    return [
+        {
+            "route_name": GUIDE_PAGE_REFERENCES[related_key]["route_name"],
+            "title": GUIDE_PAGE_REFERENCES[related_key]["title"],
+            "reason": reason,
+        }
+        for related_key, reason in GUIDE_RELATIONSHIPS[canonical_key]
+    ]
+
 GUIDE_LIBRARY_GROUPS = [
     {
         "label": "Start with the virtual lab",
@@ -1192,13 +1314,17 @@ GUIDE_LIBRARY_GROUPS = [
         "guides": [
             {
                 "number": "01",
-                "title": "How does the chemical reaction virtual lab work?",
+                "title": CHEMICAL_REACTION_VIRTUAL_LAB_PAGE["title"],
                 "summary": (
                     "Choose a supported pair, request a prediction, and read "
                     "the equation, explanation, safety notes, and visible cue."
                 ),
-                "route_name": "chemical_reaction_virtual_lab",
-                "canonical_key": "chemical_reaction_virtual_lab",
+                "route_name": CHEMICAL_REACTION_VIRTUAL_LAB_PAGE[
+                    "route_name"
+                ],
+                "canonical_key": CHEMICAL_REACTION_VIRTUAL_LAB_PAGE[
+                    "canonical_key"
+                ],
             },
         ],
     },
@@ -1793,11 +1919,7 @@ def prepared_reaction_demo(request, demo_key):
 
 def guided_experiment(request, guide_key):
     guide = GUIDED_EXPERIMENT_PAGES[guide_key]
-    related_guides = [
-        related_guide
-        for related_key, related_guide in GUIDED_EXPERIMENT_PAGES.items()
-        if related_key != guide_key
-    ]
+    related_guides = related_guides_for(guide["canonical_key"])
     canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
     page_schema = {
         "@context": "https://schema.org",
@@ -1829,11 +1951,7 @@ def guided_experiment(request, guide_key):
 
 def observation_guide(request, guide_key):
     guide = OBSERVATION_GUIDE_PAGES[guide_key]
-    related_guides = [
-        related_guide
-        for related_key, related_guide in OBSERVATION_GUIDE_PAGES.items()
-        if related_key != guide_key
-    ]
+    related_guides = related_guides_for(guide["canonical_key"])
     canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
     page_schema = {
         "@context": "https://schema.org",
@@ -1864,13 +1982,9 @@ def observation_guide(request, guide_key):
 
 
 def chemical_reaction_virtual_lab(request):
-    canonical_url = PUBLIC_CANONICAL_URLS["chemical_reaction_virtual_lab"]
-    page_title = "Chemical reaction virtual lab for students | OmniLab"
-    description = (
-        "Try 23 supported reaction pairs in OmniLab's free chemical reaction "
-        "virtual lab. See equations, explanations, safety guidance, and "
-        "visible reaction cues."
-    )
+    guide = CHEMICAL_REACTION_VIRTUAL_LAB_PAGE
+    canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
+    description = guide["description"]
     page_schema = {
         "@context": "https://schema.org",
         "@graph": [
@@ -1907,7 +2021,7 @@ def chemical_reaction_virtual_lab(request):
         request,
         "chemical_reaction_virtual_lab.html",
         {
-            "page_title": page_title,
+            "page_title": guide["page_title"],
             "page_description": description,
             "canonical_url": canonical_url,
             "social_preview_url": SOCIAL_PREVIEW_URL,
@@ -1915,7 +2029,7 @@ def chemical_reaction_virtual_lab(request):
             "page_schema_json": json.dumps(page_schema),
             "faqs": CHEMICAL_REACTION_LAB_FAQS,
             "visit_source": CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
-            "observation_guides": list(OBSERVATION_GUIDE_PAGES.values()),
+            "related_guides": related_guides_for(guide["canonical_key"]),
         },
     )
 
