@@ -177,6 +177,15 @@ const reactionGuidesByPairKey = new Map<string, readonly ReactionGuide[]>([
                 title: 'What happens when zinc reacts with hydrochloric acid?'
             }
         ]
+    ],
+    [
+        'CH3COOH+NaHCO3',
+        [
+            {
+                href: '/guides/acetic-acid-and-sodium-bicarbonate-reaction/',
+                title: 'What happens when acetic acid reacts with sodium bicarbonate?'
+            }
+        ]
     ]
 ]);
 const supportedChemicalIds = new Set(supportedReactionPairs.flat());

@@ -52,6 +52,12 @@ urlpatterns = [
         name="demo_zinc_hydrochloric_acid",
     ),
     path(
+        'demo/acetic-acid-sodium-bicarbonate/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'acetic-acid-sodium-bicarbonate'},
+        name="demo_acetic_acid_sodium_bicarbonate",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -109,6 +115,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'zinc-hydrochloric-acid'},
         name="guide_zinc_hydrochloric_acid",
+    ),
+    path(
+        'guides/acetic-acid-and-sodium-bicarbonate-reaction/',
+        views.observation_guide,
+        {'guide_key': 'acetic-acid-sodium-bicarbonate'},
+        name="guide_acetic_acid_sodium_bicarbonate",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]
