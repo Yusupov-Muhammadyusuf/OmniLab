@@ -58,6 +58,12 @@ urlpatterns = [
         name="demo_acetic_acid_sodium_bicarbonate",
     ),
     path(
+        'demo/hydrogen-oxygen/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'hydrogen-oxygen'},
+        name="demo_hydrogen_oxygen",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -121,6 +127,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'acetic-acid-sodium-bicarbonate'},
         name="guide_acetic_acid_sodium_bicarbonate",
+    ),
+    path(
+        'guides/hydrogen-and-oxygen-reaction/',
+        views.observation_guide,
+        {'guide_key': 'hydrogen-oxygen'},
+        name="guide_hydrogen_oxygen",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]
