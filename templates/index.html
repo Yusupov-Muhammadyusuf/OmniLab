@@ -122,114 +122,20 @@
             <div class="guide-library-shell">
                 <div class="guide-library-intro">
                     <p class="guide-library-context">Twelve chemistry guides</p>
-                    <h2 id="guide-library-title">Connect the equation to what you observe</h2>
-                    <p>Start with a reaction question, then use the matching guide to interpret the formula, bond, bubbles, or precipitate.</p>
-                    <a class="guide-library-overview-link" href="{% url 'chemical_reaction_virtual_lab' %}">
-                        See how the chemical reaction virtual lab works
+                    <h2 id="guide-library-title">Explore the chemistry guide library</h2>
+                    <p class="guide-library-description">Explore every guide by reaction question, equation, bond, or visible observation.</p>
+                    <a class="guide-library-overview-link" href="{% url 'guide_library' %}">
+                        Browse all chemistry guides
                         <span aria-hidden="true">&rarr;</span>
                     </a>
                 </div>
 
-                <div class="guide-library-groups">
-                    <section class="guide-library-group" aria-labelledby="guide-foundations-title">
-                        <h3 id="guide-foundations-title">Reaction foundations</h3>
-                        <nav class="guide-library-list" aria-label="Sodium and chlorine study guides">
-                            <a class="guide-library-link" href="{% url 'guide_sodium_chlorine_reaction' %}">
-                                <span class="guide-library-number" aria-hidden="true">01</span>
-                                <span class="guide-library-copy">
-                                    <strong>What happens when sodium reacts with chlorine?</strong>
-                                    <span>Follow the reactants, electron transfer, and product.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_sodium_chlorine_formula' %}">
-                                <span class="guide-library-number" aria-hidden="true">02</span>
-                                <span class="guide-library-copy">
-                                    <strong>What formula forms from sodium and chlorine?</strong>
-                                    <span>Connect the ion charges to NaCl and the balanced equation.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_sodium_chlorine_ionic_bond' %}">
-                                <span class="guide-library-number" aria-hidden="true">03</span>
-                                <span class="guide-library-copy">
-                                    <strong>Why do sodium and chlorine form an ionic bond?</strong>
-                                    <span>Trace the electron transfer from atoms to an ionic lattice.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                        </nav>
-                    </section>
-
-                    <section class="guide-library-group" aria-labelledby="guide-observations-title">
-                        <h3 id="guide-observations-title">Observation-led reactions</h3>
-                        <nav class="guide-library-list" aria-label="Reaction observation guides">
-                            <a class="guide-library-link" href="{% url 'guide_limewater_carbon_dioxide' %}">
-                                <span class="guide-library-number" aria-hidden="true">04</span>
-                                <span class="guide-library-copy">
-                                    <strong>Why does limewater turn cloudy with carbon dioxide?</strong>
-                                    <span>Connect the equation to a cloudy white precipitate.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_sodium_carbonate_hydrochloric_acid' %}">
-                                <span class="guide-library-number" aria-hidden="true">05</span>
-                                <span class="guide-library-copy">
-                                    <strong>Why does sodium carbonate fizz with hydrochloric acid?</strong>
-                                    <span>Identify the carbon dioxide behind the visible bubbles.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_silver_nitrate_potassium_iodide' %}">
-                                <span class="guide-library-number" aria-hidden="true">06</span>
-                                <span class="guide-library-copy">
-                                    <strong>What precipitate forms from silver nitrate and potassium iodide?</strong>
-                                    <span>Trace the ions that produce the yellow silver iodide solid.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_copper_sulfate_potassium_hydroxide' %}">
-                                <span class="guide-library-number" aria-hidden="true">07</span>
-                                <span class="guide-library-copy">
-                                    <strong>What precipitate forms from copper(II) sulfate and potassium hydroxide?</strong>
-                                    <span>Connect the double displacement equation to a blue copper(II) hydroxide solid.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_sodium_water' %}">
-                                <span class="guide-library-number" aria-hidden="true">08</span>
-                                <span class="guide-library-copy">
-                                    <strong>What happens when sodium reacts with water?</strong>
-                                    <span>Connect hydrogen bubbles, heat release, and sodium hydroxide to the balanced equation.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_zinc_hydrochloric_acid' %}">
-                                <span class="guide-library-number" aria-hidden="true">09</span>
-                                <span class="guide-library-copy">
-                                    <strong>What happens when zinc reacts with hydrochloric acid?</strong>
-                                    <span>Connect hydrogen bubbles and electron transfer to the balanced metal-acid reaction.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_acetic_acid_sodium_bicarbonate' %}">
-                                <span class="guide-library-number" aria-hidden="true">10</span>
-                                <span class="guide-library-copy">
-                                    <strong>What happens when acetic acid reacts with sodium bicarbonate?</strong>
-                                    <span>Connect carbon dioxide bubbles to the balanced acid-bicarbonate reaction.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                            <a class="guide-library-link" href="{% url 'guide_hydrogen_oxygen' %}">
-                                <span class="guide-library-number" aria-hidden="true">11</span>
-                                <span class="guide-library-copy">
-                                    <strong>What happens when hydrogen reacts with oxygen?</strong>
-                                    <span>Balance the gas ratio and connect the exothermic reaction to its water product.</span>
-                                </span>
-                                <span class="guide-library-arrow" aria-hidden="true">&rarr;</span>
-                            </a>
-                        </nav>
-                    </section>
+                <div class="guide-library-summary" aria-label="Guide library summary">
+                    <span class="guide-library-count" aria-hidden="true">12</span>
+                    <p>
+                        <strong>Questions in one dedicated library</strong>
+                        <span>Each guide connects the chemistry explanation to a supported virtual experiment.</span>
+                    </p>
                 </div>
             </div>
         </section>

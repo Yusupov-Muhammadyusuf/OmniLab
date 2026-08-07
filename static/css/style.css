@@ -625,11 +625,11 @@ body {
 .guide-library-shell {
     width: min(1040px, calc(100% - 48px));
     margin: 0 auto;
-    padding: 80px 0;
+    padding: 48px 0;
     display: grid;
-    grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
-    align-items: start;
-    gap: 72px;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr);
+    align-items: center;
+    gap: 48px;
 }
 
 .guide-library-context {
@@ -640,16 +640,16 @@ body {
 }
 
 .guide-library-intro h2 {
-    max-width: 14ch;
+    max-width: 17ch;
     margin: 0;
     color: var(--text-color);
-    font-size: clamp(34px, 4vw, 48px);
+    font-size: clamp(32px, 3.3vw, 40px);
     line-height: 1.06;
-    letter-spacing: -1.8px;
+    letter-spacing: -1.4px;
     text-wrap: balance;
 }
 
-.guide-library-intro > p:last-child {
+.guide-library-description {
     max-width: 39ch;
     margin: 22px 0 0;
     color: var(--muted-text);
@@ -674,78 +674,44 @@ body {
     outline-offset: 3px;
 }
 
-.guide-library-groups {
-    display: grid;
-    gap: 48px;
-}
-
-.guide-library-group h3 {
-    margin: 0 0 12px;
-    color: var(--muted-text);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-}
-
-.guide-library-list {
-    border-top: 1px solid var(--border-color);
-}
-
-.guide-library-link {
-    min-height: 112px;
-    padding: 22px 0;
-    display: grid;
-    grid-template-columns: 36px minmax(0, 1fr) 24px;
+.guide-library-summary {
+    min-height: 144px;
+    padding: 28px;
+    display: flex;
     align-items: center;
-    gap: 16px;
-    border-bottom: 1px solid var(--border-color);
+    gap: 24px;
+    border: 2px solid var(--border-color);
+    border-radius: 14px;
+    background: var(--bg-canvas);
+    box-shadow: var(--shadow);
+}
+
+.guide-library-count {
     color: var(--text-color);
-    text-decoration: none;
-}
-
-.guide-library-number {
-    align-self: start;
-    padding-top: 3px;
-    color: var(--muted-text);
-    font-size: 12px;
+    font-size: clamp(48px, 6vw, 60px);
     font-weight: 700;
-    letter-spacing: 0.04em;
+    line-height: 1;
+    letter-spacing: -4px;
+    font-variant-numeric: tabular-nums;
 }
 
-.guide-library-copy {
+.guide-library-summary p {
+    margin: 0;
     display: grid;
-    gap: 7px;
+    gap: 8px;
 }
 
-.guide-library-copy strong {
+.guide-library-summary strong {
+    color: var(--text-color);
     font-size: 18px;
     line-height: 1.4;
 }
 
-.guide-library-copy > span {
-    max-width: 54ch;
+.guide-library-summary p span {
     color: var(--muted-text);
     font-size: 14px;
     line-height: 1.55;
-}
-
-.guide-library-arrow {
-    font-size: 20px;
-    transition: transform 0.2s ease;
-}
-
-.guide-library-link:hover {
-    color: var(--text-color);
-}
-
-.guide-library-link:hover .guide-library-arrow {
-    transform: translateX(4px);
-}
-
-.guide-library-link:focus-visible {
-    border-radius: 4px;
-    outline: 3px solid #e3384f;
-    outline-offset: 4px;
+    text-wrap: pretty;
 }
 
 .faq-page {
@@ -3000,14 +2966,10 @@ body {
     .contact-field-row { grid-template-columns: 1fr; }
     .contact-submit-row { align-items: stretch; flex-direction: column; gap: 16px; }
     .contact-submit-row button { width: 100%; }
-    .guide-library-shell { padding: 64px 0 56px; gap: 40px; }
+    .guide-library-shell { padding: 56px 0; gap: 40px; }
     .guide-library-intro h2 { font-size: 36px; letter-spacing: -1.4px; }
-    .guide-library-link {
-        min-height: 104px;
-        grid-template-columns: 30px minmax(0, 1fr) 20px;
-        gap: 10px;
-    }
-    .guide-library-copy strong { font-size: 16px; }
+    .guide-library-summary { min-height: auto; padding: 24px; }
+    .guide-library-count { font-size: 48px; letter-spacing: -3px; }
     .guide-index-shell { margin-top: 20px; }
     .guide-index-hero { margin-top: 36px; gap: 40px; }
     .guide-index-hero h1 { font-size: 46px; letter-spacing: -2px; }

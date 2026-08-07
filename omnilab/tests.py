@@ -652,64 +652,34 @@ class GuideLibraryPageTests(TestCase):
                 )
 
 
-class HomepageGuideLinksTests(TestCase):
-    guide_links = {
-        "/guides/chemical-reaction-virtual-lab/": (
-            "See how the chemical reaction virtual lab works"
-        ),
-        "/guides/sodium-and-chlorine-reaction/": (
-            "What happens when sodium reacts with chlorine?"
-        ),
-        "/guides/sodium-and-chlorine-formula/": (
-            "What formula forms from sodium and chlorine?"
-        ),
-        "/guides/sodium-and-chlorine-ionic-bond/": (
-            "Why do sodium and chlorine form an ionic bond?"
-        ),
-        "/guides/why-limewater-turns-cloudy-with-carbon-dioxide/": (
-            "Why does limewater turn cloudy with carbon dioxide?"
-        ),
-        "/guides/why-sodium-carbonate-fizzes-with-hydrochloric-acid/": (
-            "Why does sodium carbonate fizz with hydrochloric acid?"
-        ),
-        "/guides/silver-nitrate-potassium-iodide-precipitate/": (
-            "What precipitate forms from silver nitrate and potassium iodide?"
-        ),
-        "/guides/copper-ii-sulfate-potassium-hydroxide-precipitate/": (
-            "What precipitate forms from copper(II) sulfate and potassium "
-            "hydroxide?"
-        ),
-        "/guides/reaction-of-sodium-in-water/": (
-            "What happens when sodium reacts with water?"
-        ),
-        "/guides/zinc-and-hydrochloric-acid-reaction/": (
-            "What happens when zinc reacts with hydrochloric acid?"
-        ),
-        "/guides/acetic-acid-and-sodium-bicarbonate-reaction/": (
-            "What happens when acetic acid reacts with sodium bicarbonate?"
-        ),
-        "/guides/hydrogen-and-oxygen-reaction/": (
-            "What happens when hydrogen reacts with oxygen?"
-        ),
-    }
-
-    def test_homepage_links_all_twelve_guides_with_descriptive_text(self):
+class HomepageGuideLibraryTests(TestCase):
+    def test_homepage_uses_one_compact_route_to_the_complete_library(self):
         response = self.client.get("/")
         html = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Twelve chemistry guides")
-        self.assertEqual(html.count('class="guide-library-link"'), 11)
+        self.assertContains(response, "Explore the chemistry guide library")
         self.assertEqual(
             html.count('class="guide-library-overview-link"'),
             1,
         )
-        for path, title in self.guide_links.items():
-            with self.subTest(path=path):
-                self.assertEqual(html.count(f'href="{path}"'), 1)
-                self.assertContains(response, title)
+        self.assertContains(
+            response,
+            (
+                '<a class="guide-library-overview-link" '
+                'href="/guides/">'
+            ),
+            html=False,
+        )
+        self.assertNotContains(response, 'class="guide-library-link"')
 
-    def test_guide_links_are_secondary_to_the_single_analyze_action(self):
+        for guide in GUIDE_PAGE_REFERENCES.values():
+            with self.subTest(guide=guide["title"]):
+                guide_path = reverse(guide["route_name"])
+                self.assertNotIn(f'href="{guide_path}"', html)
+
+    def test_guide_library_route_is_secondary_to_the_analyze_action(self):
         response = self.client.get("/")
         html = response.content.decode()
 
@@ -1328,8 +1298,8 @@ class SearchDiscoveryTests(TestCase):
         faq_schema = next(item for item in page_graph if item["@type"] == "FAQPage")
         self.assertEqual(len(faq_schema["mainEntity"]), 4)
 
-    def test_homepage_links_to_chemical_reaction_virtual_lab(self):
-        response = self.client.get("/")
+    def test_guide_library_links_to_chemical_reaction_virtual_lab(self):
+        response = self.client.get("/guides/")
 
         self.assertContains(
             response,
