@@ -52,6 +52,19 @@ Local development uses an explicitly non-production Django secret. Production
 must provide `OMNILAB_DJANGO_SECRET_KEY` through protected environment settings;
 copy `.env.example` to see the required variable without a committed value.
 
+## Deploy with one command
+
+After providing the required production environment variables, run:
+
+```bash
+./deploy/omnilab.sh
+```
+
+The command creates an isolated virtual environment, installs dependencies,
+runs database migrations, collects static files, and starts Gunicorn. See the
+[deployment guide](docs/deployment.md) for environment names, persistence,
+health checks, and failure behavior.
+
 ## AI configuration
 
 The current reaction library is deterministic and does not call an external AI model. If a future feature adds AI-backed functionality, `GITHUB_MODELS_API_KEY` is the only supported credential; copy `.env.example` to configure it locally.

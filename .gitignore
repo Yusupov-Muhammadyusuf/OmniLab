@@ -9,6 +9,10 @@ ENV/
 # Database
 *.sqlite3
 
+# One-command deployment runtime
+.deploy/
+staticfiles/
+
 # Python Bytecode and Cache
 __pycache__/
 *.py[cod]

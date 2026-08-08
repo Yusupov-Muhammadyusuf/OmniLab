@@ -10,6 +10,11 @@ DJANGO_SECRET_KEY_ENVIRONMENT_VARIABLE = "OMNILAB_DJANGO_SECRET_KEY"
 LOCAL_DEVELOPMENT_SECRET_KEY = (
     "omnilab-local-development-only-do-not-use-this-key-in-production"
 )
+DEFAULT_ALLOWED_HOSTS = (
+    "omnilab-bk8q.onrender.com",
+    "127.0.0.1",
+    "localhost",
+)
 
 
 def is_production_environment(
@@ -41,3 +46,17 @@ def get_django_secret_key(
         )
 
     return LOCAL_DEVELOPMENT_SECRET_KEY
+
+
+def get_allowed_hosts(
+    environ: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Return configured host names while preserving the current defaults."""
+    environment = os.environ if environ is None else environ
+    configured_hosts = environment.get("OMNILAB_ALLOWED_HOSTS", "")
+    hosts = [
+        host.strip()
+        for host in configured_hosts.split(",")
+        if host.strip()
+    ]
+    return hosts or list(DEFAULT_ALLOWED_HOSTS)
