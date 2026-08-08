@@ -34,7 +34,7 @@ The current release supports a defined matrix of common reactions. It is a narro
 Create a virtual environment and install the Python dependencies:
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
