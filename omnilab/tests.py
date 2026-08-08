@@ -24,6 +24,7 @@ from django.urls import reverse
 
 from config.environment import (
     LOCAL_DEVELOPMENT_SECRET_KEY,
+    get_allowed_hosts,
     get_django_secret_key,
     is_production_environment,
 )
@@ -88,6 +89,76 @@ class DjangoSecretConfigurationTests(SimpleTestCase):
         self.assertEqual(
             get_django_secret_key({}),
             LOCAL_DEVELOPMENT_SECRET_KEY,
+        )
+
+
+class DeploymentConfigurationTests(SimpleTestCase):
+    def test_allowed_hosts_can_be_supplied_for_another_host(self):
+        self.assertEqual(
+            get_allowed_hosts(
+                {
+                    "OMNILAB_ALLOWED_HOSTS": (
+                        "lab.example.edu, staging.example.edu"
+                    )
+                }
+            ),
+            ["lab.example.edu", "staging.example.edu"],
+        )
+
+    def test_allowed_hosts_keep_the_current_render_default(self):
+        self.assertIn(
+            "omnilab-bk8q.onrender.com",
+            get_allowed_hosts({}),
+        )
+
+    def test_health_check_is_dependency_free(self):
+        response = self.client.get("/health/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b"ok\n")
+        self.assertEqual(response["Content-Type"], "text/plain")
+
+    def test_deployment_command_stops_when_secret_is_missing(self):
+        environment = os.environ.copy()
+        environment.pop("OMNILAB_DJANGO_SECRET_KEY", None)
+
+        result = subprocess.run(
+            ["sh", "deploy/omnilab.sh"],
+            cwd=settings.BASE_DIR,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 64)
+        self.assertIn(
+            "OMNILAB_DJANGO_SECRET_KEY must be set",
+            result.stderr,
+        )
+
+    def test_deployment_command_rejects_invalid_process_setting(self):
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "OMNILAB_DJANGO_SECRET_KEY": "test-only-secret",
+                "WEB_CONCURRENCY": "two",
+            }
+        )
+
+        result = subprocess.run(
+            ["sh", "deploy/omnilab.sh"],
+            cwd=settings.BASE_DIR,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 64)
+        self.assertIn(
+            "WEB_CONCURRENCY must be a positive integer",
+            result.stderr,
         )
 
 

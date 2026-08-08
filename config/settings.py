@@ -15,7 +15,11 @@ from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
 
-from .environment import get_django_secret_key, is_production_environment
+from .environment import (
+    get_allowed_hosts,
+    get_django_secret_key,
+    is_production_environment,
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,15 +35,11 @@ SECRET_KEY = get_django_secret_key()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = [
-    'omnilab-bk8q.onrender.com',
-    '127.0.0.1',
-    'localhost',
-]
+ALLOWED_HOSTS = get_allowed_hosts()
 
-# Render terminates HTTPS before forwarding requests to Django. Trust its
-# forwarded protocol only in production so SecurityMiddleware recognizes the
-# original HTTPS request and does not redirect it back through the proxy.
+# Production hosts terminate HTTPS before forwarding requests to Django. Trust
+# the forwarded protocol only in production so SecurityMiddleware recognizes
+# the original HTTPS request and does not redirect it back through the proxy.
 IS_PRODUCTION_ENVIRONMENT = is_production_environment()
 SECURE_PROXY_SSL_HEADER = (
     ("HTTP_X_FORWARDED_PROTO", "https")
@@ -113,7 +113,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': Path(
+            os.getenv("OMNILAB_DATABASE_PATH", BASE_DIR / "db.sqlite3")
+        ).expanduser(),
     }
 }
 
@@ -153,7 +155,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = Path(
+    os.getenv("OMNILAB_STATIC_ROOT", BASE_DIR / "staticfiles")
+).expanduser()
 WHITENOISE_USE_FINDERS = True
 
 STATICFILES_DIRS = [
