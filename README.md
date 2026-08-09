@@ -77,6 +77,12 @@ Run the Django test suite with:
 python manage.py test
 ```
 
+## Student research
+
+Use the [version 1 student-session protocol](docs/student-session-protocol-v1.md)
+for each outside-student session. It keeps the four evidence fields, supported
+reaction boundary, completion rules, and no-coaching standard consistent.
+
 ## Built with
 
 - Django and Gunicorn
