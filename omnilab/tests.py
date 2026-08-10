@@ -27,6 +27,7 @@ from config.environment import (
     get_allowed_hosts,
     get_django_secret_key,
     is_production_environment,
+    is_search_indexing_disabled,
 )
 
 from .views import (
@@ -111,6 +112,15 @@ class DeploymentConfigurationTests(SimpleTestCase):
             get_allowed_hosts({}),
         )
 
+    def test_noindex_switch_is_explicit_and_host_neutral(self):
+        self.assertTrue(
+            is_search_indexing_disabled({"OMNILAB_NOINDEX": " true "})
+        )
+        self.assertFalse(is_search_indexing_disabled({}))
+        self.assertFalse(
+            is_search_indexing_disabled({"OMNILAB_NOINDEX": "false"})
+        )
+
     def test_health_check_is_dependency_free(self):
         response = self.client.get("/health/")
 
@@ -159,6 +169,40 @@ class DeploymentConfigurationTests(SimpleTestCase):
         self.assertIn(
             "WEB_CONCURRENCY must be a positive integer",
             result.stderr,
+        )
+
+
+class SearchIndexControlTests(SimpleTestCase):
+    @override_settings(OMNILAB_NOINDEX=True)
+    def test_noindex_header_applies_to_every_public_sitemap_route(self):
+        sitemap_response = self.client.get("/sitemap.xml")
+        root = ET.fromstring(sitemap_response.content)
+        namespace = {"sitemap": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        public_paths = [
+            node.text.removeprefix(PRODUCTION_BASE_URL) or "/"
+            for node in root.findall("sitemap:url/sitemap:loc", namespace)
+        ]
+
+        self.assertEqual(len(public_paths), 19)
+        for path in public_paths:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    response["X-Robots-Tag"],
+                    "noindex, nofollow",
+                )
+
+    @override_settings(OMNILAB_NOINDEX=False)
+    def test_normal_responses_remain_indexable_with_production_canonical(self):
+        response = self.client.get("/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("X-Robots-Tag", response)
+        self.assertContains(
+            response,
+            f'<link rel="canonical" href="{PUBLIC_CANONICAL_URLS["index"]}">',
+            html=True,
         )
 
 

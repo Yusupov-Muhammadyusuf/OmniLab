@@ -19,6 +19,7 @@ from .environment import (
     get_allowed_hosts,
     get_django_secret_key,
     is_production_environment,
+    is_search_indexing_disabled,
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -36,6 +37,10 @@ SECRET_KEY = get_django_secret_key()
 DEBUG = False
 
 ALLOWED_HOSTS = get_allowed_hosts()
+
+# Temporary or preview deployments can opt out of search without changing the
+# production canonicals or robots.txt policy.
+OMNILAB_NOINDEX = is_search_indexing_disabled()
 
 # Production hosts terminate HTTPS before forwarding requests to Django. Trust
 # the forwarded protocol only in production so SecurityMiddleware recognizes
@@ -78,6 +83,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'config.middleware.SearchIndexControlMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

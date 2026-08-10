@@ -36,6 +36,7 @@ The remaining deployment variables are optional:
 | `OMNILAB_DEPLOY_DIR` | `.deploy` | Parent for the virtual environment and persistent runtime files. |
 | `OMNILAB_DATABASE_PATH` | `.deploy/data/db.sqlite3` | SQLite database path. Mount or back up its parent directory. |
 | `OMNILAB_STATIC_ROOT` | `.deploy/staticfiles` | WhiteNoise collection target. |
+| `OMNILAB_NOINDEX` | unset | Set to `true` on temporary or preview deployments to send `X-Robots-Tag: noindex, nofollow` on every response. |
 | `OMNILAB_PYTHON` | `python3` | Python executable used to create the virtual environment. |
 | `PORT` | `8000` | Port Gunicorn listens on. |
 | `WEB_CONCURRENCY` | `2` | Gunicorn worker count. Keep one worker if process-local rate limits must be exact. |
