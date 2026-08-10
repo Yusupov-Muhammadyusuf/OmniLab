@@ -17,6 +17,14 @@ DEFAULT_ALLOWED_HOSTS = (
 )
 
 
+def is_search_indexing_disabled(
+    environ: Mapping[str, str] | None = None,
+) -> bool:
+    """Return whether this deployment must stay out of search indexes."""
+    environment = os.environ if environ is None else environ
+    return environment.get("OMNILAB_NOINDEX", "").strip().lower() == "true"
+
+
 def is_production_environment(
     environ: Mapping[str, str] | None = None,
 ) -> bool:
