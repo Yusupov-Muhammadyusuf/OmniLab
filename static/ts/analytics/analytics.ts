@@ -10,6 +10,9 @@ interface LabSetupProperties extends AnalyticsProperties, LabEntryAttribution {
 
 let labSetupCaptured = false;
 
+const CONTROLLED_VERIFICATION_PARAM = 'verification';
+const CONTROLLED_VERIFICATION_VALUE = 'controlled';
+
 declare global {
     interface Window {
         posthog?: {
@@ -22,6 +25,13 @@ export function capture(
     event: string,
     properties: AnalyticsProperties = {}
 ): void {
+    const query = new URLSearchParams(window.location?.search ?? '');
+    const isControlledVerification = (
+        query.get(CONTROLLED_VERIFICATION_PARAM) ===
+        CONTROLLED_VERIFICATION_VALUE
+    );
+    if (isControlledVerification) return;
+
     window.posthog?.capture?.(event, properties);
 }
 
