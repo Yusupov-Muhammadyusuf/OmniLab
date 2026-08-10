@@ -12,7 +12,6 @@ let labSetupCaptured = false;
 
 const CONTROLLED_VERIFICATION_PARAM = 'verification';
 const CONTROLLED_VERIFICATION_VALUE = 'controlled';
-const STUDENT_INVITE_SOURCE = 'student_invite';
 
 declare global {
     interface Window {
@@ -29,8 +28,7 @@ export function capture(
     const query = new URLSearchParams(window.location?.search ?? '');
     const isControlledVerification = (
         query.get(CONTROLLED_VERIFICATION_PARAM) ===
-            CONTROLLED_VERIFICATION_VALUE &&
-        query.get('source') !== STUDENT_INVITE_SOURCE
+        CONTROLLED_VERIFICATION_VALUE
     );
     if (isControlledVerification) return;
 

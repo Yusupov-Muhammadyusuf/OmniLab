@@ -39,7 +39,7 @@ test('only explicit controlled verification pages suppress analytics', () => {
         {
             search: '?verification=controlled&source=student_invite',
             event: 'student_invite_with_verification_flag',
-            captured: true
+            captured: false
         },
         {
             search: '?verification=unexpected',
