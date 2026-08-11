@@ -775,6 +775,7 @@ class HomepageGuideLibraryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Twelve chemistry guides")
         self.assertContains(response, "Explore the chemistry guide library")
+        self.assertContains(response, "Explore all 12 chemistry guides")
         self.assertEqual(
             html.count('class="guide-library-overview-link"'),
             1,
