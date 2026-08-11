@@ -2564,6 +2564,14 @@ body {
     display: none;
 }
 
+.observation-oxide .observation-vessel-liquid {
+    background: rgba(151, 82, 53, .18);
+}
+
+.observation-oxide .observation-particle {
+    background: #8a4630;
+}
+
 .observation-bubbles .observation-particle {
     width: 24px;
     height: 24px;

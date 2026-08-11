@@ -183,7 +183,7 @@ class SearchIndexControlTests(SimpleTestCase):
             for node in root.findall("sitemap:url/sitemap:loc", namespace)
         ]
 
-        self.assertEqual(len(public_paths), 19)
+        self.assertEqual(len(public_paths), 20)
         for path in public_paths:
             with self.subTest(path=path):
                 response = self.client.get(path)
@@ -572,18 +572,18 @@ class GuideLibraryPageTests(TestCase):
             for guide in group["guides"]
         ]
 
-    def test_library_groups_all_twelve_guides_once(self):
+    def test_library_groups_all_thirteen_guides_once(self):
         self.assertEqual(self.response.status_code, 200)
         self.assertContains(
             self.response,
-            "Twelve questions · One connected library",
+            "Thirteen questions · One connected library",
         )
         self.assertContains(
             self.response,
-            "The twelve guides are grouped by the job they help you do",
+            "The thirteen guides are grouped by the job they help you do",
         )
-        self.assertEqual(len(self.guides), 12)
-        self.assertEqual(self.html.count('class="guide-index-link"'), 12)
+        self.assertEqual(len(self.guides), 13)
+        self.assertEqual(self.html.count('class="guide-index-link"'), 13)
 
         guide_hrefs = re.findall(
             r'<a class="guide-index-link" href="([^"]+)">',
@@ -593,7 +593,7 @@ class GuideLibraryPageTests(TestCase):
             reverse(guide["route_name"]) for guide in self.guides
         ]
         self.assertEqual(guide_hrefs, expected_hrefs)
-        self.assertEqual(len(set(guide_hrefs)), 12)
+        self.assertEqual(len(set(guide_hrefs)), 13)
 
         for group in GUIDE_LIBRARY_GROUPS:
             with self.subTest(group=group["label"]):
@@ -603,8 +603,8 @@ class GuideLibraryPageTests(TestCase):
                 self.assertContains(self.response, guide["title"])
                 self.assertContains(self.response, guide["summary"])
 
-    def test_all_twelve_guides_have_distinct_titles_and_descriptions(self):
-        self.assertEqual(len(GUIDE_PAGE_REFERENCES), 12)
+    def test_all_thirteen_guides_have_distinct_titles_and_descriptions(self):
+        self.assertEqual(len(GUIDE_PAGE_REFERENCES), 13)
         self.assertEqual(
             len(
                 {
@@ -612,7 +612,7 @@ class GuideLibraryPageTests(TestCase):
                     for guide in GUIDE_PAGE_REFERENCES.values()
                 }
             ),
-            12,
+            13,
         )
         self.assertEqual(
             len(
@@ -621,7 +621,7 @@ class GuideLibraryPageTests(TestCase):
                     for guide in GUIDE_PAGE_REFERENCES.values()
                 }
             ),
-            12,
+            13,
         )
 
         for guide in GUIDE_PAGE_REFERENCES.values():
@@ -720,8 +720,8 @@ class GuideLibraryPageTests(TestCase):
         self.assertEqual(schema["url"], PUBLIC_CANONICAL_URLS["guides"])
         item_list = schema["mainEntity"]
         self.assertEqual(item_list["@type"], "ItemList")
-        self.assertEqual(item_list["numberOfItems"], 12)
-        self.assertEqual(len(item_list["itemListElement"]), 12)
+        self.assertEqual(item_list["numberOfItems"], 13)
+        self.assertEqual(len(item_list["itemListElement"]), 13)
 
         for position, (guide, item) in enumerate(
             zip(self.guides, item_list["itemListElement"]),
@@ -773,9 +773,9 @@ class HomepageGuideLibraryTests(TestCase):
         html = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Twelve chemistry guides")
+        self.assertContains(response, "Thirteen chemistry guides")
         self.assertContains(response, "Explore the chemistry guide library")
-        self.assertContains(response, "Explore all 12 chemistry guides")
+        self.assertContains(response, "Explore all 13 chemistry guides")
         self.assertEqual(
             html.count('class="guide-library-overview-link"'),
             1,
@@ -807,7 +807,7 @@ class HomepageGuideLibraryTests(TestCase):
         response = self.client.get("/demo/sodium-chlorine/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Twelve chemistry guides")
+        self.assertNotContains(response, "Thirteen chemistry guides")
         self.assertNotContains(response, 'class="guide-library-link"')
 
 
@@ -1732,10 +1732,14 @@ class ObservationGuidePageTests(TestCase):
             "hydrogen-oxygen",
             "/demo/hydrogen-oxygen/",
         ),
+        "/guides/reaction-of-iron-with-oxygen/": (
+            "iron-oxygen",
+            "/demo/iron-oxygen/",
+        ),
     }
 
-    def test_eight_guides_match_the_confirmed_reaction_matrix(self):
-        self.assertEqual(len(OBSERVATION_GUIDE_PAGES), 8)
+    def test_nine_guides_match_the_confirmed_reaction_matrix(self):
+        self.assertEqual(len(OBSERVATION_GUIDE_PAGES), 9)
 
         for path, (guide_key, _demo_path) in self.routes.items():
             with self.subTest(path=path):
@@ -1885,6 +1889,50 @@ class ObservationGuidePageTests(TestCase):
             1,
         )
 
+    def test_iron_oxygen_guide_answers_the_target_query_completely(self):
+        response = self.client.get(
+            "/guides/reaction-of-iron-with-oxygen/"
+        )
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            (
+                "<title>Reaction of iron with oxygen: equation and result | "
+                "OmniLab</title>"
+            ),
+            html=True,
+        )
+        self.assertContains(
+            response,
+            "Iron reacts with oxygen to form iron oxide.",
+        )
+        self.assertIn(
+            "4Fe(s) + 3O2(g) -&gt; 2Fe2O3(s)",
+            html,
+        )
+        self.assertContains(response, "Your study goal:")
+        self.assertContains(response, "Three details that explain the result")
+        self.assertContains(
+            response,
+            (
+                "Connect the coefficients and formulas to the products, "
+                "electron transfer, and expected observation."
+            ),
+        )
+        self.assertContains(response, "A solid iron oxide product")
+        self.assertContains(response, "Why do some equations show Fe3O4 instead?")
+        self.assertContains(response, "observation-oxide")
+        self.assertEqual(
+            html.count('href="/guides/chemical-reaction-virtual-lab/"'),
+            1,
+        )
+        self.assertEqual(
+            html.count('class="observation-guide-question-list"'),
+            1,
+        )
+
     def test_each_guide_has_one_exact_prepared_lab_action(self):
         for path, (guide_key, demo_path) in self.routes.items():
             with self.subTest(path=path):
@@ -1936,6 +1984,7 @@ class ObservationGuidePageTests(TestCase):
             "zinc-hydrochloric-acid": "guide_virtual_lab",
             "acetic-acid-sodium-bicarbonate": "guide_virtual_lab",
             "hydrogen-oxygen": "guide_virtual_lab",
+            "iron-oxygen": "guide_virtual_lab",
         }
         self.assertEqual(
             {
@@ -2012,7 +2061,7 @@ class ObservationGuidePageTests(TestCase):
                 self.assertEqual(sitemap.count(canonical), 1)
                 canonical_urls.add(canonical)
 
-        self.assertEqual(len(canonical_urls), 8)
+        self.assertEqual(len(canonical_urls), 9)
 
     def test_copper_guide_explains_the_net_ionic_equation(self):
         response = self.client.get(

@@ -65,6 +65,12 @@ urlpatterns = [
         name="demo_hydrogen_oxygen",
     ),
     path(
+        'demo/iron-oxygen/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'iron-oxygen'},
+        name="demo_iron_oxygen",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -134,6 +140,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'hydrogen-oxygen'},
         name="guide_hydrogen_oxygen",
+    ),
+    path(
+        'guides/reaction-of-iron-with-oxygen/',
+        views.observation_guide,
+        {'guide_key': 'iron-oxygen'},
+        name="guide_iron_oxygen",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]

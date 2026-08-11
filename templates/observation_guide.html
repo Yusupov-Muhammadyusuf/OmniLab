@@ -134,7 +134,11 @@
                 <div class="observation-guide-study-intro">
                     <p class="guide-section-label">Read the equation</p>
                     <h2 id="study-heading">Three details that explain the result</h2>
+                    {% if guide.study_intro %}
+                    <p>{{ guide.study_intro }}</p>
+                    {% else %}
                     <p>Connect the coefficients and formulas to the gas, solution, and visible cue.</p>
+                    {% endif %}
                 </div>
                 <ol class="observation-guide-study-grid">
                     {% for step in guide.study_steps %}
