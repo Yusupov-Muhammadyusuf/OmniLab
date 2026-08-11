@@ -106,6 +106,15 @@ const reactionGuidesByPairKey = new Map([
                 title: 'What happens when hydrogen reacts with oxygen?'
             }
         ]
+    ],
+    [
+        'Fe+O2',
+        [
+            {
+                href: '/guides/reaction-of-iron-with-oxygen/',
+                title: 'What happens in the reaction of iron with oxygen?'
+            }
+        ]
     ]
 ]);
 const supportedChemicalIds = new Set(supportedReactionPairs.flat());

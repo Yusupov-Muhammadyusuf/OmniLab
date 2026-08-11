@@ -81,6 +81,9 @@ PUBLIC_CANONICAL_URLS = {
     "hydrogen_oxygen": (
         f"{PRODUCTION_BASE_URL}/guides/hydrogen-and-oxygen-reaction/"
     ),
+    "iron_oxygen": (
+        f"{PRODUCTION_BASE_URL}/guides/reaction-of-iron-with-oxygen/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
@@ -252,6 +255,21 @@ REACTION_DEMOS = {
             "to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/hydrogen-oxygen/",
+    },
+    "iron-oxygen": {
+        "id": "iron-oxygen",
+        "version": "v1",
+        "selectedChemicals": ["Fe", "O2"],
+        "vessel": "beaker",
+        "liquidColor": "#9b6958",
+        "mixture_label": "Fe + O2",
+        "title": "Iron and oxygen, ready to analyze",
+        "page_title": "OmniLab - Iron and oxygen reaction demo",
+        "page_description": (
+            "Open a prepared Iron and Oxygen setup, then choose whether to "
+            "request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/iron-oxygen/",
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -1185,6 +1203,148 @@ OBSERVATION_GUIDE_PAGES = {
             "physical procedure."
         ),
     },
+    "iron-oxygen": {
+        "route_name": "guide_iron_oxygen",
+        "canonical_key": "iron_oxygen",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_iron_oxygen",
+        "title": "What happens in the reaction of iron with oxygen?",
+        "page_title": (
+            "Reaction of iron with oxygen: equation and result | OmniLab"
+        ),
+        "description": (
+            "See the reaction of iron with oxygen, balanced equation, "
+            "iron(III) oxide product, redox changes, observations, and limits."
+        ),
+        "reading_time": "6 minute read",
+        "direct_answer": (
+            "Iron reacts with oxygen to form iron oxide. In the simplified "
+            "model used by OmniLab, the product is iron(III) oxide, Fe2O3. "
+            "The balanced equation uses coefficients 4, 3, and 2. Different "
+            "conditions can produce other iron oxides."
+        ),
+        "student_job": (
+            "Use this guide to balance the equation, explain the redox change, "
+            "and separate rapid oxidation from slow rusting."
+        ),
+        "study_intro": (
+            "Connect the coefficients and formulas to the products, electron "
+            "transfer, and expected observation."
+        ),
+        "reactants": [
+            {"name": "Iron", "formula": "Fe"},
+            {"name": "Oxygen", "formula": "O2"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Iron and Oxygen. The burner stays off, "
+            "and you decide when to request the supported prediction."
+        ),
+        "cta_label": "Try the iron and oxygen setup",
+        "equation": "4Fe(s) + 3O2(g) -> 2Fe2O3(s)",
+        "explanation": (
+            "Iron can oxidize in oxygen to form iron(III) oxide. The process "
+            "is exothermic, although bulk iron may react slowly unless it is "
+            "finely divided or heated. Four iron atoms combine with three "
+            "oxygen molecules in the simplified balanced equation."
+        ),
+        "observation_title": "A solid iron oxide product",
+        "observation": (
+            "This guide uses a simple solid-product diagram for Fe2O3. A real "
+            "heated iron sample may glow or spark and leave a dark oxide, while "
+            "slow corrosion can produce reddish-brown rust. OmniLab returns "
+            "text for this pair and does not render those physical effects."
+        ),
+        "observation_class": "observation-oxide",
+        "observation_label": "Iron(III) oxide",
+        "study_steps": [
+            {
+                "title": "Balance iron and oxygen",
+                "body": (
+                    "Two Fe2O3 units contain four iron atoms and six oxygen "
+                    "atoms. Those six oxygen atoms come from three O2 molecules, "
+                    "so the coefficients are 4, 3, and 2."
+                ),
+            },
+            {
+                "title": "Track the electron transfer",
+                "body": (
+                    "Iron moves from oxidation state 0 to +3 and is oxidized. "
+                    "Oxygen moves from 0 to -2 and is reduced, so the overall "
+                    "change is a redox reaction."
+                ),
+            },
+            {
+                "title": "Keep the conditions attached",
+                "body": (
+                    "Fine or heated iron can oxidize rapidly. Bulk iron usually "
+                    "reacts much more slowly, and moisture helps the corrosion "
+                    "process commonly called rusting."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What is the word equation for iron and oxygen?",
+                "answer": (
+                    "The word equation is iron + oxygen -> iron oxide. A formula "
+                    "equation must name the oxide being modeled because iron "
+                    "can form more than one oxide."
+                ),
+            },
+            {
+                "question": "How do you balance Fe + O2 -> Fe2O3?",
+                "answer": (
+                    "Write 4Fe + 3O2 -> 2Fe2O3. Both sides then contain four "
+                    "iron atoms and six oxygen atoms. Coefficients change the "
+                    "number of particles, not the formulas of the substances."
+                ),
+            },
+            {
+                "question": "Why do some equations show Fe3O4 instead?",
+                "answer": (
+                    "Iron can form FeO, Fe2O3, Fe3O4, or mixtures of oxides. "
+                    "Temperature, oxygen availability, particle size, and other "
+                    "conditions affect the product. OmniLab deliberately uses "
+                    "the simplified Fe2O3 equation for its supported pair."
+                ),
+            },
+            {
+                "question": "Is the reaction of iron with oxygen the same as rusting?",
+                "answer": (
+                    "Rusting is the slow corrosion of iron in the presence of "
+                    "oxygen and moisture. Rapid oxidation of fine or heated iron "
+                    "is related chemistry, but the rate, appearance, and mixture "
+                    "of oxide products can differ."
+                ),
+            },
+            {
+                "question": "What type of reaction is iron with oxygen?",
+                "answer": (
+                    "It is an oxidation and redox reaction. When iron burns "
+                    "rapidly it is also a combustion reaction: iron loses "
+                    "electrons as oxygen gains them."
+                ),
+            },
+            {
+                "question": "Why can the iron sample gain mass?",
+                "answer": (
+                    "Oxygen atoms become part of the solid product. If the oxide "
+                    "stays with the sample, its mass includes the original iron "
+                    "plus oxygen taken from the surrounding gas."
+                ),
+            },
+        ],
+        "safety": [
+            "Keep fine iron powder away from ignition sources.",
+            "Use heat-resistant tools for heated samples.",
+            "Wear eye protection and avoid oxide dust.",
+        ],
+        "boundary": (
+            "OmniLab uses one simplified Fe2O3 product model. It does not "
+            "simulate temperature, oxygen supply, moisture, particle size, "
+            "reaction rate, sparks, oxide mixtures, or a physical procedure."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -1219,7 +1379,7 @@ GUIDE_RELATIONSHIPS = {
     "chemical_reaction_virtual_lab": [
         ("sodium_chlorine_reaction", "Start with one supported reaction"),
         ("limewater_carbon_dioxide", "See a cloudy precipitate result"),
-        ("zinc_hydrochloric_acid", "See a gas-evolution result"),
+        ("iron_oxygen", "Study oxidation with a solid product"),
     ],
     "sodium_chlorine_reaction": [
         ("sodium_chlorine_formula", "Use the same substances to build NaCl"),
@@ -1295,6 +1455,12 @@ GUIDE_RELATIONSHIPS = {
     "hydrogen_oxygen": [
         ("sodium_water", "Trace hydrogen from a water reaction"),
         ("zinc_hydrochloric_acid", "Trace hydrogen from a metal-acid reaction"),
+        ("iron_oxygen", "Compare another reaction with oxygen"),
+    ],
+    "iron_oxygen": [
+        ("hydrogen_oxygen", "Compare another reaction with oxygen"),
+        ("zinc_hydrochloric_acid", "Compare another metal redox reaction"),
+        ("sodium_water", "Compare another metal oxidation"),
     ],
 }
 
@@ -1510,6 +1676,20 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "hydrogen-oxygen"
+                ]["canonical_key"],
+            },
+            {
+                "number": "13",
+                "title": OBSERVATION_GUIDE_PAGES["iron-oxygen"]["title"],
+                "summary": (
+                    "Balance the iron(III) oxide equation and distinguish "
+                    "rapid oxidation from slow rusting."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "iron-oxygen"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "iron-oxygen"
                 ]["canonical_key"],
             },
         ],
@@ -2042,8 +2222,9 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse twelve chemistry guides about virtual reaction labs, sodium "
-        "and chlorine, combustion, acid reactions, gas evolution, and precipitates."
+        "Browse thirteen chemistry guides about virtual reaction labs, sodium "
+        "and chlorine, combustion, oxidation, acid reactions, gas evolution, "
+        "and precipitates."
     )
     guides = [
         guide
