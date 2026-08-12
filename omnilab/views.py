@@ -2222,9 +2222,9 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse thirteen chemistry guides about virtual reaction labs, sodium "
-        "and chlorine, combustion, oxidation, acid reactions, gas evolution, "
-        "and precipitates."
+        "Browse 13 free, no-account chemistry guides about virtual reaction "
+        "labs, equations, bonding, combustion, oxidation, acids, gases, and "
+        "precipitates."
     )
     guides = [
         guide

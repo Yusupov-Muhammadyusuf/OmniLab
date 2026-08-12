@@ -603,6 +603,17 @@ class GuideLibraryPageTests(TestCase):
                 self.assertContains(self.response, guide["title"])
                 self.assertContains(self.response, guide["summary"])
 
+    def test_library_description_names_thirteen_free_no_account_guides(self):
+        description = self.response.context["page_description"]
+
+        self.assertIn("13 free, no-account chemistry guides", description)
+        self.assertLessEqual(len(description), 160)
+        self.assertContains(
+            self.response,
+            f'<meta name="description" content="{description}">',
+            html=True,
+        )
+
     def test_all_thirteen_guides_have_distinct_titles_and_descriptions(self):
         self.assertEqual(len(GUIDE_PAGE_REFERENCES), 13)
         self.assertEqual(
