@@ -2317,9 +2317,12 @@ class GuideStructuredDataContractTests(TestCase):
         self.assertEqual(learning_resource["@id"], f"{canonical}#guide")
         self.assertEqual(learning_resource["url"], canonical)
         self.assertEqual(learning_resource["name"], expected_name)
-        self.assertEqual(learning_resource["description"], guide["description"])
+        self.assertEqual(
+            learning_resource["description"],
+            guide.get("direct_answer", guide["description"]),
+        )
         self.assertIn(expected_name, html)
-        self.assertIn(guide["description"], html)
+        self.assertIn(learning_resource["description"], html)
 
         parts = learning_resource["hasPart"]
         equation_parts = [
