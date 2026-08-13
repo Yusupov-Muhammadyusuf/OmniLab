@@ -1576,7 +1576,7 @@ def guide_learning_schema(
         "@type": "LearningResource",
         "@id": f"{canonical_url}#guide",
         "name": guide.get("heading", guide["title"]),
-        "description": guide["description"],
+        "description": guide.get("direct_answer", guide["description"]),
         "url": canonical_url,
         "inLanguage": "en",
         "educationalLevel": "Introductory chemistry",
