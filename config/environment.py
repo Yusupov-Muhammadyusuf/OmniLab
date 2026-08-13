@@ -2,6 +2,7 @@
 
 import os
 from collections.abc import Mapping
+from urllib.parse import urlsplit
 
 from django.core.exceptions import ImproperlyConfigured
 
@@ -15,6 +16,35 @@ DEFAULT_ALLOWED_HOSTS = (
     "127.0.0.1",
     "localhost",
 )
+DEFAULT_PUBLIC_ORIGIN = "https://omnilab-bk8q.onrender.com"
+
+
+def get_public_origin(
+    environ: Mapping[str, str] | None = None,
+) -> str:
+    """Return the HTTPS origin used by every public discovery URL."""
+    environment = os.environ if environ is None else environ
+    configured_origin = environment.get(
+        "OMNILAB_PUBLIC_ORIGIN",
+        DEFAULT_PUBLIC_ORIGIN,
+    ).strip().rstrip("/")
+    parsed_origin = urlsplit(configured_origin)
+
+    if (
+        parsed_origin.scheme != "https"
+        or not parsed_origin.netloc
+        or parsed_origin.path
+        or parsed_origin.query
+        or parsed_origin.fragment
+        or parsed_origin.username
+        or parsed_origin.password
+    ):
+        raise ImproperlyConfigured(
+            "OMNILAB_PUBLIC_ORIGIN must be an HTTPS origin without a path, "
+            "query, fragment, or credentials."
+        )
+
+    return configured_origin
 
 
 def is_search_indexing_disabled(

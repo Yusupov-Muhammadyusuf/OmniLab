@@ -29,6 +29,12 @@ Set `OMNILAB_ALLOWED_HOSTS` to the public host names accepted by Django,
 separated by commas. It defaults to the current Render host plus localhost, so a
 different public host must set its own name. Do not include schemes or paths.
 
+Set `OMNILAB_PUBLIC_ORIGIN` when the public address changes. This one HTTPS
+origin controls canonical tags, social preview URLs, prepared-demo links,
+`sitemap.xml`, and the sitemap address in `robots.txt`. Do not include a path,
+query, fragment, credentials, or trailing slash. Keep `OMNILAB_NOINDEX=true` on
+temporary deployments independently of this origin setting.
+
 The remaining deployment variables are optional:
 
 | Name | Default | Purpose |
@@ -36,6 +42,7 @@ The remaining deployment variables are optional:
 | `OMNILAB_DEPLOY_DIR` | `.deploy` | Parent for the virtual environment and persistent runtime files. |
 | `OMNILAB_DATABASE_PATH` | `.deploy/data/db.sqlite3` | SQLite database path. Mount or back up its parent directory. |
 | `OMNILAB_STATIC_ROOT` | `.deploy/staticfiles` | WhiteNoise collection target. |
+| `OMNILAB_PUBLIC_ORIGIN` | `https://omnilab-bk8q.onrender.com` | HTTPS origin for every absolute public discovery URL. |
 | `OMNILAB_NOINDEX` | unset | Set to `true` on temporary or preview deployments to send `X-Robots-Tag: noindex, nofollow` on every response. |
 | `OMNILAB_PYTHON` | `python3` | Python executable used to create the virtual environment. |
 | `PORT` | `8000` | Port Gunicorn listens on. |

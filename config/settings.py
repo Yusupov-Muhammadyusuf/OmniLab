@@ -18,6 +18,7 @@ from django.core.exceptions import ImproperlyConfigured
 from .environment import (
     get_allowed_hosts,
     get_django_secret_key,
+    get_public_origin,
     is_production_environment,
     is_search_indexing_disabled,
 )
@@ -37,6 +38,11 @@ SECRET_KEY = get_django_secret_key()
 DEBUG = False
 
 ALLOWED_HOSTS = get_allowed_hosts()
+
+# One origin owns every canonical, social preview, sitemap, robots, and
+# prepared-demo URL. A host change requires only this setting and its matching
+# OMNILAB_ALLOWED_HOSTS entry.
+OMNILAB_PUBLIC_ORIGIN = get_public_origin()
 
 # Temporary or preview deployments can opt out of search without changing the
 # production canonicals or robots.txt policy.
