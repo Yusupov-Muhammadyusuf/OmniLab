@@ -23,7 +23,7 @@ def health(request):
     """Return a dependency-free liveness response for hosting checks."""
     return HttpResponse("ok\n", content_type="text/plain")
 
-PRODUCTION_BASE_URL = "https://omnilab-bk8q.onrender.com"
+PRODUCTION_BASE_URL = settings.OMNILAB_PUBLIC_ORIGIN
 SOCIAL_PREVIEW_URL = (
     f"{PRODUCTION_BASE_URL}/static/images/omnilab-social-preview.png"
 )

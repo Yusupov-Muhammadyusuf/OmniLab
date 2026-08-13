@@ -23,9 +23,11 @@ from django.test import (
 from django.urls import reverse
 
 from config.environment import (
+    DEFAULT_PUBLIC_ORIGIN,
     LOCAL_DEVELOPMENT_SECRET_KEY,
     get_allowed_hosts,
     get_django_secret_key,
+    get_public_origin,
     is_production_environment,
     is_search_indexing_disabled,
 )
@@ -94,6 +96,96 @@ class DjangoSecretConfigurationTests(SimpleTestCase):
 
 
 class DeploymentConfigurationTests(SimpleTestCase):
+    def test_public_origin_defaults_to_current_production(self):
+        self.assertEqual(get_public_origin({}), DEFAULT_PUBLIC_ORIGIN)
+
+    def test_public_origin_accepts_one_https_origin(self):
+        self.assertEqual(
+            get_public_origin(
+                {"OMNILAB_PUBLIC_ORIGIN": " https://lab.example.edu/ "}
+            ),
+            "https://lab.example.edu",
+        )
+
+    def test_public_origin_rejects_non_origin_values(self):
+        invalid_values = (
+            "http://lab.example.edu",
+            "https://lab.example.edu/guides",
+            "https://lab.example.edu?preview=true",
+            "https://user:secret@lab.example.edu",
+        )
+
+        for value in invalid_values:
+            with self.subTest(value=value), self.assertRaisesMessage(
+                ImproperlyConfigured,
+                "OMNILAB_PUBLIC_ORIGIN must be an HTTPS origin",
+            ):
+                get_public_origin({"OMNILAB_PUBLIC_ORIGIN": value})
+
+    def test_one_origin_setting_controls_all_absolute_discovery_urls(self):
+        configured_origin = "https://chemistry.example.edu"
+        environment = os.environ.copy()
+        environment.update(
+            {
+                "DJANGO_SETTINGS_MODULE": "config.settings",
+                "OMNILAB_NOINDEX": "true",
+                "OMNILAB_PUBLIC_ORIGIN": configured_origin,
+            }
+        )
+        probe = "\n".join(
+            [
+                "import json",
+                "import django",
+                "django.setup()",
+                "from django.conf import settings",
+                "from omnilab.views import (",
+                "    PRODUCTION_BASE_URL, PUBLIC_CANONICAL_URLS,",
+                "    REACTION_DEMOS, SOCIAL_PREVIEW_URL, robots_txt,",
+                "    sitemap_xml,",
+                ")",
+                "print(json.dumps({",
+                "    'origin': PRODUCTION_BASE_URL,",
+                "    'canonicals': list(PUBLIC_CANONICAL_URLS.values()),",
+                "    'demo_urls': [demo['url'] for demo in REACTION_DEMOS.values()],",
+                "    'social_preview': SOCIAL_PREVIEW_URL,",
+                "    'robots': robots_txt(None).content.decode(),",
+                "    'sitemap': sitemap_xml(None).content.decode(),",
+                "    'noindex': settings.OMNILAB_NOINDEX,",
+                "}))",
+            ]
+        )
+
+        result = subprocess.run(
+            [sys.executable, "-c", probe],
+            cwd=settings.BASE_DIR,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        discovery = json.loads(result.stdout)
+        self.assertEqual(discovery["origin"], configured_origin)
+        self.assertEqual(len(discovery["canonicals"]), 20)
+        self.assertEqual(len(set(discovery["canonicals"])), 20)
+        for url in (
+            discovery["canonicals"]
+            + discovery["demo_urls"]
+            + [discovery["social_preview"]]
+        ):
+            with self.subTest(url=url):
+                self.assertTrue(url.startswith(f"{configured_origin}/"))
+        self.assertIn(
+            f"Sitemap: {configured_origin}/sitemap.xml",
+            discovery["robots"],
+        )
+        self.assertEqual(
+            discovery["sitemap"].count(f"<loc>{configured_origin}/"),
+            20,
+        )
+        self.assertTrue(discovery["noindex"])
+
     def test_allowed_hosts_can_be_supplied_for_another_host(self):
         self.assertEqual(
             get_allowed_hosts(
