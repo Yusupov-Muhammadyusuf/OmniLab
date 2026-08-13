@@ -871,8 +871,12 @@ OBSERVATION_GUIDE_PAGES = {
         "reading_time": "5 minute read",
         "direct_answer": (
             "Zinc reacts with hydrochloric acid to form zinc chloride and "
-            "hydrogen gas. Zinc is oxidized, hydrogen ions are reduced, and "
-            "the escaping hydrogen appears as bubbles."
+            "hydrogen gas. The hydrogen leaves the solution as bubbles."
+        ),
+        "opening_boundary": (
+            "The model leaves out acid concentration, zinc surface area, and "
+            "reaction rate. Hydrochloric acid is corrosive, and the hydrogen "
+            "product is flammable."
         ),
         "student_job": (
             "Use this guide to balance the equation, identify the gas, and "
@@ -984,8 +988,13 @@ OBSERVATION_GUIDE_PAGES = {
         "reading_time": "5 minute read",
         "direct_answer": (
             "Acetic acid reacts with sodium bicarbonate to form sodium "
-            "acetate, carbon dioxide, and water. The carbon dioxide escapes "
-            "as bubbles, which can make the mixture fizz and foam."
+            "acetate, carbon dioxide, and water. Escaping carbon dioxide "
+            "causes the fizzing."
+        ),
+        "opening_boundary": (
+            "The model leaves out foam height, gas volume, cooling, and "
+            "spillover. Carbon dioxide can build pressure in a closed "
+            "container, and splashes can irritate eyes."
         ),
         "student_job": (
             "Use this guide to balance the equation, identify the gas, and "
@@ -1103,8 +1112,13 @@ OBSERVATION_GUIDE_PAGES = {
         "reading_time": "5 minute read",
         "direct_answer": (
             "Hydrogen reacts with oxygen to form water when the mixture is "
-            "initiated. The reaction is strongly exothermic, and the balanced "
-            "equation uses two hydrogen molecules for each oxygen molecule."
+            "initiated. The reaction releases substantial energy, and "
+            "OmniLab predicts the product without simulating ignition."
+        ),
+        "opening_boundary": (
+            "The equation shows the two-to-one molecular ratio and water "
+            "product; ignition, flame, pressure, and reaction rate are not "
+            "simulated. Hydrogen-oxygen mixtures can ignite explosively."
         ),
         "student_job": (
             "Use this guide to balance the equation, identify the product, and "

@@ -43,6 +43,18 @@
                     <p class="guide-context">For chemistry students · {{ guide.reading_time }}</p>
                     <h1 id="guide-heading">{{ guide.title }}</h1>
                     <p class="guide-answer">{{ guide.direct_answer }}</p>
+                    {% if guide.opening_boundary %}
+                    <dl class="guide-opening-summary" aria-label="Answer at a glance">
+                        <div>
+                            <dt>Balanced equation</dt>
+                            <dd>{{ guide.equation }}</dd>
+                        </div>
+                        <div>
+                            <dt>Model and safety boundary</dt>
+                            <dd>{{ guide.opening_boundary }}</dd>
+                        </div>
+                    </dl>
+                    {% endif %}
                     {% if guide.student_job %}
                     <p class="guide-student-job"><strong>Your study goal:</strong> {{ guide.student_job }}</p>
                     {% endif %}

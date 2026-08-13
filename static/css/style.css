@@ -1695,6 +1695,38 @@ body {
     text-wrap: pretty;
 }
 
+.guide-opening-summary {
+    max-width: 58ch;
+    margin: -8px 0 24px;
+    border-top: 2px solid var(--border-color);
+}
+
+.guide-opening-summary > div {
+    padding: 13px 0;
+    display: grid;
+    grid-template-columns: minmax(120px, .7fr) minmax(0, 1.3fr);
+    gap: 18px;
+    border-bottom: 1px solid rgba(30, 30, 30, .22);
+}
+
+.guide-opening-summary dt {
+    color: var(--muted-text);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    line-height: 1.5;
+    text-transform: uppercase;
+}
+
+.guide-opening-summary dd {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.6;
+    text-wrap: pretty;
+}
+
 .guide-student-job {
     max-width: 54ch;
     margin: -12px 0 24px;
@@ -3021,6 +3053,8 @@ body {
     .guide-hero { margin-top: 32px; gap: 40px; }
     .guide-hero h1 { font-size: 43px; letter-spacing: -1.9px; }
     .guide-answer { margin: 22px 0 24px; font-size: 16px; }
+    .guide-opening-summary { margin-top: -4px; }
+    .guide-opening-summary > div { grid-template-columns: 1fr; gap: 5px; }
     .guide-primary { width: 100%; }
     .guide-equation { margin-top: 64px; padding: 24px 20px; }
     .guide-equation h2 { font-size: 27px; }
