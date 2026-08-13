@@ -38,8 +38,11 @@ from .views import (
     GUIDE_LIBRARY_GROUPS,
     GUIDE_PAGE_REFERENCES,
     GUIDE_RELATIONSHIPS,
+    GUIDED_EXPERIMENT_BOUNDARY,
     GUIDED_EXPERIMENT_PAGES,
+    GUIDED_EXPERIMENT_SAFETY_WARNING,
     OBSERVATION_GUIDE_PAGES,
+    OBSERVATION_GUIDE_SAFETY_WARNING,
     PRODUCT_FAQS,
     PRODUCTION_BASE_URL,
     PUBLIC_CANONICAL_URLS,
@@ -2283,6 +2286,143 @@ class ObservationGuidePageTests(TestCase):
         )
         self.assertContains(response, "K+(aq) and SO4^2-(aq)")
         self.assertContains(response, "Split the soluble reactants into ions")
+
+
+class GuideStructuredDataContractTests(TestCase):
+    @staticmethod
+    def _schema(response):
+        html = response.content.decode()
+        match = re.search(
+            r'<script type="application/ld\+json">(.*?)</script>',
+            html,
+            re.DOTALL,
+        )
+        if match is None:
+            raise AssertionError("Guide page has no JSON-LD block")
+        return html, json.loads(match.group(1))
+
+    def _assert_learning_resource(
+        self,
+        response,
+        guide,
+        learning_resource,
+        canonical,
+        equations,
+        safety_content,
+    ):
+        html = response.content.decode()
+        expected_name = guide.get("heading", guide["title"])
+
+        self.assertEqual(learning_resource["@type"], "LearningResource")
+        self.assertEqual(learning_resource["@id"], f"{canonical}#guide")
+        self.assertEqual(learning_resource["url"], canonical)
+        self.assertEqual(learning_resource["name"], expected_name)
+        self.assertEqual(learning_resource["description"], guide["description"])
+        self.assertIn(expected_name, html)
+        self.assertIn(guide["description"], html)
+
+        parts = learning_resource["hasPart"]
+        equation_parts = [
+            item for item in parts if item["name"] == "Reaction equation"
+        ]
+        self.assertEqual(
+            [item["text"] for item in equation_parts],
+            list(equations),
+        )
+        for equation in equations:
+            self.assertIn(equation, html)
+
+        safety_part = next(
+            item
+            for item in parts
+            if item["name"] == "Safety and educational boundary"
+        )
+        for statement in safety_content:
+            self.assertIn(statement, safety_part["text"])
+            self.assertIn(statement, html)
+
+    def test_all_twelve_reaction_guides_match_visible_content(self):
+        guide_sets = (
+            (
+                GUIDED_EXPERIMENT_PAGES,
+                (
+                    GUIDED_EXPERIMENT_BOUNDARY,
+                    GUIDED_EXPERIMENT_SAFETY_WARNING,
+                ),
+            ),
+            (OBSERVATION_GUIDE_PAGES, None),
+        )
+
+        checked_canonicals = set()
+        for guides, shared_safety in guide_sets:
+            for guide in guides.values():
+                canonical = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
+                path = reverse(guide["route_name"])
+                with self.subTest(path=path):
+                    response = self.client.get(path)
+                    _html, schema = self._schema(response)
+                    safety_content = shared_safety or (
+                        *guide["safety"],
+                        guide["boundary"],
+                        OBSERVATION_GUIDE_SAFETY_WARNING,
+                    )
+
+                    self._assert_learning_resource(
+                        response,
+                        guide,
+                        schema,
+                        canonical,
+                        (guide["equation"],),
+                        safety_content,
+                    )
+                    question = schema["mainEntity"]
+                    self.assertEqual(question["@type"], "Question")
+                    self.assertEqual(question["name"], guide["title"])
+                    self.assertEqual(
+                        question["acceptedAnswer"],
+                        {"@type": "Answer", "text": guide["direct_answer"]},
+                    )
+                    checked_canonicals.add(canonical)
+
+        self.assertEqual(len(checked_canonicals), 12)
+
+    def test_virtual_lab_guide_schema_matches_examples_faq_and_safety(self):
+        guide = CHEMICAL_REACTION_VIRTUAL_LAB_PAGE
+        canonical = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
+        response = self.client.get(reverse(guide["route_name"]))
+        html, schema = self._schema(response)
+        learning_resource = next(
+            item
+            for item in schema["@graph"]
+            if item["@type"] == "LearningResource"
+        )
+        faq_page = next(
+            item
+            for item in schema["@graph"]
+            if item["@type"] == "FAQPage"
+        )
+        equations = tuple(
+            example["equation"] for example in guide["reaction_examples"]
+        )
+        safety_content = (
+            guide["boundary"],
+            guide["safety_boundary"],
+            guide["safety_warning"],
+        )
+
+        self._assert_learning_resource(
+            response,
+            guide,
+            learning_resource,
+            canonical,
+            equations,
+            safety_content,
+        )
+        self.assertNotIn("mainEntity", learning_resource)
+        self.assertEqual(faq_page["@id"], f"{canonical}#faq")
+        for question in faq_page["mainEntity"]:
+            self.assertIn(question["name"], html)
+            self.assertIn(question["acceptedAnswer"]["text"], html)
 
 
 class SocialPreviewTests(TestCase):
