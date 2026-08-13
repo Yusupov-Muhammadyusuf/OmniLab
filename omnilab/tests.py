@@ -670,6 +670,68 @@ class GuideLibraryPageTests(TestCase):
                     set(related_keys).issubset(GUIDE_PAGE_REFERENCES)
                 )
 
+    def test_every_guide_navigation_destination_returns_success(self):
+        prepared_demo_routes = {
+            "chemical_reaction_virtual_lab": "sodium_chlorine_demo",
+            **{
+                guide["canonical_key"]: "sodium_chlorine_demo"
+                for guide in GUIDED_EXPERIMENT_PAGES.values()
+            },
+            **{
+                guide["canonical_key"]: guide["demo_route_name"]
+                for guide in OBSERVATION_GUIDE_PAGES.values()
+            },
+        }
+        visit_sources = {
+            "chemical_reaction_virtual_lab": (
+                CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE
+            ),
+            **{
+                guide["canonical_key"]: guide["visit_source"]
+                for guide in GUIDED_EXPERIMENT_PAGES.values()
+            },
+            **{
+                guide["canonical_key"]: guide["visit_source"]
+                for guide in OBSERVATION_GUIDE_PAGES.values()
+            },
+        }
+
+        self.assertEqual(
+            set(prepared_demo_routes),
+            set(GUIDE_PAGE_REFERENCES),
+        )
+
+        for guide_key, guide in GUIDE_PAGE_REFERENCES.items():
+            with self.subTest(guide_key=guide_key):
+                response = self.client.get(reverse(guide["route_name"]))
+                self.assertEqual(response.status_code, 200)
+
+                demo_path = reverse(prepared_demo_routes[guide_key])
+                prepared_href = (
+                    f'{demo_path}?source={visit_sources[guide_key]}'
+                )
+                self.assertContains(
+                    response,
+                    f'href="{prepared_href}"',
+                )
+                self.assertEqual(
+                    self.client.get(prepared_href).status_code,
+                    200,
+                )
+
+                for related_key, _reason in GUIDE_RELATIONSHIPS[guide_key]:
+                    related_path = reverse(
+                        GUIDE_PAGE_REFERENCES[related_key]["route_name"]
+                    )
+                    self.assertContains(
+                        response,
+                        f'href="{related_path}"',
+                    )
+                    self.assertEqual(
+                        self.client.get(related_path).status_code,
+                        200,
+                    )
+
     def test_virtual_lab_guide_uses_shared_metadata_and_related_links(self):
         response = self.client.get(
             reverse(CHEMICAL_REACTION_VIRTUAL_LAB_PAGE["route_name"])
