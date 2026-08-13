@@ -2098,6 +2098,53 @@ class ObservationGuidePageTests(TestCase):
             1,
         )
 
+    def test_three_priority_guides_open_with_answer_equation_and_boundary(self):
+        priority_routes = {
+            "/guides/zinc-and-hydrochloric-acid-reaction/": (
+                "zinc-hydrochloric-acid",
+                "/demo/zinc-hydrochloric-acid/?source=guide_virtual_lab",
+            ),
+            "/guides/acetic-acid-and-sodium-bicarbonate-reaction/": (
+                "acetic-acid-sodium-bicarbonate",
+                "/demo/acetic-acid-sodium-bicarbonate/?source=guide_virtual_lab",
+            ),
+            "/guides/hydrogen-and-oxygen-reaction/": (
+                "hydrogen-oxygen",
+                "/demo/hydrogen-oxygen/?source=guide_virtual_lab",
+            ),
+        }
+
+        for path, (guide_key, demo_path) in priority_routes.items():
+            with self.subTest(path=path):
+                guide = OBSERVATION_GUIDE_PAGES[guide_key]
+                response = self.client.get(path)
+                html = response.content.decode()
+
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(
+                    response,
+                    f'<meta name="description" content="{guide["description"]}">',
+                    html=True,
+                )
+                self.assertContains(response, 'aria-label="Answer at a glance"')
+                self.assertContains(response, guide["opening_boundary"])
+                self.assertContains(
+                    response,
+                    f'href="{demo_path}"',
+                )
+
+                heading_index = html.index(guide["title"])
+                answer_index = html.index(guide["direct_answer"])
+                equation_index = html.index(
+                    guide["equation"].replace(">", "&gt;")
+                )
+                boundary_index = html.index(guide["opening_boundary"])
+                action_index = html.index(f'href="{demo_path}"')
+                self.assertLess(heading_index, answer_index)
+                self.assertLess(answer_index, equation_index)
+                self.assertLess(equation_index, boundary_index)
+                self.assertLess(boundary_index, action_index)
+
     def test_iron_oxygen_guide_answers_the_target_query_completely(self):
         response = self.client.get(
             "/guides/reaction-of-iron-with-oxygen/"
