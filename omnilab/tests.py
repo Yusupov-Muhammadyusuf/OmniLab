@@ -1446,6 +1446,47 @@ class SearchDiscoveryTests(TestCase):
             html=True,
         )
 
+    def test_all_sitemap_routes_have_distinct_concise_search_metadata(self):
+        sitemap = self.client.get("/sitemap.xml").content.decode()
+        paths = re.findall(
+            r"<loc>https?://[^/]+([^<]*)</loc>",
+            sitemap,
+        )
+        metadata = []
+
+        self.assertEqual(len(paths), 20)
+        for path in paths:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                html = response.content.decode()
+                title_matches = re.findall(
+                    r"<title>(.*?)</title>",
+                    html,
+                    re.DOTALL,
+                )
+                description_matches = re.findall(
+                    r'<meta name="description" content="([^"]*)">',
+                    html,
+                )
+
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(len(title_matches), 1)
+                self.assertEqual(len(description_matches), 1)
+
+                title = title_matches[0].strip()
+                description = description_matches[0]
+                self.assertGreaterEqual(len(title), 30)
+                self.assertLessEqual(len(title), 65)
+                self.assertGreaterEqual(len(description), 110)
+                self.assertLessEqual(len(description), 160)
+                metadata.append((title, description))
+
+        titles = [title for title, _description in metadata]
+        descriptions = [description for _title, description in metadata]
+        self.assertEqual(len(set(titles)), 20)
+        self.assertEqual(len(set(descriptions)), 20)
+        self.assertNotIn("12 guides", " ".join(descriptions))
+
     def test_public_pages_use_production_canonical_urls(self):
         routes = {
             "/": "index",
@@ -2489,7 +2530,7 @@ class ShareableReactionDemoTests(TestCase):
 
         self.assertContains(
             response,
-            "<title>OmniLab - Laboratory Experiments Assistant</title>",
+            "<title>Virtual chemistry lab for students | OmniLab</title>",
             html=True,
         )
         self.assertContains(response, "Test chemical reactions in a virtual lab")

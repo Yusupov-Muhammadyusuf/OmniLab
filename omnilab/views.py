@@ -2051,7 +2051,7 @@ def homepage_context(reaction_demo=None):
     context = {
         "canonical_url": PUBLIC_CANONICAL_URLS["index"],
         "social_url": PUBLIC_CANONICAL_URLS["index"],
-        "page_title": "OmniLab - Laboratory Experiments Assistant",
+        "page_title": "Virtual chemistry lab for students | OmniLab",
         "social_title": "OmniLab - Test chemical reactions in a virtual lab",
         "page_description": (
             "Explore predicted reactions in a virtual lab built for chemistry "
@@ -2265,6 +2265,9 @@ def guide_library(request):
         request,
         "guide_library.html",
         {
+            "page_title": (
+                "Free chemistry reaction guides for students | OmniLab"
+            ),
             "page_description": description,
             "canonical_url": canonical_url,
             "social_preview_url": SOCIAL_PREVIEW_URL,
