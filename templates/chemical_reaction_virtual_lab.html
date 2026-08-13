@@ -41,8 +41,8 @@
             <section class="reaction-lab-hero" aria-labelledby="reaction-lab-heading">
                 <div class="reaction-lab-hero-copy">
                     <p class="guide-context">Free in the current release · No account required</p>
-                    <h1 id="reaction-lab-heading">Try a chemical reaction in a virtual lab</h1>
-                    <p class="reaction-lab-lede">Choose two chemicals from a supported pair. OmniLab returns a balanced equation, a plain-language explanation, three safety notes, and a visible reaction cue when the result includes bubbling or a precipitate.</p>
+                    <h1 id="reaction-lab-heading">{{ guide.heading }}</h1>
+                    <p class="reaction-lab-lede">{{ guide.direct_answer }}</p>
                     <a class="guide-primary" href="{% url 'sodium_chlorine_demo' %}?source={{ visit_source }}">
                         Try Sodium + Chlorine
                         <span aria-hidden="true">→</span>
@@ -92,12 +92,9 @@
                     <p>The current matrix covers 23 specific pairs. These examples show the range you can explore without pretending every possible mixture is supported.</p>
                 </div>
                 <div class="reaction-pair-grid">
-                    <article><p class="reaction-pair-type">Synthesis</p><h3>Hydrogen + Oxygen</h3><p class="reaction-pair-equation">2H₂ + O₂ → 2H₂O</p><p>Follow how two elements combine into one compound.</p></article>
-                    <article><p class="reaction-pair-type">Neutralization</p><h3>Hydrochloric acid + Sodium hydroxide</h3><p class="reaction-pair-equation">HCl + NaOH → NaCl + H₂O</p><p>Connect an acid-base reaction to salt and water formation.</p></article>
-                    <article><p class="reaction-pair-type">Gas evolution</p><h3>Acetic acid + Sodium bicarbonate</h3><p class="reaction-pair-equation">CH₃COOH + NaHCO₃ → CO₂ + H₂O + CH₃COONa</p><p>See carbon dioxide represented as a bubbling result.</p></article>
-                    <article><p class="reaction-pair-type">Blue precipitate</p><h3>Copper(II) sulfate + Potassium hydroxide</h3><p class="reaction-pair-equation">CuSO₄ + 2KOH → Cu(OH)₂ + K₂SO₄</p><p>Relate the equation to a blue copper(II) hydroxide solid.</p></article>
-                    <article><p class="reaction-pair-type">Yellow precipitate</p><h3>Silver nitrate + Potassium iodide</h3><p class="reaction-pair-equation">AgNO₃ + KI → AgI + KNO₃</p><p>Identify a yellow silver iodide precipitate in a double displacement reaction.</p></article>
-                    <article><p class="reaction-pair-type">Single displacement</p><h3>Zinc + Hydrochloric acid</h3><p class="reaction-pair-equation">Zn + 2HCl → ZnCl₂ + H₂</p><p>Track zinc oxidation and hydrogen gas formation.</p></article>
+                    {% for example in guide.reaction_examples %}
+                    <article><p class="reaction-pair-type">{{ example.type }}</p><h3>{{ example.title }}</h3><p class="reaction-pair-equation">{{ example.equation }}</p><p>{{ example.explanation }}</p></article>
+                    {% endfor %}
                 </div>
             </section>
 
@@ -138,9 +135,9 @@
                     <h2 id="boundary-heading">Predict online. Verify before the physical lab.</h2>
                 </div>
                 <div>
-                    <p>OmniLab matches supported chemical pairs to a fixed educational result. It does not infer a real outcome from concentration, quantity, pressure, temperature, order of addition, vessel choice, burner state, contamination, or laboratory technique.</p>
-                    <p>That makes it useful for studying a simplified reaction path, not for deciding that a real procedure is safe. Results can be incomplete or wrong. Check important information against trusted chemistry references and follow trained supervision and your laboratory's safety rules.</p>
-                    <p class="reaction-lab-boundary-strong">Never attempt a reaction solely because it appears in a virtual lab.</p>
+                    <p>{{ guide.boundary }}</p>
+                    <p>{{ guide.safety_boundary }}</p>
+                    <p class="reaction-lab-boundary-strong">{{ guide.safety_warning }}</p>
                 </div>
             </section>
 

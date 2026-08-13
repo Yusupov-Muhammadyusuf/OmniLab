@@ -1357,7 +1357,91 @@ CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
         "virtual lab. See equations, explanations, safety guidance, and "
         "visible reaction cues."
     ),
+    "heading": "Try a chemical reaction in a virtual lab",
+    "direct_answer": (
+        "Choose two chemicals from a supported pair. OmniLab returns a "
+        "balanced equation, a plain-language explanation, three safety "
+        "notes, and a visible reaction cue when the result includes bubbling "
+        "or a precipitate."
+    ),
+    "reaction_examples": [
+        {
+            "type": "Synthesis",
+            "title": "Hydrogen + Oxygen",
+            "equation": "2H₂ + O₂ → 2H₂O",
+            "explanation": "Follow how two elements combine into one compound.",
+        },
+        {
+            "type": "Neutralization",
+            "title": "Hydrochloric acid + Sodium hydroxide",
+            "equation": "HCl + NaOH → NaCl + H₂O",
+            "explanation": (
+                "Connect an acid-base reaction to salt and water formation."
+            ),
+        },
+        {
+            "type": "Gas evolution",
+            "title": "Acetic acid + Sodium bicarbonate",
+            "equation": "CH₃COOH + NaHCO₃ → CO₂ + H₂O + CH₃COONa",
+            "explanation": (
+                "See carbon dioxide represented as a bubbling result."
+            ),
+        },
+        {
+            "type": "Blue precipitate",
+            "title": "Copper(II) sulfate + Potassium hydroxide",
+            "equation": "CuSO₄ + 2KOH → Cu(OH)₂ + K₂SO₄",
+            "explanation": (
+                "Relate the equation to a blue copper(II) hydroxide solid."
+            ),
+        },
+        {
+            "type": "Yellow precipitate",
+            "title": "Silver nitrate + Potassium iodide",
+            "equation": "AgNO₃ + KI → AgI + KNO₃",
+            "explanation": (
+                "Identify a yellow silver iodide precipitate in a double "
+                "displacement reaction."
+            ),
+        },
+        {
+            "type": "Single displacement",
+            "title": "Zinc + Hydrochloric acid",
+            "equation": "Zn + 2HCl → ZnCl₂ + H₂",
+            "explanation": "Track zinc oxidation and hydrogen gas formation.",
+        },
+    ],
+    "boundary": (
+        "OmniLab matches supported chemical pairs to a fixed educational "
+        "result. It does not infer a real outcome from concentration, "
+        "quantity, pressure, temperature, order of addition, vessel choice, "
+        "burner state, contamination, or laboratory technique."
+    ),
+    "safety_boundary": (
+        "That makes it useful for studying a simplified reaction path, not "
+        "for deciding that a real procedure is safe. Results can be "
+        "incomplete or wrong. Check important information against trusted "
+        "chemistry references and follow trained supervision and your "
+        "laboratory's safety rules."
+    ),
+    "safety_warning": (
+        "Never attempt a reaction solely because it appears in a virtual lab."
+    ),
 }
+
+GUIDED_EXPERIMENT_BOUNDARY = (
+    "OmniLab generates an educational prediction from the selected chemicals. "
+    "It can be incomplete or wrong and does not replace instructor "
+    "supervision, trusted references, or physical-lab safety procedures."
+)
+GUIDED_EXPERIMENT_SAFETY_WARNING = (
+    "Do not attempt the sodium and chlorine reaction outside a properly "
+    "equipped, supervised laboratory."
+)
+OBSERVATION_GUIDE_SAFETY_WARNING = (
+    "The result can be incomplete or wrong. Verify it with trusted course "
+    "materials and follow trained laboratory supervision."
+)
 
 GUIDE_PAGE_REFERENCES = {
     CHEMICAL_REACTION_VIRTUAL_LAB_PAGE["canonical_key"]: (
@@ -1474,6 +1558,67 @@ def related_guides_for(canonical_key):
         }
         for related_key, reason in GUIDE_RELATIONSHIPS[canonical_key]
     ]
+
+
+def guide_learning_schema(
+    guide,
+    canonical_url,
+    learning_resource_type,
+    *,
+    equations=(),
+    safety_notes=(),
+    boundary_notes=(),
+    include_question_answer=True,
+):
+    """Build guide JSON-LD only from content rendered on the same page."""
+    schema = {
+        "@context": "https://schema.org",
+        "@type": "LearningResource",
+        "@id": f"{canonical_url}#guide",
+        "name": guide.get("heading", guide["title"]),
+        "description": guide["description"],
+        "url": canonical_url,
+        "inLanguage": "en",
+        "educationalLevel": "Introductory chemistry",
+        "learningResourceType": learning_resource_type,
+        "isPartOf": {
+            "@type": "WebSite",
+            "name": "OmniLab",
+            "url": PUBLIC_CANONICAL_URLS["index"],
+        },
+    }
+
+    if include_question_answer and guide.get("direct_answer"):
+        schema["mainEntity"] = {
+            "@type": "Question",
+            "name": guide["title"],
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": guide["direct_answer"],
+            },
+        }
+
+    content_parts = [
+        {
+            "@type": "CreativeWork",
+            "name": "Reaction equation",
+            "text": equation,
+        }
+        for equation in equations
+    ]
+    safety_text = " ".join((*safety_notes, *boundary_notes))
+    if safety_text:
+        content_parts.append(
+            {
+                "@type": "CreativeWork",
+                "name": "Safety and educational boundary",
+                "text": safety_text,
+            }
+        )
+    if content_parts:
+        schema["hasPart"] = content_parts
+
+    return schema
 
 GUIDE_LIBRARY_GROUPS = [
     {
@@ -2106,20 +2251,16 @@ def guided_experiment(request, guide_key):
     guide = GUIDED_EXPERIMENT_PAGES[guide_key]
     related_guides = related_guides_for(guide["canonical_key"])
     canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
-    page_schema = {
-        "@context": "https://schema.org",
-        "@type": "LearningResource",
-        "name": guide["title"],
-        "description": guide["description"],
-        "url": canonical_url,
-        "educationalLevel": "Introductory chemistry",
-        "learningResourceType": "Study guide",
-        "isPartOf": {
-            "@type": "WebSite",
-            "name": "OmniLab",
-            "url": PUBLIC_CANONICAL_URLS["index"],
-        },
-    }
+    page_schema = guide_learning_schema(
+        guide,
+        canonical_url,
+        "Study guide",
+        equations=(guide["equation"],),
+        boundary_notes=(
+            GUIDED_EXPERIMENT_BOUNDARY,
+            GUIDED_EXPERIMENT_SAFETY_WARNING,
+        ),
+    )
     return render(
         request,
         "guided_experiment.html",
@@ -2130,6 +2271,8 @@ def guided_experiment(request, guide_key):
             "social_preview_url": SOCIAL_PREVIEW_URL,
             "social_preview_alt": SOCIAL_PREVIEW_ALT,
             "page_schema_json": json.dumps(page_schema),
+            "guide_boundary": GUIDED_EXPERIMENT_BOUNDARY,
+            "guide_safety_warning": GUIDED_EXPERIMENT_SAFETY_WARNING,
         },
     )
 
@@ -2138,20 +2281,17 @@ def observation_guide(request, guide_key):
     guide = OBSERVATION_GUIDE_PAGES[guide_key]
     related_guides = related_guides_for(guide["canonical_key"])
     canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
-    page_schema = {
-        "@context": "https://schema.org",
-        "@type": "LearningResource",
-        "name": guide["title"],
-        "description": guide["description"],
-        "url": canonical_url,
-        "educationalLevel": "Introductory chemistry",
-        "learningResourceType": "Experiment observation guide",
-        "isPartOf": {
-            "@type": "WebSite",
-            "name": "OmniLab",
-            "url": PUBLIC_CANONICAL_URLS["index"],
-        },
-    }
+    page_schema = guide_learning_schema(
+        guide,
+        canonical_url,
+        "Experiment observation guide",
+        equations=(guide["equation"],),
+        safety_notes=tuple(guide["safety"]),
+        boundary_notes=(
+            guide["boundary"],
+            OBSERVATION_GUIDE_SAFETY_WARNING,
+        ),
+    )
     return render(
         request,
         "observation_guide.html",
@@ -2162,6 +2302,7 @@ def observation_guide(request, guide_key):
             "social_preview_url": SOCIAL_PREVIEW_URL,
             "social_preview_alt": SOCIAL_PREVIEW_ALT,
             "page_schema_json": json.dumps(page_schema),
+            "guide_safety_warning": OBSERVATION_GUIDE_SAFETY_WARNING,
         },
     )
 
@@ -2170,24 +2311,31 @@ def chemical_reaction_virtual_lab(request):
     guide = CHEMICAL_REACTION_VIRTUAL_LAB_PAGE
     canonical_url = PUBLIC_CANONICAL_URLS[guide["canonical_key"]]
     description = guide["description"]
+    learning_schema = guide_learning_schema(
+        guide,
+        canonical_url,
+        "Virtual laboratory guide",
+        equations=tuple(
+            example["equation"] for example in guide["reaction_examples"]
+        ),
+        boundary_notes=(
+            guide["boundary"],
+            guide["safety_boundary"],
+            guide["safety_warning"],
+        ),
+        include_question_answer=False,
+    )
     page_schema = {
         "@context": "https://schema.org",
         "@graph": [
             {
-                "@type": "LearningResource",
-                "name": "Chemical reaction virtual lab for students",
-                "description": description,
-                "url": canonical_url,
-                "educationalLevel": "Introductory chemistry",
-                "learningResourceType": "Virtual laboratory guide",
-                "isPartOf": {
-                    "@type": "WebSite",
-                    "name": "OmniLab",
-                    "url": PUBLIC_CANONICAL_URLS["index"],
-                },
+                key: value
+                for key, value in learning_schema.items()
+                if key != "@context"
             },
             {
                 "@type": "FAQPage",
+                "@id": f"{canonical_url}#faq",
                 "mainEntity": [
                     {
                         "@type": "Question",
@@ -2215,6 +2363,7 @@ def chemical_reaction_virtual_lab(request):
             "faqs": CHEMICAL_REACTION_LAB_FAQS,
             "visit_source": CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
             "related_guides": related_guides_for(guide["canonical_key"]),
+            "guide": guide,
         },
     )
 
