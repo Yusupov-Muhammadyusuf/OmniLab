@@ -54,6 +54,15 @@ const reactionGuidesByPairKey = new Map([
         ]
     ],
     [
+        'HCl+NaOH',
+        [
+            {
+                href: '/guides/hydrochloric-acid-and-sodium-hydroxide-reaction/',
+                title: 'What happens when hydrochloric acid reacts with sodium hydroxide?'
+            }
+        ]
+    ],
+    [
         'AgNO3+KI',
         [
             {

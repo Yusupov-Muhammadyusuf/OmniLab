@@ -71,6 +71,12 @@ urlpatterns = [
         name="demo_iron_oxygen",
     ),
     path(
+        'demo/hydrochloric-acid-sodium-hydroxide/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'hydrochloric-acid-sodium-hydroxide'},
+        name="demo_hydrochloric_acid_sodium_hydroxide",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -146,6 +152,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'iron-oxygen'},
         name="guide_iron_oxygen",
+    ),
+    path(
+        'guides/hydrochloric-acid-and-sodium-hydroxide-reaction/',
+        views.observation_guide,
+        {'guide_key': 'hydrochloric-acid-sodium-hydroxide'},
+        name="guide_hydrochloric_acid_sodium_hydroxide",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]
