@@ -14,7 +14,21 @@ globalThis.window = {
 
 const { capture } = await import('../static/js/analytics/analytics.js');
 
+test('an unflagged lab page emits lab_viewed at the capture boundary', () => {
+    window.location.search = '';
+    window.location.pathname = '/demo/sodium-chlorine/';
+    const countBeforeCapture = capturedEvents.length;
+
+    capture('lab_viewed', { route: window.location.pathname });
+
+    assert.deepEqual(
+        capturedEvents.slice(countBeforeCapture),
+        [['lab_viewed', { route: '/demo/sodium-chlorine/' }]]
+    );
+});
+
 test('only explicit controlled verification pages suppress analytics', () => {
+    capturedEvents.length = 0;
     const cases = [
         {
             search: '?verification=controlled',
