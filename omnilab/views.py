@@ -84,6 +84,10 @@ PUBLIC_CANONICAL_URLS = {
     "iron_oxygen": (
         f"{PRODUCTION_BASE_URL}/guides/reaction-of-iron-with-oxygen/"
     ),
+    "hydrochloric_acid_sodium_hydroxide": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "hydrochloric-acid-and-sodium-hydroxide-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
@@ -270,6 +274,28 @@ REACTION_DEMOS = {
             "request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/iron-oxygen/",
+    },
+    "hydrochloric-acid-sodium-hydroxide": {
+        "id": "hydrochloric-acid-sodium-hydroxide",
+        "version": "v1",
+        "selectedChemicals": ["HCl", "NaOH"],
+        "vessel": "beaker",
+        "liquidColor": "#d7edf7",
+        "mixture_label": "HCl + NaOH",
+        "title": (
+            "Hydrochloric acid and sodium hydroxide, ready to analyze"
+        ),
+        "page_title": (
+            "OmniLab - Hydrochloric acid and sodium hydroxide demo"
+        ),
+        "page_description": (
+            "Open a prepared Hydrochloric acid and Sodium hydroxide setup, "
+            "then choose whether to request an educational reaction prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "hydrochloric-acid-sodium-hydroxide/"
+        ),
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -1359,6 +1385,132 @@ OBSERVATION_GUIDE_PAGES = {
             "reaction rate, sparks, oxide mixtures, or a physical procedure."
         ),
     },
+    "hydrochloric-acid-sodium-hydroxide": {
+        "route_name": "guide_hydrochloric_acid_sodium_hydroxide",
+        "canonical_key": "hydrochloric_acid_sodium_hydroxide",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_hydrochloric_acid_sodium_hydroxide",
+        "title": (
+            "What happens when hydrochloric acid reacts with sodium hydroxide?"
+        ),
+        "page_title": (
+            "Hydrochloric acid and sodium hydroxide reaction | OmniLab"
+        ),
+        "description": (
+            "See the hydrochloric acid and sodium hydroxide reaction, balanced "
+            "equation, neutralization products, net ionic change, and limits."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Hydrochloric acid and sodium hydroxide neutralize to form sodium "
+            "chloride and water. The solution can warm because neutralization "
+            "is exothermic, but there may be no dramatic visible change."
+        ),
+        "opening_boundary": (
+            "The model leaves out concentration, volume, temperature, pH, and "
+            "a titration endpoint. Both hydrochloric acid and sodium hydroxide "
+            "can cause serious chemical burns."
+        ),
+        "student_job": (
+            "Use this guide to identify the products, balance the equation, "
+            "and reduce it to the net ionic change that forms water."
+        ),
+        "study_intro": (
+            "Connect the one-to-one molecular equation to the ions that react, "
+            "the spectator ions, and the expected temperature change."
+        ),
+        "reactants": [
+            {"name": "Hydrochloric acid", "formula": "HCl"},
+            {"name": "Sodium hydroxide", "formula": "NaOH"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Hydrochloric acid and Sodium hydroxide. "
+            "The burner stays off, and you decide when to request the "
+            "supported prediction."
+        ),
+        "cta_label": "Try the neutralization setup",
+        "equation": "HCl(aq) + NaOH(aq) -> NaCl(aq) + H2O(l)",
+        "explanation": (
+            "Hydrochloric acid and sodium hydroxide neutralize to form "
+            "sodium chloride and water. The net ionic change is the "
+            "combination of hydrogen and hydroxide ions into water. "
+            "Neutralization is exothermic, so the solution can warm."
+        ),
+        "observation_title": "A clear solution that can warm",
+        "observation": (
+            "OmniLab returns the equation and explanation without a dramatic "
+            "visual effect for this pair. In a physical reaction, both "
+            "solutions can remain clear while the temperature rises."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Clear solution",
+        "study_steps": [
+            {
+                "title": "Balance the one-to-one equation",
+                "body": (
+                    "One HCl unit reacts with one NaOH unit. The coefficients "
+                    "are all 1, producing one NaCl unit and one H2O molecule."
+                ),
+            },
+            {
+                "title": "Cancel the spectator ions",
+                "body": (
+                    "Na+ and Cl- remain dissolved on both sides. Removing "
+                    "them leaves H+(aq) + OH-(aq) -> H2O(l)."
+                ),
+            },
+            {
+                "title": "Separate heat from visible change",
+                "body": (
+                    "Neutralization releases heat, so the mixture can warm "
+                    "even when no gas, precipitate, or color change appears."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What type of reaction is HCl with NaOH?",
+                "answer": (
+                    "It is an acid-base neutralization reaction. It can also "
+                    "be classified as a double-displacement reaction in the "
+                    "molecular equation."
+                ),
+            },
+            {
+                "question": "What is the net ionic equation?",
+                "answer": (
+                    "The net ionic equation is H+(aq) + OH-(aq) -> H2O(l). "
+                    "Sodium and chloride ions are spectators."
+                ),
+            },
+            {
+                "question": "Do HCl and NaOH make salt water?",
+                "answer": (
+                    "The simplified products are aqueous sodium chloride and "
+                    "water. The final pH still depends on the starting amounts "
+                    "and concentrations, which OmniLab does not model."
+                ),
+            },
+            {
+                "question": "What can you observe during neutralization?",
+                "answer": (
+                    "The solutions can remain clear, so there may be no obvious "
+                    "visual cue. A temperature rise can provide evidence that "
+                    "the exothermic reaction occurred."
+                ),
+            },
+        ],
+        "safety": [
+            "Wear chemical splash goggles and gloves.",
+            "Add concentrated solutions slowly to control heating.",
+            "Rinse acid or alkali splashes with plenty of water.",
+        ],
+        "boundary": (
+            "OmniLab predicts one simplified neutralization path. It does not "
+            "model concentration, volume, pH, temperature rise, addition "
+            "order, titration endpoints, or a physical procedure."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -1475,7 +1627,10 @@ GUIDE_PAGE_REFERENCES = {
 # a student can carry from the current guide into the next one.
 GUIDE_RELATIONSHIPS = {
     "chemical_reaction_virtual_lab": [
-        ("sodium_chlorine_reaction", "Start with one supported reaction"),
+        (
+            "hydrochloric_acid_sodium_hydroxide",
+            "Study a supported neutralization reaction",
+        ),
         ("limewater_carbon_dioxide", "See a cloudy precipitate result"),
         ("iron_oxygen", "Study oxidation with a solid product"),
     ],
@@ -1559,6 +1714,20 @@ GUIDE_RELATIONSHIPS = {
         ("hydrogen_oxygen", "Compare another reaction with oxygen"),
         ("zinc_hydrochloric_acid", "Compare another metal redox reaction"),
         ("sodium_water", "Compare another metal oxidation"),
+    ],
+    "hydrochloric_acid_sodium_hydroxide": [
+        (
+            "zinc_hydrochloric_acid",
+            "Compare an acid reacting with a metal",
+        ),
+        (
+            "acetic_acid_sodium_bicarbonate",
+            "Compare an acid reaction that releases a gas",
+        ),
+        (
+            "sodium_carbonate_hydrochloric_acid",
+            "Follow hydrochloric acid into a gas-forming reaction",
+        ),
     ],
 }
 
@@ -1849,6 +2018,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "iron-oxygen"
+                ]["canonical_key"],
+            },
+            {
+                "number": "14",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "hydrochloric-acid-sodium-hydroxide"
+                ]["title"],
+                "summary": (
+                    "Connect neutralization, the net ionic equation, and "
+                    "exothermic warming without a dramatic visible change."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "hydrochloric-acid-sodium-hydroxide"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "hydrochloric-acid-sodium-hydroxide"
                 ]["canonical_key"],
             },
         ],
@@ -2385,7 +2570,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 13 free, no-account chemistry guides about virtual reaction "
+        "Browse 14 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )
