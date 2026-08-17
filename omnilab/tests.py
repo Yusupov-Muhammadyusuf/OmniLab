@@ -125,6 +125,13 @@ class DeploymentConfigurationTests(SimpleTestCase):
             ):
                 get_public_origin({"OMNILAB_PUBLIC_ORIGIN": value})
 
+    def test_public_origin_rejects_an_explicitly_empty_value(self):
+        with self.assertRaisesMessage(
+            ImproperlyConfigured,
+            "OMNILAB_PUBLIC_ORIGIN must be an HTTPS origin",
+        ):
+            get_public_origin({"OMNILAB_PUBLIC_ORIGIN": ""})
+
     def test_one_origin_setting_controls_all_absolute_discovery_urls(self):
         configured_origin = "https://chemistry.example.edu"
         environment = os.environ.copy()
@@ -2563,7 +2570,7 @@ class AnalyticsInstrumentationTests(TestCase):
             html=True,
         )
 
-    def test_live_posthog_is_rendered_only_for_the_production_hostname(self):
+    def test_live_posthog_follows_the_default_public_origin_hostname(self):
         analytics_paths = (
             "/",
             "/guides/",
@@ -2596,6 +2603,66 @@ class AnalyticsInstrumentationTests(TestCase):
                 self.assertEqual(response.status_code, 200)
                 for marker in live_analytics_markers:
                     self.assertContains(response, marker, count=1)
+
+    @override_settings(
+        ALLOWED_HOSTS=["chemistry.example.edu", "preview.example.edu"],
+        OMNILAB_PUBLIC_ORIGIN="https://chemistry.example.edu",
+        OMNILAB_NOINDEX=False,
+    )
+    def test_live_posthog_follows_an_alternate_public_origin_hostname(self):
+        public_response = self.client.get(
+            "/",
+            HTTP_HOST="chemistry.example.edu",
+        )
+        preview_response = self.client.get(
+            "/",
+            HTTP_HOST="preview.example.edu",
+        )
+
+        self.assertContains(public_response, "posthog.init(", count=1)
+        self.assertNotContains(preview_response, "posthog.init(")
+
+    @override_settings(
+        ALLOWED_HOSTS=["chemistry.example.edu"],
+        OMNILAB_PUBLIC_ORIGIN="https://chemistry.example.edu",
+        OMNILAB_NOINDEX=True,
+    )
+    def test_noindex_public_host_suppresses_live_posthog(self):
+        response = self.client.get(
+            "/",
+            HTTP_HOST="chemistry.example.edu",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "posthog.init(")
+
+    @override_settings(
+        ALLOWED_HOSTS=["chemistry.example.edu"],
+        OMNILAB_PUBLIC_ORIGIN="",
+        OMNILAB_NOINDEX=False,
+    )
+    def test_missing_public_origin_suppresses_live_posthog(self):
+        response = self.client.get(
+            "/",
+            HTTP_HOST="chemistry.example.edu",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "posthog.init(")
+
+    @override_settings(
+        ALLOWED_HOSTS=["chemistry.example.edu"],
+        OMNILAB_PUBLIC_ORIGIN="not-an-origin",
+        OMNILAB_NOINDEX=False,
+    )
+    def test_malformed_public_origin_suppresses_live_posthog(self):
+        response = self.client.get(
+            "/",
+            HTTP_HOST="chemistry.example.edu",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "posthog.init(")
 
     def test_lab_setup_event_contains_only_coarse_setup_properties(self):
         source = "\n".join(
