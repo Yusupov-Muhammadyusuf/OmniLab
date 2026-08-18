@@ -88,6 +88,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "hydrochloric-acid-and-sodium-hydroxide-reaction/"
     ),
+    "silver_nitrate_sodium_chloride": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "silver-nitrate-and-sodium-chloride-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
@@ -295,6 +299,24 @@ REACTION_DEMOS = {
         "url": (
             f"{PRODUCTION_BASE_URL}/demo/"
             "hydrochloric-acid-sodium-hydroxide/"
+        ),
+    },
+    "silver-nitrate-sodium-chloride": {
+        "id": "silver-nitrate-sodium-chloride",
+        "version": "v1",
+        "selectedChemicals": ["AgNO3", "NaCl"],
+        "vessel": "beaker",
+        "liquidColor": "#d7edf7",
+        "mixture_label": "AgNO3 + NaCl",
+        "title": "Silver nitrate and sodium chloride, ready to analyze",
+        "page_title": "OmniLab - Silver nitrate and sodium chloride demo",
+        "page_description": (
+            "Open a prepared Silver nitrate and Sodium chloride setup, then "
+            "choose whether to request an educational reaction prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "silver-nitrate-sodium-chloride/"
         ),
     },
 }
@@ -1511,6 +1533,137 @@ OBSERVATION_GUIDE_PAGES = {
             "order, titration endpoints, or a physical procedure."
         ),
     },
+    "silver-nitrate-sodium-chloride": {
+        "route_name": "guide_silver_nitrate_sodium_chloride",
+        "canonical_key": "silver_nitrate_sodium_chloride",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_silver_nitrate_sodium_chloride",
+        "title": (
+            "What happens when silver nitrate reacts with sodium chloride?"
+        ),
+        "page_title": (
+            "Silver nitrate and sodium chloride reaction | OmniLab"
+        ),
+        "description": (
+            "See the silver nitrate and sodium chloride reaction, white "
+            "precipitate, balanced and net ionic equations, and model limits."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Silver nitrate and sodium chloride form silver chloride, an "
+            "insoluble white precipitate. Sodium and nitrate ions remain "
+            "dissolved in the solution."
+        ),
+        "opening_boundary": (
+            "The white cue is a simplified prediction. The model leaves out "
+            "concentration, yield, particle size, light exposure, and a "
+            "physical procedure."
+        ),
+        "student_job": (
+            "Use this guide to identify the white solid, balance the molecular "
+            "equation, and reduce it to the ions that form silver chloride."
+        ),
+        "reactants": [
+            {"name": "Silver nitrate", "formula": "AgNO3"},
+            {"name": "Sodium chloride", "formula": "NaCl"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Silver nitrate and Sodium chloride. "
+            "The burner stays off, and you decide when to request the "
+            "supported prediction."
+        ),
+        "cta_label": "Try the white precipitate setup",
+        "equation": "AgNO3(aq) + NaCl(aq) -> AgCl(s) + NaNO3(aq)",
+        "explanation": (
+            "Silver nitrate and sodium chloride exchange ions to form "
+            "insoluble silver chloride. The white silver chloride precipitate "
+            "is the usual evidence for chloride ions in this simplified test. "
+            "Sodium and nitrate ions remain in solution."
+        ),
+        "observation_title": "A white silver chloride precipitate",
+        "observation": (
+            "OmniLab shows a bounded cloudy-white precipitate cue inside the "
+            "beaker to represent the expected silver chloride solid. The cue "
+            "does not model how quickly particles appear or settle."
+        ),
+        "observation_class": "observation-cloudy",
+        "observation_label": "White solid",
+        "net_ionic_equation": "Ag+(aq) + Cl-(aq) -> AgCl(s)",
+        "spectator_ions": "Na+(aq) and NO3-(aq)",
+        "ionic_explanation": (
+            "Silver ions combine with chloride ions because silver chloride "
+            "is insoluble in water. Sodium and nitrate ions stay aqueous, so "
+            "they cancel from the complete ionic equation."
+        ),
+        "study_steps": [
+            {
+                "title": "Split the soluble reactants into ions",
+                "body": (
+                    "AgNO3 provides Ag+ and NO3-. NaCl provides Na+ and Cl-. "
+                    "All four ions begin in the aqueous reactants."
+                ),
+            },
+            {
+                "title": "Identify the insoluble product",
+                "body": (
+                    "Ag+ and Cl- combine in a one-to-one ratio to form solid "
+                    "AgCl, the white precipitate."
+                ),
+            },
+            {
+                "title": "Cancel the spectator ions",
+                "body": (
+                    "Na+ and NO3- remain aqueous on both sides, leaving only "
+                    "the ions that form silver chloride."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What type of reaction is AgNO3 with NaCl?",
+                "answer": (
+                    "It is a precipitation reaction and can also be described "
+                    "as double displacement. The insoluble product is AgCl."
+                ),
+            },
+            {
+                "question": "What color is the silver chloride precipitate?",
+                "answer": (
+                    "Fresh silver chloride is represented as white or cloudy "
+                    "in this simplified result. Strong light can change its "
+                    "appearance over time."
+                ),
+            },
+            {
+                "question": "What is the net ionic equation?",
+                "answer": (
+                    "The net ionic equation is Ag+(aq) + Cl-(aq) -> AgCl(s). "
+                    "Sodium and nitrate ions are spectators."
+                ),
+            },
+            {
+                "question": "Why does a precipitate form?",
+                "answer": (
+                    "Silver chloride has low solubility in water, so Ag+ and "
+                    "Cl- leave the aqueous mixture together as a solid."
+                ),
+            },
+        ],
+        "safety": [
+            "Wear gloves and splash goggles when handling silver nitrate.",
+            "Protect the mixture from strong light after the precipitate forms.",
+            (
+                "Collect silver-containing waste instead of pouring it down "
+                "a drain."
+            ),
+        ],
+        "boundary": (
+            "The white cue is a simplified expected observation. OmniLab does "
+            "not model concentration, yield, particle size, light-driven "
+            "changes, temperature, addition order, or waste handling. Vessel "
+            "and burner choices do not affect the prediction."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -1673,10 +1826,13 @@ GUIDE_RELATIONSHIPS = {
     ],
     "silver_nitrate_potassium_iodide": [
         (
+            "silver_nitrate_sodium_chloride",
+            "Compare yellow and white silver precipitates",
+        ),
+        (
             "copper_sulfate_potassium_hydroxide",
             "Compare a blue precipitate result",
         ),
-        ("limewater_carbon_dioxide", "Compare a cloudy precipitate result"),
     ],
     "copper_sulfate_potassium_hydroxide": [
         (
@@ -1727,6 +1883,20 @@ GUIDE_RELATIONSHIPS = {
         (
             "sodium_carbonate_hydrochloric_acid",
             "Follow hydrochloric acid into a gas-forming reaction",
+        ),
+    ],
+    "silver_nitrate_sodium_chloride": [
+        (
+            "silver_nitrate_potassium_iodide",
+            "Compare yellow and white silver precipitates",
+        ),
+        (
+            "copper_sulfate_potassium_hydroxide",
+            "Compare a blue precipitate result",
+        ),
+        (
+            "limewater_carbon_dioxide",
+            "Compare another cloudy white precipitate",
         ),
     ],
 }
@@ -2034,6 +2204,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "hydrochloric-acid-sodium-hydroxide"
+                ]["canonical_key"],
+            },
+            {
+                "number": "15",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "silver-nitrate-sodium-chloride"
+                ]["title"],
+                "summary": (
+                    "Connect a white silver chloride precipitate to the "
+                    "balanced and net ionic equations."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "silver-nitrate-sodium-chloride"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "silver-nitrate-sodium-chloride"
                 ]["canonical_key"],
             },
         ],
@@ -2570,7 +2756,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 14 free, no-account chemistry guides about virtual reaction "
+        "Browse 15 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )
