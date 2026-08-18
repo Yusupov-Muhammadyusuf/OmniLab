@@ -377,6 +377,91 @@ body {
     text-wrap: pretty;
 }
 
+.first-experiment-progress {
+    margin: 0 0 14px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.first-experiment-progress span {
+    min-height: 28px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(30, 30, 30, 0.24);
+    border-radius: 7px;
+    color: var(--muted-text);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+[data-theme="dark"] .first-experiment-progress span {
+    border-color: rgba(245, 245, 245, 0.32);
+}
+
+.first-experiment-progress span.is-current {
+    border-color: var(--text-color);
+    background: var(--text-color);
+    color: var(--bg-main);
+}
+
+.first-experiment-progress span.is-complete {
+    border-color: var(--text-color);
+    color: var(--text-color);
+}
+
+.first-experiment-progress span.is-complete::after {
+    content: "\2713";
+}
+
+.first-experiment-progress span.is-complete {
+    font-size: 0;
+}
+
+.first-experiment-progress span.is-complete::after {
+    font-size: 13px;
+}
+
+.first-experiment-step {
+    margin: 0 0 6px;
+    color: var(--muted-text);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.first-experiment-exit {
+    min-height: 44px;
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    color: var(--muted-text);
+    font-size: 12px;
+    font-weight: 700;
+    text-underline-offset: 4px;
+}
+
+.first-experiment-exit:hover {
+    color: var(--text-color);
+    text-decoration-thickness: 2px;
+}
+
+.first-experiment-exit:focus-visible,
+.first-experiment-target:focus-visible {
+    outline: 3px solid #e3384f;
+    outline-offset: 3px;
+}
+
+.first-experiment-target {
+    outline: 3px solid #e3384f;
+    outline-offset: 4px;
+}
+
+.chemical-card:disabled {
+    cursor: not-allowed;
+    opacity: 0.38;
+}
+
 .ai-sidebar {
     height: 100vh;
     border-left: 2px solid var(--text-color);

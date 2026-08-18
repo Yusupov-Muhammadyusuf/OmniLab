@@ -2,6 +2,7 @@ import * as config from '../configuration/config.js';
 import * as ui from '../userInterface/ui.js';
 import * as render from '../rendering/render.js';
 import * as interactions from '../interactions/interactions.js';
+import * as firstExperiment from '../firstExperiment/firstExperiment.js';
 import { capture } from '../analytics/analytics.js';
 document.addEventListener("DOMContentLoaded", function () {
     capture('lab_viewed', { route: window.location.pathname });
@@ -19,6 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
     requestAnimationFrame(engineLoop);
     interactions.setupCanvasDrag();
     ui.setupSearchFunction();
+    firstExperiment.initializeFirstExperiment();
     const burnerOpt = document.getElementById('opt-burner');
     if (burnerOpt) {
         burnerOpt.addEventListener('click', () => ui.selectVessel('burner'));
@@ -33,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((data) => {
         config.updateLabState({ chemicalDatabase: data });
         ui.buildChemicalMenu(interactions.addChemicalToLab);
+        firstExperiment.syncFirstExperimentGuide();
     })
         .catch((error) => console.error("Error loading json:", error));
     if (config.canvas) {
@@ -45,24 +48,42 @@ document.addEventListener("DOMContentLoaded", function () {
     const resetBtn = document.getElementById('btn-reset-lab');
     const analyzeBtn = document.getElementById('btn-fire-analysis');
     if (chemBtn)
-        chemBtn.addEventListener('click', (e) => ui.toggleCustomPopover(e, 'chemicals'));
+        chemBtn.addEventListener('click', (e) => {
+            ui.toggleCustomPopover(e, 'chemicals');
+            firstExperiment.syncFirstExperimentGuide();
+        });
     if (appBtn)
-        appBtn.addEventListener('click', (e) => ui.toggleCustomPopover(e, 'apparatus'));
+        appBtn.addEventListener('click', (e) => {
+            ui.toggleCustomPopover(e, 'apparatus');
+            firstExperiment.syncFirstExperimentGuide();
+        });
     if (themeBtn)
         themeBtn.addEventListener('click', ui.toggleTheme);
     if (resetBtn)
-        resetBtn.addEventListener('click', interactions.resetLaboratory);
+        resetBtn.addEventListener('click', () => {
+            interactions.resetLaboratory();
+            firstExperiment.syncFirstExperimentGuide();
+        });
     if (analyzeBtn)
         analyzeBtn.addEventListener('click', interactions.fireAIAnalysis);
     const beakerOpt = document.getElementById('opt-beaker');
     const tubeOpt = document.getElementById('opt-tube');
     const flaskOpt = document.getElementById('opt-flask');
     if (beakerOpt)
-        beakerOpt.addEventListener('click', () => ui.selectVessel('beaker'));
+        beakerOpt.addEventListener('click', () => {
+            ui.selectVessel('beaker');
+            firstExperiment.syncFirstExperimentGuide();
+        });
     if (tubeOpt)
-        tubeOpt.addEventListener('click', () => ui.selectVessel('tube'));
+        tubeOpt.addEventListener('click', () => {
+            ui.selectVessel('tube');
+            firstExperiment.syncFirstExperimentGuide();
+        });
     if (flaskOpt)
-        flaskOpt.addEventListener('click', () => ui.selectVessel('flask'));
+        flaskOpt.addEventListener('click', () => {
+            ui.selectVessel('flask');
+            firstExperiment.syncFirstExperimentGuide();
+        });
     document.addEventListener('click', ui.closeAllPopovers);
     window.addEventListener('resize', ui.resizeCanvas);
 });

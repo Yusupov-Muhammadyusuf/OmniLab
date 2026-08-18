@@ -3211,6 +3211,34 @@ class AccessibleLabSetupTests(TestCase):
 
 
 class SupportedSetupAnalysisStateTests(TestCase):
+    def test_first_experiment_starts_empty_and_guides_the_supported_path(self):
+        response = self.client.get("/first-experiment/")
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            '<meta name="robots" content="noindex, follow">',
+            html=True,
+        )
+        self.assertContains(response, "OmniLab first experiment")
+        self.assertContains(response, "Step 1 of 4")
+        self.assertContains(response, "Add sodium")
+        self.assertContains(response, "Empty Vessel")
+        self.assertContains(response, "window.firstExperiment = true;")
+        self.assertContains(response, 'href="/">Use the open lab instead</a>')
+        self.assertNotContains(response, "Fifteen chemistry guides")
+        button = html.split('id="btn-fire-analysis"', 1)[1].split(">", 1)[0]
+        self.assertIn("disabled", button)
+
+    def test_first_experiment_uses_isolated_browser_storage(self):
+        configuration = (
+            settings.BASE_DIR / "static/ts/configuration/config.ts"
+        ).read_text()
+
+        self.assertIn("window.firstExperiment", configuration)
+        self.assertIn("`firstExperiment:v1:${baseKey}`", configuration)
+
     def test_normal_lab_starts_disabled_with_missing_input_guidance(self):
         response = self.client.get("/")
 
@@ -4152,7 +4180,7 @@ class LabJourneyRepairTests(TestCase):
             "export function resetLaboratory(): void {", 1
         )[1].split("\n}\n\nfunction getCsrfToken", 1)[0]
 
-        self.assertIn("panel.innerHTML = DEFAULT_REACTION_INSTRUCTION", reset_block)
+        self.assertIn("panel.innerHTML = getDefaultReactionInstruction()", reset_block)
         self.assertNotIn("reaction-study", reset_block)
 
     def test_browser_normalizes_effects_before_measurement_storage_and_rendering(self):
@@ -4208,7 +4236,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("if (savedData !== null) {", restore_block)
         self.assertIn("removeStorageValue(reactionStorageKey);", restore_block)
         self.assertIn("? DEMO_REACTION_INSTRUCTION", restore_block)
-        self.assertIn(": DEFAULT_REACTION_INSTRUCTION", restore_block)
+        self.assertIn(": getDefaultReactionInstruction()", restore_block)
         self.assertNotIn("capture('reaction_analysis_completed'", restore_block)
 
     def test_browser_discards_invalid_saved_liquid_colors(self):
@@ -4290,7 +4318,7 @@ class LabJourneyRepairTests(TestCase):
         self.assertIn("smokeParticles: []", reset_block)
         self.assertIn("explosionParticles: []", reset_block)
         self.assertIn("precipitateColor: null", reset_block)
-        self.assertIn("panel.innerHTML = DEFAULT_REACTION_INSTRUCTION", reset_block)
+        self.assertIn("panel.innerHTML = getDefaultReactionInstruction()", reset_block)
 
     def test_reset_cancels_stale_analysis_and_thermal_effects(self):
         interactions = (

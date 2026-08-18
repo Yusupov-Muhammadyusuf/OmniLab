@@ -7,7 +7,7 @@
     <meta name="description" content="{{ page_description }}">
     <title>{{ page_title }}</title>
     <link rel="canonical" href="{{ canonical_url }}">
-    {% if reaction_demo %}<meta name="robots" content="noindex, follow">{% endif %}
+    {% if reaction_demo or first_experiment %}<meta name="robots" content="noindex, follow">{% endif %}
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="OmniLab">
     <meta property="og:title" content="{{ social_title }}">
@@ -32,8 +32,22 @@
     <script type="application/ld+json">{{ software_schema_json|safe }}</script>
 </head>
 <body class="home-page">
-    <header class="app-title-card{% if reaction_demo %} app-title-card--guided{% endif %}">
-        {% if reaction_demo %}
+    <header class="app-title-card{% if reaction_demo or first_experiment %} app-title-card--guided{% endif %}">
+        {% if first_experiment %}
+        <p class="app-wordmark">OmniLab first experiment</p>
+        <div class="first-experiment-progress" aria-label="Experiment progress">
+            <span data-guide-step="1" aria-current="step">1</span>
+            <span data-guide-step="2">2</span>
+            <span data-guide-step="3">3</span>
+            <span data-guide-step="4">4</span>
+        </div>
+        <p class="first-experiment-step" id="first-experiment-step">Step 1 of 4</p>
+        <h1 id="first-experiment-title">Add sodium</h1>
+        <p class="app-subheadline" id="first-experiment-instruction" aria-live="polite">
+            Open Chemicals and select Sodium (Na). OmniLab will then mark its supported partner.
+        </p>
+        <a class="first-experiment-exit" href="{% url 'index' %}">Use the open lab instead</a>
+        {% elif reaction_demo %}
         <p class="app-wordmark">OmniLab guided demo</p>
         <h1>{{ reaction_demo.title }}</h1>
         <p class="app-subheadline">The supported inputs and a beaker are prepared. Select Analyze Chemical Reaction when you want an educational prediction.</p>
@@ -91,6 +105,10 @@
                     <div id="ai-response-content" style="color: var(--text-color);">
                         {% if reaction_demo %}
                         <p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>
+                        {% elif first_experiment %}
+                        <div class="text-center mt-5 lab-empty-state">
+                            <p class="lab-instruction mb-2">Follow the highlighted control through four short steps. Your equation, explanation, and safety rules will appear here.</p>
+                        </div>
                         {% else %}
                         <div class="text-center mt-5 lab-empty-state">
                             <p class="lab-instruction mb-2">Choose a supported pair from Chemicals. Try <strong>Hydrogen and Oxygen</strong> or <strong>Hydrochloric acid and Sodium hydroxide</strong>.</p>
@@ -117,7 +135,7 @@
 
         </section>
 
-        {% if not reaction_demo %}
+        {% if not reaction_demo and not first_experiment %}
         <section id="guide-library" class="guide-library" aria-labelledby="guide-library-title">
             <div class="guide-library-shell">
                 <div class="guide-library-intro">
@@ -148,6 +166,7 @@
     <script>
         window.chemicalDataUrl = "{% static 'js/chemicaldata.json' %}";
         window.reactionDemo = {{ reaction_demo_json|safe }};
+        window.firstExperiment = {{ first_experiment_json|safe }};
         window.supportedReactionPairs = {{ supported_reaction_pairs_json|safe }};
     </script>
     <script type="module" src="{% static 'js/root/main.js' %}"></script>
