@@ -1,13 +1,24 @@
 let labSetupCaptured = false;
 const CONTROLLED_VERIFICATION_PARAM = 'verification';
 const CONTROLLED_VERIFICATION_VALUE = 'controlled';
+const VISIT_TYPE_EVENTS = new Set([
+    'lab_viewed',
+    'reaction_analysis_completed'
+]);
 export function capture(event, properties = {}) {
     const query = new URLSearchParams(window.location?.search ?? '');
     const isControlledVerification = (query.get(CONTROLLED_VERIFICATION_PARAM) ===
         CONTROLLED_VERIFICATION_VALUE);
-    if (isControlledVerification)
+    const tracksVisitType = VISIT_TYPE_EVENTS.has(event);
+    if (isControlledVerification && !tracksVisitType)
         return;
-    window.posthog?.capture?.(event, properties);
+    const visitType = isControlledVerification
+        ? 'internal'
+        : 'unclassified';
+    const measuredProperties = tracksVisitType
+        ? { ...properties, visit_type: visitType }
+        : properties;
+    window.posthog?.capture?.(event, measuredProperties);
 }
 export function captureLabSetupStarted(properties) {
     if (labSetupCaptured)
