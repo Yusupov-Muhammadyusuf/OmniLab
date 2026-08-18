@@ -14,7 +14,7 @@ globalThis.window = {
 
 const { capture } = await import('../static/js/analytics/analytics.js');
 
-test('an unflagged lab page emits lab_viewed at the capture boundary', () => {
+test('an unflagged lab page emits an unclassified lab_viewed event', () => {
     window.location.search = '';
     window.location.pathname = '/demo/sodium-chlorine/';
     const countBeforeCapture = capturedEvents.length;
@@ -23,66 +23,75 @@ test('an unflagged lab page emits lab_viewed at the capture boundary', () => {
 
     assert.deepEqual(
         capturedEvents.slice(countBeforeCapture),
-        [['lab_viewed', { route: '/demo/sodium-chlorine/' }]]
+        [[
+            'lab_viewed',
+            {
+                route: '/demo/sodium-chlorine/',
+                visit_type: 'unclassified'
+            }
+        ]]
     );
 });
 
-test('only explicit controlled verification pages suppress analytics', () => {
-    capturedEvents.length = 0;
-    const cases = [
-        {
-            search: '?verification=controlled',
-            event: 'controlled_verification',
-            captured: false
-        },
-        {
-            search: '',
-            event: 'direct_visit',
-            captured: true
-        },
-        {
-            search: '?source=guide_reaction',
-            event: 'guide_visit',
-            captured: true
-        },
-        {
-            search: '?source=student_invite',
-            event: 'student_invite',
-            captured: true
-        },
-        {
-            search: '?verification=controlled&source=student_invite',
-            event: 'student_invite_with_verification_flag',
-            captured: false
-        },
-        {
-            search: '?verification=unexpected',
-            event: 'unrecognized_verification_value',
-            captured: true
-        }
-    ];
+test('completed analyses default to unclassified and ignore caller overrides', () => {
+    window.location.search = '';
+    const countBeforeCapture = capturedEvents.length;
 
-    for (const scenario of cases) {
-        const countBeforeCapture = capturedEvents.length;
-        window.location.search = scenario.search;
-
-        capture(scenario.event, { entry_source: 'bounded_test_value' });
-
-        assert.equal(
-            capturedEvents.length,
-            countBeforeCapture + Number(scenario.captured),
-            scenario.event
-        );
-    }
+    capture('reaction_analysis_completed', {
+        chemical_count: 2,
+        visit_type: 'internal'
+    });
 
     assert.deepEqual(
-        capturedEvents.map(([event]) => event),
-        cases.filter(({ captured }) => captured).map(({ event }) => event)
+        capturedEvents.slice(countBeforeCapture),
+        [[
+            'reaction_analysis_completed',
+            {
+                chemical_count: 2,
+                visit_type: 'unclassified'
+            }
+        ]]
     );
-    assert.ok(
-        capturedEvents.every(([, properties]) => (
-            Object.keys(properties).length === 1 &&
-            properties.entry_source === 'bounded_test_value'
-        ))
+});
+
+test('controlled pages label only views and completions as internal', () => {
+    capturedEvents.length = 0;
+    window.location.search = '?verification=controlled&source=student_invite';
+
+    capture('lab_viewed', { route: '/demo/sodium-chlorine/' });
+    capture('reaction_analysis_started', { chemical_count: 2 });
+    capture('reaction_analysis_completed', { chemical_count: 2 });
+    capture('reaction_demo_entered', { demo_version: '1' });
+
+    assert.deepEqual(
+        capturedEvents,
+        [
+            [
+                'lab_viewed',
+                {
+                    route: '/demo/sodium-chlorine/',
+                    visit_type: 'internal'
+                }
+            ],
+            [
+                'reaction_analysis_completed',
+                {
+                    chemical_count: 2,
+                    visit_type: 'internal'
+                }
+            ]
+        ]
+    );
+});
+
+test('non-visit events retain their existing unflagged properties', () => {
+    window.location.search = '?verification=unexpected';
+    const countBeforeCapture = capturedEvents.length;
+
+    capture('guide_visit', { entry_source: 'bounded_test_value' });
+
+    assert.deepEqual(
+        capturedEvents.slice(countBeforeCapture),
+        [['guide_visit', { entry_source: 'bounded_test_value' }]]
     );
 });

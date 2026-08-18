@@ -12,6 +12,12 @@ let labSetupCaptured = false;
 
 const CONTROLLED_VERIFICATION_PARAM = 'verification';
 const CONTROLLED_VERIFICATION_VALUE = 'controlled';
+const VISIT_TYPE_EVENTS = new Set([
+    'lab_viewed',
+    'reaction_analysis_completed'
+]);
+
+type VisitType = 'internal' | 'unclassified';
 
 declare global {
     interface Window {
@@ -30,9 +36,17 @@ export function capture(
         query.get(CONTROLLED_VERIFICATION_PARAM) ===
         CONTROLLED_VERIFICATION_VALUE
     );
-    if (isControlledVerification) return;
+    const tracksVisitType = VISIT_TYPE_EVENTS.has(event);
+    if (isControlledVerification && !tracksVisitType) return;
 
-    window.posthog?.capture?.(event, properties);
+    const visitType: VisitType = isControlledVerification
+        ? 'internal'
+        : 'unclassified';
+    const measuredProperties = tracksVisitType
+        ? { ...properties, visit_type: visitType }
+        : properties;
+
+    window.posthog?.capture?.(event, measuredProperties);
 }
 
 export function captureLabSetupStarted(properties: LabSetupProperties): void {
