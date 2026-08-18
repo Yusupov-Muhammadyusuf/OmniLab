@@ -86,11 +86,19 @@ function targetForStep(step) {
     return (document.querySelector('.safety-matrix-block')
         ?? document.getElementById('ai-response-content'));
 }
+function getCurrentStep() {
+    const state = config.getLabState();
+    return getFirstExperimentStep(state.selectedChemicals, state.currentVessel, resultIsComplete());
+}
+export function focusFirstExperimentTarget(step) {
+    if (!window.firstExperiment || step === 'complete')
+        return;
+    targetForStep(step)?.focus();
+}
 export function syncFirstExperimentGuide() {
     if (!window.firstExperiment)
         return;
-    const state = config.getLabState();
-    const step = getFirstExperimentStep(state.selectedChemicals, state.currentVessel, resultIsComplete());
+    const step = getCurrentStep();
     const copy = STEP_COPY[step];
     const label = document.getElementById('first-experiment-step');
     const title = document.getElementById('first-experiment-title');
@@ -119,6 +127,12 @@ export function syncFirstExperimentGuide() {
         analyzeButton.disabled = step !== 'analyze';
     }
     targetForStep(step)?.classList.add('first-experiment-target');
+}
+export function advanceFirstExperimentGuide() {
+    if (!window.firstExperiment)
+        return;
+    syncFirstExperimentGuide();
+    focusFirstExperimentTarget(getCurrentStep());
 }
 export function initializeFirstExperiment() {
     if (!window.firstExperiment)

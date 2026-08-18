@@ -3204,9 +3204,8 @@ class AccessibleLabSetupTests(TestCase):
         self.assertIn("card.addEventListener('click'", ui)
         self.assertIn("onSelectChemical(chem.id, chem.color)", ui)
         self.assertIn("ev.currentTarget", ui)
-        self.assertIn(
-            "ui.buildChemicalMenu(interactions.addChemicalToLab)", entry
-        )
+        self.assertIn("ui.buildChemicalMenu((name: string, color: string)", entry)
+        self.assertIn("interactions.addChemicalToLab(name, color)", entry)
 
         add_block = interactions.split(
             "export function addChemicalToLab(", 1
@@ -3254,6 +3253,30 @@ class SupportedSetupAnalysisStateTests(TestCase):
         self.assertNotContains(response, "Fifteen chemistry guides")
         button = html.split('id="btn-fire-analysis"', 1)[1].split(">", 1)[0]
         self.assertIn("disabled", button)
+
+    def test_first_experiment_preserves_focus_and_touch_targets(self):
+        css = (settings.BASE_DIR / "static/css/style.css").read_text()
+        entry = (settings.BASE_DIR / "static/ts/root/main.ts").read_text()
+        guide = (
+            settings.BASE_DIR
+            / "static/ts/firstExperiment/firstExperiment.ts"
+        ).read_text()
+
+        toolbar_block = css.split(".toolbar-trigger-btn {", 1)[1].split("}", 1)[0]
+        reset_block = css.split("#btn-reset-lab {", 1)[1].split("}", 1)[0]
+        reset_focus_block = css.split(
+            "#btn-reset-lab:focus-visible {", 1
+        )[1].split("}", 1)[0]
+
+        self.assertIn("min-height: 44px", toolbar_block)
+        self.assertIn("min-height: 44px", reset_block)
+        self.assertIn("min-width: 44px", reset_block)
+        self.assertIn("outline: 3px solid #e3384f", reset_focus_block)
+        self.assertIn("targetForStep(step)?.focus()", guide)
+        self.assertGreaterEqual(
+            entry.count("firstExperiment.advanceFirstExperimentGuide()"),
+            3,
+        )
 
     def test_first_experiment_uses_isolated_browser_storage(self):
         configuration = (

@@ -175,6 +175,7 @@ body {
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 14px;
+    min-height: 44px;
     transition: all 0.2s ease;
 }
 
@@ -734,6 +735,16 @@ body {
 .action-btn-secondary:hover {
     background: var(--text-color);
     color: var(--bg-main);
+}
+
+#btn-reset-lab {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+#btn-reset-lab:focus-visible {
+    outline: 3px solid #e3384f;
+    outline-offset: 3px;
 }
 
 .guide-library {
