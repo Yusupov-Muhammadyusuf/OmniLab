@@ -50,7 +50,10 @@ document.addEventListener("DOMContentLoaded", function(): void {
         })
         .then((data: any) => {
             config.updateLabState({ chemicalDatabase: data });
-            ui.buildChemicalMenu(interactions.addChemicalToLab);
+            ui.buildChemicalMenu((name: string, color: string) => {
+                interactions.addChemicalToLab(name, color);
+                firstExperiment.advanceFirstExperimentGuide();
+            });
             firstExperiment.syncFirstExperimentGuide();
         })
         .catch((error: any) => console.error("Error loading json:", error));
@@ -77,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function(): void {
     if (themeBtn) themeBtn.addEventListener('click', ui.toggleTheme);
     if (resetBtn) resetBtn.addEventListener('click', () => {
         interactions.resetLaboratory();
-        firstExperiment.syncFirstExperimentGuide();
+        firstExperiment.advanceFirstExperimentGuide();
     });
     if (analyzeBtn) analyzeBtn.addEventListener('click', interactions.fireAIAnalysis);
 
@@ -87,7 +90,7 @@ document.addEventListener("DOMContentLoaded", function(): void {
 
     if (beakerOpt) beakerOpt.addEventListener('click', () => {
         ui.selectVessel('beaker');
-        firstExperiment.syncFirstExperimentGuide();
+        firstExperiment.advanceFirstExperimentGuide();
     });
     if (tubeOpt) tubeOpt.addEventListener('click', () => {
         ui.selectVessel('tube');

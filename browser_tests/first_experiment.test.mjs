@@ -11,7 +11,10 @@ globalThis.document = {
     querySelectorAll: () => []
 };
 
-const { getFirstExperimentStep } = await import(
+const {
+    focusFirstExperimentTarget,
+    getFirstExperimentStep
+} = await import(
     '../static/js/firstExperiment/firstExperiment.js'
 );
 
@@ -42,4 +45,27 @@ test('the first experiment finishes only after a complete result is visible', ()
         getFirstExperimentStep(['Na', 'Cl2'], 'beaker', true),
         'complete'
     );
+});
+
+test('the first experiment focuses the next useful closed-panel control', () => {
+    const focused = [];
+    const elements = {
+        'trigger-chemicals': { focus: () => focused.push('trigger-chemicals') },
+        'sub-panel-chemicals': { style: { display: 'none' } },
+        'trigger-apparatus': { focus: () => focused.push('trigger-apparatus') },
+        'sub-panel-apparatus': { style: { display: 'none' } },
+        'btn-fire-analysis': { focus: () => focused.push('btn-fire-analysis') }
+    };
+    globalThis.document.getElementById = id => elements[id] || null;
+
+    focusFirstExperimentTarget('chlorine');
+    focusFirstExperimentTarget('beaker');
+    focusFirstExperimentTarget('analyze');
+    focusFirstExperimentTarget('complete');
+
+    assert.deepEqual(focused, [
+        'trigger-chemicals',
+        'trigger-apparatus',
+        'btn-fire-analysis'
+    ]);
 });

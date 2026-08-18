@@ -115,15 +115,26 @@ function targetForStep(step: FirstExperimentStep): HTMLElement | null {
     );
 }
 
-export function syncFirstExperimentGuide(): void {
-    if (!window.firstExperiment) return;
-
+function getCurrentStep(): FirstExperimentStep {
     const state = config.getLabState();
-    const step = getFirstExperimentStep(
+    return getFirstExperimentStep(
         state.selectedChemicals,
         state.currentVessel,
         resultIsComplete()
     );
+}
+
+export function focusFirstExperimentTarget(
+    step: FirstExperimentStep
+): void {
+    if (!window.firstExperiment || step === 'complete') return;
+    targetForStep(step)?.focus();
+}
+
+export function syncFirstExperimentGuide(): void {
+    if (!window.firstExperiment) return;
+
+    const step = getCurrentStep();
     const copy = STEP_COPY[step];
     const label = document.getElementById('first-experiment-step');
     const title = document.getElementById('first-experiment-title');
@@ -153,6 +164,12 @@ export function syncFirstExperimentGuide(): void {
         analyzeButton.disabled = step !== 'analyze';
     }
     targetForStep(step)?.classList.add('first-experiment-target');
+}
+
+export function advanceFirstExperimentGuide(): void {
+    if (!window.firstExperiment) return;
+    syncFirstExperimentGuide();
+    focusFirstExperimentTarget(getCurrentStep());
 }
 
 export function initializeFirstExperiment(): void {
