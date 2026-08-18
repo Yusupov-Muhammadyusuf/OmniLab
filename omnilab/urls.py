@@ -77,6 +77,12 @@ urlpatterns = [
         name="demo_hydrochloric_acid_sodium_hydroxide",
     ),
     path(
+        'demo/silver-nitrate-sodium-chloride/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'silver-nitrate-sodium-chloride'},
+        name="demo_silver_nitrate_sodium_chloride",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -158,6 +164,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'hydrochloric-acid-sodium-hydroxide'},
         name="guide_hydrochloric_acid_sodium_hydroxide",
+    ),
+    path(
+        'guides/silver-nitrate-and-sodium-chloride-reaction/',
+        views.observation_guide,
+        {'guide_key': 'silver-nitrate-sodium-chloride'},
+        name="guide_silver_nitrate_sodium_chloride",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]

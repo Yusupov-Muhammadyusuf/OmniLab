@@ -72,6 +72,15 @@ const reactionGuidesByPairKey = new Map([
         ]
     ],
     [
+        'AgNO3+NaCl',
+        [
+            {
+                href: '/guides/silver-nitrate-and-sodium-chloride-reaction/',
+                title: 'What happens when silver nitrate reacts with sodium chloride?'
+            }
+        ]
+    ],
+    [
         'CuSO4+KOH',
         [
             {
