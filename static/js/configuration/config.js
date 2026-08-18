@@ -260,8 +260,11 @@ export function parseSavedChemicals(serializedChemicals) {
 }
 export function getLabStorageKey(baseKey) {
     const reactionDemo = getReactionDemoConfig();
-    return reactionDemo
-        ? `reactionDemo:${reactionDemo.id}:${baseKey}`
+    if (reactionDemo) {
+        return `reactionDemo:${reactionDemo.id}:${baseKey}`;
+    }
+    return window.firstExperiment
+        ? `firstExperiment:v1:${baseKey}`
         : baseKey;
 }
 export function hexToRgbA(hex, alpha = 1) {

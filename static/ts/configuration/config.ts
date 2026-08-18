@@ -98,6 +98,7 @@ const ALLOWED_VISIT_SOURCES = new Set<VisitSource>([
 declare global {
     interface Window {
         reactionDemo?: ReactionDemoConfig | null;
+        firstExperiment?: boolean;
         supportedReactionPairs?: SupportedReactionPair[];
     }
 }
@@ -364,8 +365,11 @@ export function parseSavedChemicals(serializedChemicals: string | null): string[
 
 export function getLabStorageKey(baseKey: string): string {
     const reactionDemo = getReactionDemoConfig();
-    return reactionDemo
-        ? `reactionDemo:${reactionDemo.id}:${baseKey}`
+    if (reactionDemo) {
+        return `reactionDemo:${reactionDemo.id}:${baseKey}`;
+    }
+    return window.firstExperiment
+        ? `firstExperiment:v1:${baseKey}`
         : baseKey;
 }
 

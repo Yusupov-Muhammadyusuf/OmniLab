@@ -12,6 +12,11 @@ urlpatterns = [
     path('terms/', views.terms, name="terms"),
     path('guides/', views.guide_library, name="guide_library"),
     path(
+        'first-experiment/',
+        views.first_experiment,
+        name="first_experiment",
+    ),
+    path(
         'demo/sodium-chlorine/',
         views.sodium_chlorine_demo,
         name="sodium_chlorine_demo",

@@ -94,6 +94,7 @@ PUBLIC_CANONICAL_URLS = {
     ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
+FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
 REACTION_FEEDBACK_VIEWED_EVENT = "reaction_feedback_viewed"
 REACTION_FEEDBACK_ACCEPTED_EVENT = "reaction_feedback_accepted"
 REACTION_FEEDBACK_VALIDATION_FAILED_EVENT = (
@@ -117,6 +118,16 @@ SODIUM_CHLORINE_DEMO = {
         "request an educational reaction prediction."
     ),
     "url": SODIUM_CHLORINE_DEMO_URL,
+}
+FIRST_EXPERIMENT = {
+    "id": "sodium-chlorine-first-experiment",
+    "version": "v1",
+    "page_title": "Your first virtual chemistry experiment | OmniLab",
+    "page_description": (
+        "Learn the OmniLab controls by building a Sodium and Chlorine "
+        "prediction one guided step at a time."
+    ),
+    "url": FIRST_EXPERIMENT_URL,
 }
 REACTION_DEMOS = {
     "sodium-chlorine": SODIUM_CHLORINE_DEMO,
@@ -2552,7 +2563,7 @@ def reaction_retry_response():
     )
 
 
-def homepage_context(reaction_demo=None):
+def homepage_context(reaction_demo=None, first_experiment=None):
     software_schema = {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
@@ -2593,6 +2604,8 @@ def homepage_context(reaction_demo=None):
         "software_schema_json": json.dumps(software_schema),
         "reaction_demo": reaction_demo,
         "reaction_demo_json": json.dumps(reaction_demo),
+        "first_experiment": first_experiment,
+        "first_experiment_json": json.dumps(bool(first_experiment)),
         "supported_reaction_pairs_json": json.dumps(
             supported_reaction_pairs()
         ),
@@ -2606,12 +2619,30 @@ def homepage_context(reaction_demo=None):
                 "page_description": reaction_demo["page_description"],
             }
         )
+    elif first_experiment:
+        context.update(
+            {
+                "social_url": first_experiment["url"],
+                "page_title": first_experiment["page_title"],
+                "social_title": first_experiment["page_title"],
+                "page_description": first_experiment["page_description"],
+            }
+        )
     return context
 
 
 @ensure_csrf_cookie
 def index(request):
     return render(request, "index.html", homepage_context())
+
+
+@ensure_csrf_cookie
+def first_experiment(request):
+    return render(
+        request,
+        "index.html",
+        homepage_context(first_experiment=FIRST_EXPERIMENT),
+    )
 
 
 @ensure_csrf_cookie

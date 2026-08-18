@@ -36,9 +36,20 @@ const DEFAULT_REACTION_INSTRUCTION = `
     </div>
 `;
 const DEMO_REACTION_INSTRUCTION = '<p class="text-center mt-5 lab-instruction">This setup is ready. Select Analyze Chemical Reaction to request the prediction.</p>';
+const FIRST_EXPERIMENT_INSTRUCTION = `
+    <div class="text-center mt-5 lab-empty-state">
+        <p class="lab-instruction mb-2">Follow the highlighted control through four short steps. Your equation, explanation, and safety rules will appear here.</p>
+    </div>
+`;
 const REACTION_RETRY_MESSAGE = "OmniLab couldn't complete this prediction. Please try again.";
 let activeAnalysisController: AbortController | null = null;
 let currentAnalysisRunId = 0;
+
+function getDefaultReactionInstruction(): string {
+    return window.firstExperiment
+        ? FIRST_EXPERIMENT_INSTRUCTION
+        : DEFAULT_REACTION_INSTRUCTION;
+}
 
 function getAnalysisAvailabilityMessage(selectedChemicals: string[]): string {
     if (config.isSupportedReactionSetup(selectedChemicals)) {
@@ -73,6 +84,7 @@ function setAnalysisPending(pending: boolean): void {
 
     analyzeBtn.setAttribute('aria-busy', pending ? 'true' : 'false');
     updateAnalysisAvailability();
+    window.dispatchEvent(new Event('omnilab:analysis-state-changed'));
 }
 
 interface IncomingReactionResult extends Omit<ReactionResult, 'effect' | 'precipitate_color'> {
@@ -406,7 +418,7 @@ export function resetLaboratory(): void {
 
     const panel = document.getElementById('ai-response-content');
     if (panel) {
-        panel.innerHTML = DEFAULT_REACTION_INSTRUCTION;
+        panel.innerHTML = getDefaultReactionInstruction();
     }
     drawVesselAndFluid();
 }
@@ -627,6 +639,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         panel.innerHTML = reactionDemo && preparedChemicals.length > 0
             ? DEMO_REACTION_INSTRUCTION
-            : DEFAULT_REACTION_INSTRUCTION;
+            : getDefaultReactionInstruction();
     }
 });
