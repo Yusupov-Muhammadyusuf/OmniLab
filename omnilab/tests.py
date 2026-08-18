@@ -642,13 +642,37 @@ class HomepageResponsiveLayoutTests(SimpleTestCase):
             ),
         )
 
-    def test_mobile_lab_hides_the_overlapping_title_card(self):
+    def test_homepage_first_experiment_entry_stays_visible_on_mobile(self):
+        homepage = self.client.get("/")
+
+        self.assertContains(
+            homepage,
+            '<a class="home-first-experiment-entry" href="/first-experiment/">',
+        )
+        self.assertEqual(
+            homepage.content.decode().count("Run your first experiment"),
+            1,
+        )
+        self.assertRegex(
+            self.css,
+            re.compile(
+                r"\.home-first-experiment-entry\s*\{[^}]*"
+                r"min-height:\s*44px;[^}]*"
+                r"display:\s*inline-flex;",
+                re.DOTALL,
+            ),
+        )
+        self.assertIn(".home-first-experiment-entry:focus-visible", self.css)
         self.assertRegex(
             self.css,
             re.compile(
                 r"@media\s*\(max-width:\s*991\.98px\)\s*\{.*?"
                 r"\.home-page \.app-title-card:not\("
-                r"\.app-title-card--guided\)\s*\{\s*display:\s*none;\s*\}",
+                r"\.app-title-card--guided\)\s*\{[^}]*"
+                r"display:\s*block;[^}]*\}.*?"
+                r"\.home-page \.app-title-card:not\("
+                r"\.app-title-card--guided\) > :not\("
+                r"\.home-first-experiment-entry\)\s*\{\s*display:\s*none;",
                 re.DOTALL,
             ),
         )
