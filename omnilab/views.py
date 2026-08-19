@@ -1683,7 +1683,7 @@ CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
     "title": "How does the chemical reaction virtual lab work?",
     "page_title": "Chemical reaction virtual lab for students | OmniLab",
     "description": (
-        "Try 23 supported reaction pairs in OmniLab's free chemical reaction "
+        "Try 34 supported reaction pairs in OmniLab's free chemical reaction "
         "virtual lab. See equations, explanations, safety guidance, and "
         "visible reaction cues."
     ),
@@ -2249,8 +2249,8 @@ CHEMICAL_REACTION_LAB_FAQS = [
     {
         "question": "How many chemical reactions can I try?",
         "answer": (
-            "OmniLab currently supports 23 specific reaction pairs across "
-            "27 available substances. After you choose the first chemical, "
+            "OmniLab currently supports 34 specific reaction pairs across "
+            "38 available substances. After you choose the first chemical, "
             "the lab marks every supported partner."
         ),
     },
@@ -2285,7 +2285,7 @@ PRODUCT_FAQS = [
     {
         "question": "Which chemicals and equipment can I use?",
         "answer": (
-            "The current release supports 23 reaction pairs using the chemicals "
+            "The current release supports 34 reaction pairs using the chemicals "
             "listed in its searchable Chemicals menu. Equipment includes an "
             "Erlenmeyer flask, graduated test tube, laboratory beaker, and "
             "virtual Bunsen burner. The menus in the lab are the current source "

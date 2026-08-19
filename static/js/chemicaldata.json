@@ -133,5 +133,60 @@
     "id": "Zn",
     "name": "Zinc",
     "color": "#8b949a"
+  },
+  {
+    "id": "HF",
+    "name": "Hydrofluoric acid",
+    "color": "#d4b43c"
+  },
+  {
+    "id": "HBr",
+    "name": "Hydrobromic acid",
+    "color": "#c48a34"
+  },
+  {
+    "id": "HI",
+    "name": "Hydroiodic acid",
+    "color": "#9c6c38"
+  },
+  {
+    "id": "AgCl",
+    "name": "Silver chloride",
+    "color": "#d9dde0"
+  },
+  {
+    "id": "AlCl3",
+    "name": "Aluminum chloride",
+    "color": "#b8c1ca"
+  },
+  {
+    "id": "MgSO4",
+    "name": "Magnesium sulfate",
+    "color": "#a8b9c4"
+  },
+  {
+    "id": "HgCl2",
+    "name": "Mercury(II) chloride",
+    "color": "#9aa4ad"
+  },
+  {
+    "id": "CO",
+    "name": "Carbon monoxide",
+    "color": "#737b84"
+  },
+  {
+    "id": "NO2",
+    "name": "Nitrogen dioxide",
+    "color": "#a85f32"
+  },
+  {
+    "id": "H2S",
+    "name": "Hydrogen sulfide",
+    "color": "#c9a938"
+  },
+  {
+    "id": "O3",
+    "name": "Ozone",
+    "color": "#477bd6"
   }
 ]
