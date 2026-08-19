@@ -9,8 +9,8 @@ OmniLab is a no-account virtual chemistry lab for chemistry students. The curren
 ## What the current release does
 
 - Opens directly in the browser without an account or payment.
-- Provides 27 substances in the searchable catalog, including common acids, bases, salts, oxidizers, and metals.
-- Supports 23 order-independent reaction pairs, including ammonia with nitric acid and copper(II) sulfate with potassium hydroxide.
+- Provides 38 substances in the searchable catalog, including common acids, bases, salts, oxidizers, and metals.
+- Supports 34 order-independent reaction pairs, including ammonia with nitric acid and copper(II) sulfate with potassium hydroxide.
 - Lets a student assemble the mixture and choose when to request a prediction.
 - Returns an equation, a short explanation, and three safety rules for a supported result.
 - Keeps the current setup and last result in the visitor's browser until they reset it.

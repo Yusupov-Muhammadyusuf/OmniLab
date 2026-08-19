@@ -63,7 +63,7 @@ evidence fields.
 
 Then say:
 
-> I have recorded your original question. OmniLab currently supports 23 defined
+> I have recorded your original question. OmniLab currently supports 34 defined
 > reaction pairs. We will use the same prepared Sodium and Chlorine setup used
 > in every session. Please use it as you normally would, keep your original
 > question in mind, and say what you are thinking. You can stop at any time.

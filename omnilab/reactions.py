@@ -388,6 +388,181 @@ REACTION_MATRIX = {
             "Wear acid-resistant gloves and splash goggles.",
         ),
     ),
+    frozenset({"HF", "NaOH"}): _reaction(
+        "none",
+        "HF(aq) + NaOH(aq) -> NaF(aq) + H2O(l)",
+        (
+            "Hydrofluoric acid and sodium hydroxide neutralize to form "
+            "sodium fluoride and water. Although hydrofluoric acid is a weak "
+            "acid in water, hydroxide removes its acidic proton and drives "
+            "this simplified one-to-one reaction toward products."
+        ),
+        (
+            "Do not handle hydrofluoric acid outside a specially equipped "
+            "laboratory.",
+            "Use hydrofluoric-acid-rated protective equipment and a compatible "
+            "non-glass vessel.",
+            "Follow the institution's hydrofluoric-acid exposure protocol "
+            "immediately after any suspected contact.",
+        ),
+    ),
+    frozenset({"HBr", "NaOH"}): _reaction(
+        "none",
+        "HBr(aq) + NaOH(aq) -> NaBr(aq) + H2O(l)",
+        (
+            "Hydrobromic acid and sodium hydroxide neutralize to form sodium "
+            "bromide and water. Hydrogen ions from the acid combine with "
+            "hydroxide ions from the base. The one-to-one neutralization is "
+            "exothermic, so the solution can warm."
+        ),
+        (
+            "Work in a fume hood with dilute solutions.",
+            "Wear acid-resistant gloves and chemical splash goggles.",
+            "Add the sodium hydroxide slowly to control heating and splashing.",
+        ),
+    ),
+    frozenset({"HI", "NaOH"}): _reaction(
+        "none",
+        "HI(aq) + NaOH(aq) -> NaI(aq) + H2O(l)",
+        (
+            "Hydroiodic acid and sodium hydroxide neutralize to form sodium "
+            "iodide and water. Hydrogen ions combine with hydroxide ions in "
+            "the net ionic change. The one-to-one neutralization can release "
+            "enough heat to warm the solution."
+        ),
+        (
+            "Work in a fume hood with fresh, dilute solutions.",
+            "Wear acid-resistant gloves and chemical splash goggles.",
+            "Keep hydroiodic acid away from oxidizers and add the base slowly.",
+        ),
+    ),
+    frozenset({"AgCl", "NH3"}): _reaction(
+        "none",
+        "AgCl(s) + 2NH3(aq) -> [Ag(NH3)2]+(aq) + Cl-(aq)",
+        (
+            "Silver chloride dissolves in excess aqueous ammonia as the "
+            "diamminesilver(I) complex forms. Complex formation lowers the "
+            "free silver-ion concentration and shifts the silver chloride "
+            "dissolution equilibrium. This result assumes excess ammonia."
+        ),
+        (
+            "Use ammonia only in a fume hood and avoid breathing its vapors.",
+            "Wear chemical splash goggles and avoid contact with the mixture.",
+            "Collect every silver-containing solution for approved hazardous "
+            "waste disposal.",
+        ),
+    ),
+    frozenset({"AlCl3", "NaOH"}): _reaction(
+        "precipitate",
+        "AlCl3(aq) + 3NaOH(aq) -> Al(OH)3(s) + 3NaCl(aq)",
+        (
+            "Aluminum chloride and sodium hydroxide form a white aluminum "
+            "hydroxide precipitate while sodium chloride remains in solution. "
+            "Three hydroxide ions are required for each aluminum ion. Excess "
+            "hydroxide can redissolve the amphoteric precipitate."
+        ),
+        (
+            "Wear chemical splash goggles and alkali-resistant gloves.",
+            "Add dilute sodium hydroxide dropwise to avoid excess base.",
+            "Rinse chemical splashes immediately with plenty of water.",
+        ),
+        precipitate_color="#f5f3ea",
+    ),
+    frozenset({"MgSO4", "NaOH"}): _reaction(
+        "precipitate",
+        "MgSO4(aq) + 2NaOH(aq) -> Mg(OH)2(s) + Na2SO4(aq)",
+        (
+            "Magnesium sulfate and sodium hydroxide exchange ions to form "
+            "sparingly soluble magnesium hydroxide. The white precipitate "
+            "removes magnesium ions from solution while sodium sulfate remains "
+            "dissolved. Two hydroxide ions are needed per magnesium ion."
+        ),
+        (
+            "Wear splash goggles and chemical-resistant gloves.",
+            "Add sodium hydroxide slowly to limit heating and splashing.",
+            "Do not ingest the mixture, and clean spills promptly.",
+        ),
+        precipitate_color="#f5f3ea",
+    ),
+    frozenset({"HgCl2", "NaOH"}): _reaction(
+        "precipitate",
+        "HgCl2(aq) + 2NaOH(aq) -> HgO(s) + 2NaCl(aq) + H2O(l)",
+        (
+            "Mercury(II) chloride and sodium hydroxide form yellow mercury(II) "
+            "oxide, sodium chloride, and water. An initially formed mercury "
+            "hydroxide is unstable and is represented by mercury(II) oxide in "
+            "the balanced overall equation."
+        ),
+        (
+            "Treat this as virtual-only outside a specialist mercury laboratory.",
+            "Avoid all skin contact, ingestion, and inhalation of mercury "
+            "materials.",
+            "Collect the entire mixture as mercury-containing hazardous waste.",
+        ),
+        precipitate_color="#f2c94c",
+    ),
+    frozenset({"CO", "O2"}): _reaction(
+        "none",
+        "2CO(g) + O2(g) -> 2CO2(g)",
+        (
+            "Carbon monoxide oxidizes to carbon dioxide after ignition or "
+            "catalytic activation. The combustion is exothermic, and two "
+            "carbon monoxide molecules consume one oxygen molecule. The "
+            "current model does not predict the activation conditions."
+        ),
+        (
+            "Run this only in a specialist gas laboratory.",
+            "Use continuous carbon monoxide monitoring and effective ventilation.",
+            "Treat carbon monoxide and oxygen as a flammable, potentially "
+            "explosive mixture.",
+        ),
+    ),
+    frozenset({"NO2", "H2O"}): _reaction(
+        "none",
+        "2NO2(g) + H2O(l) -> HNO2(aq) + HNO3(aq)",
+        (
+            "Nitrogen dioxide absorbed into cool, dilute water forms a mixture "
+            "of nitrous acid and nitric acid in this simplified equation. The "
+            "real gas absorption can involve additional equilibria, so this "
+            "result describes the classroom-scale net change."
+        ),
+        (
+            "Use nitrogen dioxide only in a specialist fume-handling system.",
+            "Avoid inhalation and wear corrosion-resistant gloves and goggles.",
+            "Keep this oxidizer and the acidic products away from combustibles.",
+        ),
+    ),
+    frozenset({"H2S", "NaOH"}): _reaction(
+        "none",
+        "H2S(g) + 2NaOH(aq) -> Na2S(aq) + 2H2O(l)",
+        (
+            "Hydrogen sulfide transfers both acidic protons to excess sodium "
+            "hydroxide to form sodium sulfide and water. This equation assumes "
+            "two equivalents of base and a contained gas-handling system. With "
+            "one equivalent, sodium hydrosulfide would form instead."
+        ),
+        (
+            "Run this only in a specialist gas laboratory.",
+            "Use gas detection and ventilation, and never rely on odor.",
+            "Control ignition sources and collect sulfide-containing hazardous "
+            "waste without adding acid.",
+        ),
+    ),
+    frozenset({"O3", "H2O2"}): _reaction(
+        "bubble",
+        "O3(g) + H2O2(aq) -> 2O2(g) + H2O(l)",
+        (
+            "Ozone and hydrogen peroxide produce water and oxygen in the "
+            "simplified net equation for the aqueous peroxone process. The "
+            "real pathway includes short-lived reactive intermediates that "
+            "the current model does not represent. Oxygen evolution can bubble."
+        ),
+        (
+            "Use contained, ventilated ozone equipment and dilute peroxide.",
+            "Prevent ozone inhalation and keep both oxidizers away from combustibles.",
+            "Do not seal the vessel because oxygen gas is produced.",
+        ),
+    ),
 }
 
 
