@@ -392,10 +392,11 @@ REACTION_MATRIX = {
         "none",
         "HF(aq) + NaOH(aq) -> NaF(aq) + H2O(l)",
         (
-            "Hydrofluoric acid and sodium hydroxide neutralize to form "
-            "sodium fluoride and water. Although hydrofluoric acid is a weak "
-            "acid in water, hydroxide removes its acidic proton and drives "
-            "this simplified one-to-one reaction toward products."
+            "Dilute aqueous hydrofluoric acid and sodium hydroxide neutralize "
+            "under controlled addition to form sodium fluoride and water. "
+            "Although hydrofluoric acid is a weak acid in water, hydroxide "
+            "removes its acidic proton and drives this simplified one-to-one "
+            "reaction toward products."
         ),
         (
             "Do not handle hydrofluoric acid outside a specially equipped "
@@ -440,10 +441,10 @@ REACTION_MATRIX = {
         "none",
         "AgCl(s) + 2NH3(aq) -> [Ag(NH3)2]+(aq) + Cl-(aq)",
         (
-            "Silver chloride dissolves in excess aqueous ammonia as the "
-            "diamminesilver(I) complex forms. Complex formation lowers the "
-            "free silver-ion concentration and shifts the silver chloride "
-            "dissolution equilibrium. This result assumes excess ammonia."
+            "Freshly prepared silver chloride dissolves in excess dilute "
+            "aqueous ammonia as the diamminesilver(I) complex forms. Complex "
+            "formation lowers the free silver-ion concentration and shifts "
+            "the silver chloride dissolution equilibrium."
         ),
         (
             "Use ammonia only in a fume hood and avoid breathing its vapors.",
@@ -472,10 +473,11 @@ REACTION_MATRIX = {
         "precipitate",
         "MgSO4(aq) + 2NaOH(aq) -> Mg(OH)2(s) + Na2SO4(aq)",
         (
-            "Magnesium sulfate and sodium hydroxide exchange ions to form "
-            "sparingly soluble magnesium hydroxide. The white precipitate "
-            "removes magnesium ions from solution while sodium sulfate remains "
-            "dissolved. Two hydroxide ions are needed per magnesium ion."
+            "Dilute aqueous magnesium sulfate and sodium hydroxide exchange "
+            "ions to form sparingly soluble magnesium hydroxide. The white "
+            "precipitate removes magnesium ions from solution while sodium "
+            "sulfate remains dissolved. Two hydroxide ions are needed per "
+            "magnesium ion."
         ),
         (
             "Wear splash goggles and chemical-resistant gloves.",
@@ -488,10 +490,11 @@ REACTION_MATRIX = {
         "precipitate",
         "HgCl2(aq) + 2NaOH(aq) -> HgO(s) + 2NaCl(aq) + H2O(l)",
         (
-            "Mercury(II) chloride and sodium hydroxide form yellow mercury(II) "
-            "oxide, sodium chloride, and water. An initially formed mercury "
-            "hydroxide is unstable and is represented by mercury(II) oxide in "
-            "the balanced overall equation."
+            "Under specialist mercury controls, dilute mercury(II) chloride "
+            "and sodium hydroxide form yellow mercury(II) oxide, sodium "
+            "chloride, and water. An initially formed mercury hydroxide is "
+            "unstable and is represented by mercury(II) oxide in the balanced "
+            "overall equation."
         ),
         (
             "Treat this as virtual-only outside a specialist mercury laboratory.",
@@ -558,7 +561,7 @@ REACTION_MATRIX = {
             "the current model does not represent. Oxygen evolution can bubble."
         ),
         (
-            "Use contained, ventilated ozone equipment and dilute peroxide.",
+            "Use contained, ventilated ozone equipment in a specialist setup.",
             "Prevent ozone inhalation and keep both oxidizers away from combustibles.",
             "Do not seal the vessel because oxygen gas is produced.",
         ),
