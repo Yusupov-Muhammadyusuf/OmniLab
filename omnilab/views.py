@@ -92,6 +92,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "silver-nitrate-and-sodium-chloride-reaction/"
     ),
+    "carbon_monoxide_oxygen": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "carbon-monoxide-and-oxygen-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -329,6 +333,21 @@ REACTION_DEMOS = {
             f"{PRODUCTION_BASE_URL}/demo/"
             "silver-nitrate-sodium-chloride/"
         ),
+    },
+    "carbon-monoxide-oxygen": {
+        "id": "carbon-monoxide-oxygen",
+        "version": "v1",
+        "selectedChemicals": ["CO", "O2"],
+        "vessel": "beaker",
+        "liquidColor": "#d7edf7",
+        "mixture_label": "CO + O2",
+        "title": "Carbon monoxide and oxygen, ready to analyze",
+        "page_title": "OmniLab - Carbon monoxide and oxygen reaction demo",
+        "page_description": (
+            "Open a prepared Carbon monoxide and Oxygen setup, then choose "
+            "whether to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/carbon-monoxide-oxygen/",
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -1675,6 +1694,138 @@ OBSERVATION_GUIDE_PAGES = {
             "and burner choices do not affect the prediction."
         ),
     },
+    "carbon-monoxide-oxygen": {
+        "route_name": "guide_carbon_monoxide_oxygen",
+        "canonical_key": "carbon_monoxide_oxygen",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_carbon_monoxide_oxygen",
+        "title": "What happens when carbon monoxide reacts with oxygen?",
+        "page_title": "Carbon monoxide and oxygen reaction | OmniLab",
+        "description": (
+            "See how carbon monoxide reacts with oxygen, balance the "
+            "combustion equation, and keep the required activation and "
+            "safety limits attached."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Carbon monoxide reacts with oxygen to form carbon dioxide after "
+            "ignition or catalytic activation. The balanced equation is "
+            "2CO(g) + O2(g) -> 2CO2(g)."
+        ),
+        "opening_boundary": (
+            "The model predicts the products but not the ignition or catalyst "
+            "needed to start the reaction. Carbon monoxide is highly toxic, "
+            "and its mixture with oxygen can be flammable or explosive."
+        ),
+        "student_job": (
+            "Use this guide to balance the combustion equation, identify the "
+            "oxidation product, and explain why activation conditions matter."
+        ),
+        "study_intro": (
+            "Connect the two-to-one gas ratio to the carbon dioxide product, "
+            "electron transfer, and activation requirement."
+        ),
+        "reactants": [
+            {"name": "Carbon monoxide", "formula": "CO"},
+            {"name": "Oxygen", "formula": "O2"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Carbon monoxide and Oxygen. The burner "
+            "stays off, and you decide when to request the supported "
+            "prediction."
+        ),
+        "cta_label": "Try the carbon monoxide setup",
+        "equation": "2CO(g) + O2(g) -> 2CO2(g)",
+        "explanation": (
+            "Carbon monoxide oxidizes to carbon dioxide after ignition or "
+            "catalytic activation. The combustion is exothermic, and two "
+            "carbon monoxide molecules consume one oxygen molecule. The "
+            "current model does not predict the activation conditions."
+        ),
+        "observation_title": "No simulated flame or ignition cue",
+        "observation": (
+            "OmniLab returns the equation and explanation without a visual "
+            "effect for this pair. A physical reaction needs activation and "
+            "can release substantial heat, but the virtual beaker does not "
+            "represent ignition, flame, temperature, or gas pressure."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Text-only result",
+        "study_steps": [
+            {
+                "title": "Balance carbon first",
+                "body": (
+                    "Two CO molecules contain two carbon atoms, so the "
+                    "products need two CO2 molecules."
+                ),
+            },
+            {
+                "title": "Balance the oxygen atoms",
+                "body": (
+                    "The two CO molecules provide two oxygen atoms. One O2 "
+                    "molecule supplies the other two needed in 2CO2."
+                ),
+            },
+            {
+                "title": "Keep activation in the answer",
+                "body": (
+                    "The balanced equation names reactants and products, but "
+                    "the gas mixture does not react safely on demand. Ignition "
+                    "or catalytic activation is still required."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What is the balanced equation for CO and O2?",
+                "answer": (
+                    "The balanced equation is 2CO(g) + O2(g) -> 2CO2(g). It "
+                    "contains two carbon atoms and four oxygen atoms on each "
+                    "side."
+                ),
+            },
+            {
+                "question": "What type of reaction is carbon monoxide with oxygen?",
+                "answer": (
+                    "It is a combustion and redox reaction. Carbon monoxide "
+                    "is oxidized to carbon dioxide while oxygen is reduced."
+                ),
+            },
+            {
+                "question": "Does carbon monoxide react with oxygen by itself?",
+                "answer": (
+                    "The reaction needs ignition or catalytic activation. "
+                    "OmniLab identifies the supported net change but does not "
+                    "predict when or how activation occurs."
+                ),
+            },
+            {
+                "question": "Why is this reaction dangerous?",
+                "answer": (
+                    "Carbon monoxide is highly toxic, and a carbon monoxide-"
+                    "oxygen mixture can burn rapidly or explode after "
+                    "activation. This is specialist-laboratory chemistry."
+                ),
+            },
+        ],
+        "safety": [
+            "Run this only in a specialist gas laboratory.",
+            (
+                "Use continuous carbon monoxide monitoring and effective "
+                "ventilation."
+            ),
+            (
+                "Treat carbon monoxide and oxygen as a flammable, potentially "
+                "explosive mixture."
+            ),
+        ],
+        "boundary": (
+            "OmniLab predicts the simplified carbon dioxide product. It does "
+            "not simulate ignition, catalysts, concentration, gas ratio, "
+            "pressure, temperature, reaction rate, flame, or a physical "
+            "procedure."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -1908,6 +2059,20 @@ GUIDE_RELATIONSHIPS = {
         (
             "limewater_carbon_dioxide",
             "Compare another cloudy white precipitate",
+        ),
+    ],
+    "carbon_monoxide_oxygen": [
+        (
+            "hydrogen_oxygen",
+            "Compare another oxygen combustion reaction",
+        ),
+        (
+            "iron_oxygen",
+            "Compare oxidation with a solid product",
+        ),
+        (
+            "chemical_reaction_virtual_lab",
+            "Review how supported predictions work",
         ),
     ],
 }
@@ -2231,6 +2396,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "silver-nitrate-sodium-chloride"
+                ]["canonical_key"],
+            },
+            {
+                "number": "16",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "carbon-monoxide-oxygen"
+                ]["title"],
+                "summary": (
+                    "Balance carbon monoxide combustion and keep ignition or "
+                    "catalytic activation attached to the result."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "carbon-monoxide-oxygen"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "carbon-monoxide-oxygen"
                 ]["canonical_key"],
             },
         ],
@@ -2787,7 +2968,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 15 free, no-account chemistry guides about virtual reaction "
+        "Browse 16 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )

@@ -88,6 +88,12 @@ urlpatterns = [
         name="demo_silver_nitrate_sodium_chloride",
     ),
     path(
+        'demo/carbon-monoxide-oxygen/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'carbon-monoxide-oxygen'},
+        name="demo_carbon_monoxide_oxygen",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -175,6 +181,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'silver-nitrate-sodium-chloride'},
         name="guide_silver_nitrate_sodium_chloride",
+    ),
+    path(
+        'guides/carbon-monoxide-and-oxygen-reaction/',
+        views.observation_guide,
+        {'guide_key': 'carbon-monoxide-oxygen'},
+        name="guide_carbon_monoxide_oxygen",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]
