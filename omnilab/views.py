@@ -2961,11 +2961,14 @@ def contact(request):
 
     source = form.cleaned_data["source"]
     is_feedback = source == REACTION_FEEDBACK_SOURCE
-    subject = (
-        "Learner feedback"
-        if is_feedback
-        else form.cleaned_data["subject"] or "New website message"
-    )
+    if is_feedback:
+        subject = (
+            "Student session interest"
+            if form.cleaned_data["session_interest"]
+            else "Learner feedback"
+        )
+    else:
+        subject = form.cleaned_data["subject"] or "New website message"
     submitted_subject = (
         "" if is_feedback else form.cleaned_data["subject"]
     )
