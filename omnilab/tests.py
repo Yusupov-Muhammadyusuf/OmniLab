@@ -1320,7 +1320,7 @@ class ContactFormTests(TestCase):
             "OmniLab contact: New website message",
         )
 
-    def test_reaction_feedback_uses_fixed_delivery_label(self):
+    def test_reaction_feedback_opt_in_uses_student_session_subject(self):
         response = self.client.post(
             "/contact/",
             {
@@ -1347,7 +1347,7 @@ class ContactFormTests(TestCase):
         message = mail.outbox[0]
         self.assertEqual(
             message.subject,
-            "OmniLab contact: Learner feedback",
+            "OmniLab contact: Student session interest",
         )
         self.assertIn("Source: Reaction feedback", message.body)
         self.assertIn("Student session interest: Yes", message.body)
@@ -1371,6 +1371,10 @@ class ContactFormTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            mail.outbox[0].subject,
+            "OmniLab contact: Learner feedback",
+        )
         self.assertIn(
             "Student session interest: No",
             mail.outbox[0].body,
