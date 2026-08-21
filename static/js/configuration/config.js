@@ -45,6 +45,15 @@ const reactionGuidesByPairKey = new Map([
         ]
     ],
     [
+        'CO2+H2O',
+        [
+            {
+                href: '/guides/carbon-dioxide-and-water-reaction/',
+                title: 'What happens in the carbon dioxide and water reaction?'
+            }
+        ]
+    ],
+    [
         'HCl+Na2CO3',
         [
             {
