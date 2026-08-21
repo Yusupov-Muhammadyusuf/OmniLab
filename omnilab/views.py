@@ -100,6 +100,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "carbon-dioxide-and-water-reaction/"
     ),
+    "iron_hydrochloric_acid": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "iron-and-hydrochloric-acid-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -367,6 +371,21 @@ REACTION_DEMOS = {
             "whether to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/carbon-dioxide-water/",
+    },
+    "iron-hydrochloric-acid": {
+        "id": "iron-hydrochloric-acid",
+        "version": "v1",
+        "selectedChemicals": ["Fe", "HCl"],
+        "vessel": "beaker",
+        "liquidColor": "#d0a22f",
+        "mixture_label": "Fe + HCl",
+        "title": "Iron and hydrochloric acid, ready to analyze",
+        "page_title": "OmniLab - Iron and hydrochloric acid reaction demo",
+        "page_description": (
+            "Open a prepared Iron and Hydrochloric acid setup, then choose "
+            "whether to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/iron-hydrochloric-acid/",
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -1971,6 +1990,132 @@ OBSERVATION_GUIDE_PAGES = {
             "physical procedure."
         ),
     },
+    "iron-hydrochloric-acid": {
+        "route_name": "guide_iron_hydrochloric_acid",
+        "canonical_key": "iron_hydrochloric_acid",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_iron_hydrochloric_acid",
+        "title": "What happens when iron reacts with hydrochloric acid?",
+        "page_title": "Iron and hydrochloric acid reaction | OmniLab",
+        "description": (
+            "See how iron reacts with hydrochloric acid, balance the "
+            "equation, identify the hydrogen bubbles, and keep the model "
+            "and safety limits attached."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Iron reacts with hydrochloric acid to form iron(II) chloride "
+            "and hydrogen gas. The balanced equation is "
+            "Fe(s) + 2HCl(aq) -> FeCl2(aq) + H2(g)."
+        ),
+        "opening_boundary": (
+            "The model predicts one simplified metal-acid reaction. It does "
+            "not predict how quickly it starts or how concentration, "
+            "temperature, surface condition, and oxide coatings change the "
+            "rate."
+        ),
+        "student_job": (
+            "Use this guide to balance the equation, connect the bubbles to "
+            "hydrogen gas, and track the electron transfer from iron to "
+            "hydrogen ions."
+        ),
+        "study_intro": (
+            "Connect the two-to-one acid ratio to iron(II) chloride, hydrogen "
+            "gas, and the redox change."
+        ),
+        "reactants": [
+            {"name": "Iron", "formula": "Fe"},
+            {"name": "Hydrochloric acid", "formula": "HCl"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Iron and Hydrochloric acid. The burner "
+            "stays off, and you decide when to request the supported "
+            "prediction."
+        ),
+        "cta_label": "Try the iron and acid setup",
+        "equation": "Fe(s) + 2HCl(aq) -> FeCl2(aq) + H2(g)",
+        "explanation": (
+            "Iron displaces hydrogen from hydrochloric acid to form iron(II) "
+            "chloride and hydrogen gas. The bubbles correspond to hydrogen "
+            "leaving the solution. The reaction is a redox process in which "
+            "iron is oxidized and hydrogen ions are reduced."
+        ),
+        "observation_title": "Hydrogen bubbles at the iron surface",
+        "observation": (
+            "OmniLab shows a bounded bubble cue inside the beaker to "
+            "represent hydrogen gas leaving the mixture. The cue does not "
+            "model bubble rate, acid concentration, heat, or the condition "
+            "of the iron surface."
+        ),
+        "observation_class": "observation-bubbles",
+        "observation_label": "Hydrogen bubbles",
+        "study_steps": [
+            {
+                "title": "Balance hydrochloric acid",
+                "body": (
+                    "One iron atom forms one FeCl2 unit, which needs two "
+                    "chloride ions. That sets the coefficient of HCl to two."
+                ),
+            },
+            {
+                "title": "Follow the electron transfer",
+                "body": (
+                    "Iron loses two electrons to become Fe2+. Two hydrogen "
+                    "ions gain those electrons and pair to form H2 gas."
+                ),
+            },
+            {
+                "title": "Connect the bubbles to the product",
+                "body": (
+                    "The visible bubbles are hydrogen gas, not chlorine. "
+                    "Iron(II) chloride remains in the aqueous mixture."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What is the balanced equation for iron and hydrochloric acid?",
+                "answer": (
+                    "The balanced equation is "
+                    "Fe(s) + 2HCl(aq) -> FeCl2(aq) + H2(g)."
+                ),
+            },
+            {
+                "question": "What gas forms when iron reacts with hydrochloric acid?",
+                "answer": (
+                    "Hydrogen gas forms. The bubbles represent H2 leaving "
+                    "the solution."
+                ),
+            },
+            {
+                "question": "Why does iron form iron(II) chloride here?",
+                "answer": (
+                    "In this simplified reaction, iron is oxidized to Fe2+. "
+                    "Two chloride ions remain with each iron(II) ion, giving "
+                    "FeCl2 in solution."
+                ),
+            },
+            {
+                "question": "Why might the physical reaction start slowly?",
+                "answer": (
+                    "An oxide coating, a smooth iron surface, dilute acid, or "
+                    "a lower temperature can reduce the observed rate. "
+                    "OmniLab does not model those factors."
+                ),
+            },
+        ],
+        "safety": [
+            "Keep the reaction away from flames and sparks.",
+            "Vent hydrogen gas in a supervised laboratory.",
+            "Wear acid-resistant gloves and splash goggles.",
+        ],
+        "boundary": (
+            "OmniLab predicts one simplified iron and hydrochloric acid "
+            "reaction. It does not model acid concentration, iron purity, "
+            "surface area, oxide layers, temperature, rate, gas volume, heat, "
+            "or a physical procedure."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -2158,7 +2303,10 @@ GUIDE_RELATIONSHIPS = {
             "sodium_carbonate_hydrochloric_acid",
             "Compare another hydrochloric acid reaction",
         ),
-        ("sodium_water", "Compare another hydrogen-producing reaction"),
+        (
+            "iron_hydrochloric_acid",
+            "Compare another metal-acid reaction",
+        ),
         ("hydrogen_oxygen", "Follow hydrogen into a water-forming reaction"),
     ],
     "acetic_acid_sodium_bicarbonate": [
@@ -2179,7 +2327,10 @@ GUIDE_RELATIONSHIPS = {
     ],
     "iron_oxygen": [
         ("hydrogen_oxygen", "Compare another reaction with oxygen"),
-        ("zinc_hydrochloric_acid", "Compare another metal redox reaction"),
+        (
+            "iron_hydrochloric_acid",
+            "Compare another reaction of iron",
+        ),
         ("sodium_water", "Compare another metal oxidation"),
     ],
     "hydrochloric_acid_sodium_hydroxide": [
@@ -2236,6 +2387,20 @@ GUIDE_RELATIONSHIPS = {
         (
             "chemical_reaction_virtual_lab",
             "Review how supported predictions work",
+        ),
+    ],
+    "iron_hydrochloric_acid": [
+        (
+            "zinc_hydrochloric_acid",
+            "Compare another metal-acid reaction",
+        ),
+        (
+            "iron_oxygen",
+            "Compare another reaction of iron",
+        ),
+        (
+            "hydrochloric_acid_sodium_hydroxide",
+            "Compare hydrochloric acid in neutralization",
         ),
     ],
 }
@@ -2591,6 +2756,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "carbon-dioxide-water"
+                ]["canonical_key"],
+            },
+            {
+                "number": "18",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "iron-hydrochloric-acid"
+                ]["title"],
+                "summary": (
+                    "Connect hydrogen bubbles and electron transfer to the "
+                    "balanced iron and hydrochloric acid reaction."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "iron-hydrochloric-acid"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "iron-hydrochloric-acid"
                 ]["canonical_key"],
             },
         ],
@@ -3147,7 +3328,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 17 free, no-account chemistry guides about virtual reaction "
+        "Browse 18 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )

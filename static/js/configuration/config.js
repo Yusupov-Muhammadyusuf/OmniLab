@@ -54,6 +54,15 @@ const reactionGuidesByPairKey = new Map([
         ]
     ],
     [
+        'Fe+HCl',
+        [
+            {
+                href: '/guides/iron-and-hydrochloric-acid-reaction/',
+                title: 'What happens when iron reacts with hydrochloric acid?'
+            }
+        ]
+    ],
+    [
         'HCl+Na2CO3',
         [
             {
