@@ -108,6 +108,15 @@ const reactionGuidesByPairKey = new Map([
         ]
     ],
     [
+        'Cu+O2',
+        [
+            {
+                href: '/guides/reaction-of-copper-with-oxygen/',
+                title: 'What happens in the reaction of copper with oxygen?'
+            }
+        ]
+    ],
+    [
         'H2O+Na',
         [
             {
