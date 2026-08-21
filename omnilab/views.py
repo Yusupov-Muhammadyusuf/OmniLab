@@ -104,6 +104,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "iron-and-hydrochloric-acid-reaction/"
     ),
+    "copper_oxygen": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "reaction-of-copper-with-oxygen/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -386,6 +390,21 @@ REACTION_DEMOS = {
             "whether to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/iron-hydrochloric-acid/",
+    },
+    "copper-oxygen": {
+        "id": "copper-oxygen",
+        "version": "v1",
+        "selectedChemicals": ["Cu", "O2"],
+        "vessel": "beaker",
+        "liquidColor": "#b86938",
+        "mixture_label": "Cu + O2",
+        "title": "Copper and oxygen, ready to analyze",
+        "page_title": "OmniLab - Copper and oxygen reaction demo",
+        "page_description": (
+            "Open a prepared Copper and Oxygen setup, then choose whether "
+            "to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/copper-oxygen/",
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -2116,6 +2135,144 @@ OBSERVATION_GUIDE_PAGES = {
             "or a physical procedure."
         ),
     },
+    "copper-oxygen": {
+        "route_name": "guide_copper_oxygen",
+        "canonical_key": "copper_oxygen",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_copper_oxygen",
+        "title": "What happens in the reaction of copper with oxygen?",
+        "page_title": (
+            "Reaction of copper with oxygen: equation and result | OmniLab"
+        ),
+        "description": (
+            "See the reaction of copper with oxygen, its balanced equation, "
+            "black copper(II) oxide product, heating condition, and safety "
+            "limits."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "When copper is heated in oxygen, it forms black copper(II) "
+            "oxide. The simplified balanced equation is "
+            "2Cu(s) + O2(g) -> 2CuO(s)."
+        ),
+        "opening_boundary": (
+            "Heating is an important condition for the classroom reaction. "
+            "OmniLab models CuO as the product, but temperature, oxygen "
+            "availability, and surface conditions can affect the rate and "
+            "oxide that forms."
+        ),
+        "student_job": (
+            "Use this guide to balance the equation, identify the black "
+            "product, and explain the electron transfer between copper and "
+            "oxygen."
+        ),
+        "study_intro": (
+            "Connect the two-to-one ratio to copper(II) oxide, the black "
+            "coating, and the oxidation-state changes."
+        ),
+        "reactants": [
+            {"name": "Copper", "formula": "Cu"},
+            {"name": "Oxygen", "formula": "O2"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Copper and Oxygen. The burner stays "
+            "off, and you decide when to request the supported prediction."
+        ),
+        "cta_label": "Try the copper and oxygen setup",
+        "equation": "2Cu(s) + O2(g) -> 2CuO(s)",
+        "explanation": (
+            "Heated copper reacts with oxygen to form black copper(II) "
+            "oxide. Copper is oxidized from oxidation state zero to plus "
+            "two while oxygen is reduced. The balanced equation uses two "
+            "copper atoms for each oxygen molecule."
+        ),
+        "observation_title": "A black copper(II) oxide coating",
+        "observation": (
+            "A clean copper surface can develop a black copper(II) oxide "
+            "coating when heated in oxygen. OmniLab returns a text-only "
+            "result for this pair and does not render heating, glow, or the "
+            "physical color change."
+        ),
+        "observation_class": "observation-oxide",
+        "observation_label": "Black copper(II) oxide",
+        "study_steps": [
+            {
+                "title": "Balance the oxygen molecule",
+                "body": (
+                    "One O2 molecule supplies two oxygen atoms, so two copper "
+                    "atoms form two CuO formula units. The coefficients are "
+                    "2, 1, and 2."
+                ),
+            },
+            {
+                "title": "Track the electron transfer",
+                "body": (
+                    "Each copper atom moves from oxidation state 0 to +2. "
+                    "Oxygen moves from 0 in O2 to -2 in CuO, making this a "
+                    "redox reaction."
+                ),
+            },
+            {
+                "title": "Keep heating with the result",
+                "body": (
+                    "Copper usually needs heating for the classroom reaction "
+                    "to proceed at an observable rate. A burner setting in "
+                    "OmniLab does not change its fixed prediction."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What is the balanced equation for copper and oxygen?",
+                "answer": (
+                    "The simplified equation is "
+                    "2Cu(s) + O2(g) -> 2CuO(s). It has two copper and two "
+                    "oxygen atoms on each side."
+                ),
+            },
+            {
+                "question": "What color is copper oxide after heating?",
+                "answer": (
+                    "Copper(II) oxide, CuO, is black. A heated copper surface "
+                    "can therefore develop a black coating in this model."
+                ),
+            },
+            {
+                "question": "Why must copper be heated to react with oxygen?",
+                "answer": (
+                    "Heating helps the reactants overcome the activation "
+                    "barrier so oxidation proceeds at an observable rate."
+                ),
+            },
+            {
+                "question": "Can copper form a different oxide?",
+                "answer": (
+                    "Copper can also form copper(I) oxide, Cu2O, under some "
+                    "conditions. OmniLab deliberately uses the simplified "
+                    "CuO result for its supported pair."
+                ),
+            },
+            {
+                "question": "Why can the copper sample gain mass?",
+                "answer": (
+                    "Oxygen atoms become part of the solid oxide. If the "
+                    "coating stays on the sample, the final mass includes "
+                    "the original copper plus oxygen from the gas."
+                ),
+            },
+        ],
+        "safety": [
+            "Handle heated copper with suitable tongs.",
+            "Avoid breathing copper oxide dust.",
+            "Wear eye protection during heating.",
+        ],
+        "boundary": (
+            "OmniLab predicts one simplified CuO product. It does not model "
+            "temperature, heating time, oxygen supply, copper shape, surface "
+            "condition, reaction rate, oxide mixtures, color change, mass "
+            "change, or a physical procedure."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -2328,10 +2485,13 @@ GUIDE_RELATIONSHIPS = {
     "iron_oxygen": [
         ("hydrogen_oxygen", "Compare another reaction with oxygen"),
         (
+            "copper_oxygen",
+            "Compare another heated metal oxidation",
+        ),
+        (
             "iron_hydrochloric_acid",
             "Compare another reaction of iron",
         ),
-        ("sodium_water", "Compare another metal oxidation"),
     ],
     "hydrochloric_acid_sodium_hydroxide": [
         (
@@ -2401,6 +2561,20 @@ GUIDE_RELATIONSHIPS = {
         (
             "hydrochloric_acid_sodium_hydroxide",
             "Compare hydrochloric acid in neutralization",
+        ),
+    ],
+    "copper_oxygen": [
+        (
+            "iron_oxygen",
+            "Compare another metal reacting with oxygen",
+        ),
+        (
+            "carbon_monoxide_oxygen",
+            "Compare oxidation that forms a gaseous product",
+        ),
+        (
+            "copper_sulfate_potassium_hydroxide",
+            "Compare another copper(II) compound",
         ),
     ],
 }
@@ -2772,6 +2946,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "iron-hydrochloric-acid"
+                ]["canonical_key"],
+            },
+            {
+                "number": "19",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "copper-oxygen"
+                ]["title"],
+                "summary": (
+                    "Connect heating, a black copper(II) oxide coating, and "
+                    "electron transfer to the balanced equation."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "copper-oxygen"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "copper-oxygen"
                 ]["canonical_key"],
             },
         ],
@@ -3328,7 +3518,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 18 free, no-account chemistry guides about virtual reaction "
+        "Browse 19 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )

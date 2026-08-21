@@ -76,6 +76,12 @@ urlpatterns = [
         name="demo_iron_oxygen",
     ),
     path(
+        'demo/copper-oxygen/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'copper-oxygen'},
+        name="demo_copper_oxygen",
+    ),
+    path(
         'demo/hydrochloric-acid-sodium-hydroxide/',
         views.prepared_reaction_demo,
         {'demo_key': 'hydrochloric-acid-sodium-hydroxide'},
@@ -181,6 +187,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'iron-oxygen'},
         name="guide_iron_oxygen",
+    ),
+    path(
+        'guides/reaction-of-copper-with-oxygen/',
+        views.observation_guide,
+        {'guide_key': 'copper-oxygen'},
+        name="guide_copper_oxygen",
     ),
     path(
         'guides/hydrochloric-acid-and-sodium-hydroxide-reaction/',
