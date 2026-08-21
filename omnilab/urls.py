@@ -100,6 +100,12 @@ urlpatterns = [
         name="demo_carbon_dioxide_water",
     ),
     path(
+        'demo/iron-hydrochloric-acid/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'iron-hydrochloric-acid'},
+        name="demo_iron_hydrochloric_acid",
+    ),
+    path(
         'guides/sodium-and-chlorine-reaction/',
         views.guided_experiment,
         {'guide_key': 'reaction'},
@@ -199,6 +205,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'carbon-dioxide-water'},
         name="guide_carbon_dioxide_water",
+    ),
+    path(
+        'guides/iron-and-hydrochloric-acid-reaction/',
+        views.observation_guide,
+        {'guide_key': 'iron-hydrochloric-acid'},
+        name="guide_iron_hydrochloric_acid",
     ),
     path('ai_insights/', views.ai_insights, name="ai_insights"),
 ]
