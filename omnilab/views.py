@@ -96,6 +96,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "carbon-monoxide-and-oxygen-reaction/"
     ),
+    "carbon_dioxide_water": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "carbon-dioxide-and-water-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -348,6 +352,21 @@ REACTION_DEMOS = {
             "whether to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/carbon-monoxide-oxygen/",
+    },
+    "carbon-dioxide-water": {
+        "id": "carbon-dioxide-water",
+        "version": "v1",
+        "selectedChemicals": ["CO2", "H2O"],
+        "vessel": "beaker",
+        "liquidColor": "#2b9ed8",
+        "mixture_label": "CO2 + H2O",
+        "title": "Carbon dioxide and water, ready to analyze",
+        "page_title": "OmniLab - Carbon dioxide and water reaction demo",
+        "page_description": (
+            "Open a prepared Carbon dioxide and Water setup, then choose "
+            "whether to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/carbon-dioxide-water/",
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -1826,6 +1845,132 @@ OBSERVATION_GUIDE_PAGES = {
             "procedure."
         ),
     },
+    "carbon-dioxide-water": {
+        "route_name": "guide_carbon_dioxide_water",
+        "canonical_key": "carbon_dioxide_water",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_carbon_dioxide_water",
+        "title": "What happens in the carbon dioxide and water reaction?",
+        "page_title": "Carbon dioxide and water reaction | OmniLab",
+        "description": (
+            "See the carbon dioxide and water reaction, its simplified "
+            "equation, carbonic acid equilibrium, expected result, and "
+            "safety limits."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "When carbon dioxide contacts water, it dissolves and a small "
+            "fraction reacts reversibly to form carbonic acid. OmniLab "
+            "represents the simplified change as CO2(g) + H2O(l) -> H2CO3(aq)."
+        ),
+        "opening_boundary": (
+            "The equation is a simplified model of an equilibrium, not a "
+            "complete conversion to carbonic acid. The dissolved amount and "
+            "pH depend on conditions such as carbon dioxide pressure and "
+            "temperature."
+        ),
+        "student_job": (
+            "Use this guide to separate dissolution from hydration, read the "
+            "one-to-one equation, and explain why the water becomes mildly "
+            "acidic."
+        ),
+        "study_intro": (
+            "Connect dissolved carbon dioxide, reversible hydration, and "
+            "partial acid dissociation to the simplified equation."
+        ),
+        "reactants": [
+            {"name": "Carbon dioxide", "formula": "CO2"},
+            {"name": "Water", "formula": "H2O"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Carbon dioxide and Water. The burner "
+            "stays off, and you decide when to request the supported "
+            "prediction."
+        ),
+        "cta_label": "Try the carbon dioxide and water setup",
+        "equation": "CO2(g) + H2O(l) -> H2CO3(aq)",
+        "explanation": (
+            "Dissolved carbon dioxide establishes an equilibrium with "
+            "carbonic acid in water. Only a fraction of the dissolved carbon "
+            "dioxide is hydrated at equilibrium. Carbonic acid can then "
+            "partially dissociate and lower the solution pH."
+        ),
+        "observation_title": "A clear solution with no dramatic color change",
+        "observation": (
+            "OmniLab returns a text-only result for this pair. In a physical "
+            "setup, bubbles can show carbon dioxide entering the water, but "
+            "they are not a carbonic acid product. The dissolved solution "
+            "usually remains clear while its pH can decrease."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Clear solution",
+        "study_steps": [
+            {
+                "title": "Start with dissolution",
+                "body": (
+                    "Carbon dioxide first enters the liquid as dissolved CO2. "
+                    "That physical step is distinct from forming H2CO3."
+                ),
+            },
+            {
+                "title": "Read the reversible hydration",
+                "body": (
+                    "One CO2 molecule and one H2O molecule can form one H2CO3 "
+                    "molecule, but only a fraction is hydrated at equilibrium."
+                ),
+            },
+            {
+                "title": "Connect carbonic acid to pH",
+                "body": (
+                    "Carbonic acid can partially dissociate, increasing the "
+                    "hydrogen-ion concentration and lowering the solution pH."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What is the equation for carbon dioxide and water?",
+                "answer": (
+                    "OmniLab uses CO2(g) + H2O(l) -> H2CO3(aq). In real water, "
+                    "the process is reversible and most dissolved carbon "
+                    "dioxide is not present as H2CO3."
+                ),
+            },
+            {
+                "question": "Does carbon dioxide make water acidic?",
+                "answer": (
+                    "Dissolved carbon dioxide can lower the pH because a small "
+                    "fraction forms carbonic acid, which partially dissociates."
+                ),
+            },
+            {
+                "question": "Is dissolving carbon dioxide the same as reacting?",
+                "answer": (
+                    "No. Dissolution puts CO2 molecules into the liquid. A "
+                    "smaller fraction then hydrates reversibly to form H2CO3."
+                ),
+            },
+            {
+                "question": "What would you observe in the reaction?",
+                "answer": (
+                    "The solution usually stays clear. Bubbles can show gas "
+                    "delivery, while a pH indicator or meter is needed to show "
+                    "the acidity change."
+                ),
+            },
+        ],
+        "safety": [
+            "Use ventilation when handling concentrated carbon dioxide.",
+            "Avoid pressurizing a closed vessel with the gas.",
+            "Wear eye protection when handling the solution.",
+        ],
+        "boundary": (
+            "OmniLab shows one simplified hydration equation. It does not "
+            "model gas pressure, dissolved concentration, equilibrium "
+            "composition, pH, temperature, gas-flow rate, bubbles, or a "
+            "physical procedure."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -1966,16 +2111,16 @@ GUIDE_RELATIONSHIPS = {
     ],
     "limewater_carbon_dioxide": [
         (
+            "carbon_dioxide_water",
+            "Compare another reaction of carbon dioxide",
+        ),
+        (
             "sodium_carbonate_hydrochloric_acid",
             "Follow carbon dioxide from gas to precipitate",
         ),
         (
             "acetic_acid_sodium_bicarbonate",
             "See another reaction that produces carbon dioxide",
-        ),
-        (
-            "silver_nitrate_potassium_iodide",
-            "Compare a yellow precipitate result",
         ),
     ],
     "sodium_carbonate_hydrochloric_acid": [
@@ -2022,6 +2167,10 @@ GUIDE_RELATIONSHIPS = {
             "Compare another carbon dioxide-producing reaction",
         ),
         ("limewater_carbon_dioxide", "Use the carbon dioxide in limewater"),
+        (
+            "carbon_dioxide_water",
+            "Follow carbon dioxide into water",
+        ),
     ],
     "hydrogen_oxygen": [
         ("sodium_water", "Trace hydrogen from a water reaction"),
@@ -2069,6 +2218,20 @@ GUIDE_RELATIONSHIPS = {
         (
             "iron_oxygen",
             "Compare oxidation with a solid product",
+        ),
+        (
+            "chemical_reaction_virtual_lab",
+            "Review how supported predictions work",
+        ),
+    ],
+    "carbon_dioxide_water": [
+        (
+            "limewater_carbon_dioxide",
+            "Compare carbon dioxide reacting with limewater",
+        ),
+        (
+            "acetic_acid_sodium_bicarbonate",
+            "See a reaction that produces carbon dioxide",
         ),
         (
             "chemical_reaction_virtual_lab",
@@ -2412,6 +2575,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "carbon-monoxide-oxygen"
+                ]["canonical_key"],
+            },
+            {
+                "number": "17",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "carbon-dioxide-water"
+                ]["title"],
+                "summary": (
+                    "Separate carbon dioxide dissolution from reversible "
+                    "carbonic acid formation and its effect on pH."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "carbon-dioxide-water"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "carbon-dioxide-water"
                 ]["canonical_key"],
             },
         ],
@@ -2968,7 +3147,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 16 free, no-account chemistry guides about virtual reaction "
+        "Browse 17 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )
