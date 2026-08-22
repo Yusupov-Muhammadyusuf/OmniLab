@@ -1638,6 +1638,18 @@ class SearchDiscoveryTests(TestCase):
             html=True,
         )
 
+    def test_homepage_exposes_google_site_verification(self):
+        response = self.client.get("/")
+
+        self.assertContains(
+            response,
+            (
+                '<meta name="google-site-verification" '
+                'content="pTc0pLcOShqcQfWfDLPq04vaqqyFLVJ22Xq-rKsvH6A" />'
+            ),
+            html=True,
+        )
+
     def test_all_sitemap_routes_have_distinct_concise_search_metadata(self):
         sitemap = self.client.get("/sitemap.xml").content.decode()
         paths = re.findall(
