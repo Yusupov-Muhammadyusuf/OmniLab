@@ -1550,6 +1550,17 @@ class ContactFormTests(TestCase):
 
 
 class SearchDiscoveryTests(TestCase):
+    def test_indexnow_key_file_is_available_at_the_origin_root(self):
+        key = (
+            "a94d996aed18be0932540221541260e95651607e49a7bbc46deecc9dbe788b35"
+        )
+
+        response = self.client.get(f"/{key}.txt")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response["Content-Type"].startswith("text/plain"))
+        self.assertEqual(response.content.decode(), f"{key}\n")
+
     def test_chemical_reaction_virtual_lab_page_is_complete_and_discoverable(self):
         response = self.client.get("/guides/chemical-reaction-virtual-lab/")
 

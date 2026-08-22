@@ -1,8 +1,22 @@
 from django.urls import path
+from django.views.generic import TemplateView
+
 from . import views
+
+INDEXNOW_KEY = (
+    "a94d996aed18be0932540221541260e95651607e49a7bbc46deecc9dbe788b35"
+)
 
 urlpatterns = [
     path('health/', views.health, name="health"),
+    path(
+        f'{INDEXNOW_KEY}.txt',
+        TemplateView.as_view(
+            template_name=f'{INDEXNOW_KEY}.txt',
+            content_type='text/plain; charset=utf-8',
+        ),
+        name="indexnow_key",
+    ),
     path('robots.txt', views.robots_txt, name="robots_txt"),
     path('sitemap.xml', views.sitemap_xml, name="sitemap_xml"),
     path('pricing/', views.pricing, name="pricing"),
