@@ -1218,6 +1218,31 @@ class ContactFormTests(TestCase):
         )
         send.assert_called_once_with(fail_silently=False)
 
+    @patch("omnilab.views.EmailMessage.send", return_value=0)
+    def test_zero_delivery_count_cannot_show_feedback_success(self, send):
+        response = self.client.post(
+            "/contact/",
+            {
+                "name": "Amina Student",
+                "email": "amina@example.edu",
+                "message": "I was comparing this result with my notes.",
+                "source": "reaction_feedback",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Feedback sent.")
+        self.assertContains(
+            response,
+            "Your message couldn&#x27;t be sent right now.",
+        )
+        self.assertContains(
+            response,
+            'data-feedback-event="reaction_feedback_delivery_failed"',
+            html=False,
+        )
+        send.assert_called_once_with(fail_silently=False)
+
     def test_feedback_events_have_no_custom_properties(self):
         source = "\n".join(
             (

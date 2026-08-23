@@ -3739,7 +3739,11 @@ def contact(request):
     )
 
     try:
-        message.send(fail_silently=False)
+        delivered_messages = message.send(fail_silently=False)
+        if delivered_messages != 1:
+            raise RuntimeError(
+                "Contact email backend did not accept the message."
+            )
     except Exception:
         form.add_error(
             None,
