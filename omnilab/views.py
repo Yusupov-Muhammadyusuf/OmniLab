@@ -2,7 +2,9 @@ import hashlib
 import ipaddress
 import json
 import re
+import sqlite3
 import time
+from pathlib import Path
 
 from django.conf import settings
 from django.core.cache import cache
@@ -3101,6 +3103,65 @@ def get_client_network_address(request):
     return "unknown"
 
 
+def increment_reaction_request_count(
+    client_digest,
+    window_number,
+    database_path=None,
+):
+    rate_limit_database = Path(
+        database_path
+        or settings.OMNILAB_REACTION_RATE_LIMIT_DATABASE_PATH
+    )
+    rate_limit_database.parent.mkdir(parents=True, exist_ok=True)
+
+    with sqlite3.connect(rate_limit_database, timeout=5) as connection:
+        connection.execute("PRAGMA busy_timeout = 5000")
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS reaction_rate_limits (
+                client_digest TEXT NOT NULL,
+                window_number INTEGER NOT NULL,
+                request_count INTEGER NOT NULL,
+                PRIMARY KEY (client_digest, window_number)
+            ) WITHOUT ROWID
+            """
+        )
+        updated = connection.execute(
+            """
+            UPDATE reaction_rate_limits
+            SET request_count = request_count + 1
+            WHERE client_digest = ? AND window_number = ?
+            """,
+            (client_digest, window_number),
+        )
+        if updated.rowcount == 0:
+            connection.execute(
+                """
+                INSERT INTO reaction_rate_limits (
+                    client_digest,
+                    window_number,
+                    request_count
+                ) VALUES (?, ?, 1)
+                """,
+                (client_digest, window_number),
+            )
+
+        request_count = connection.execute(
+            """
+            SELECT request_count
+            FROM reaction_rate_limits
+            WHERE client_digest = ? AND window_number = ?
+            """,
+            (client_digest, window_number),
+        ).fetchone()[0]
+        connection.execute(
+            "DELETE FROM reaction_rate_limits WHERE window_number < ?",
+            (window_number - 1,),
+        )
+
+    return request_count
+
+
 def reaction_rate_limit(request):
     limit = max(1, settings.OMNILAB_REACTION_RATE_LIMIT_REQUESTS)
     window_seconds = max(
@@ -3111,16 +3172,10 @@ def reaction_rate_limit(request):
     retry_after = window_seconds - (now % window_seconds)
     client_address = get_client_network_address(request)
     client_digest = hashlib.sha256(client_address.encode()).hexdigest()
-    cache_key = f"omnilab:reaction-analysis:{client_digest}:{window_number}"
-
-    if cache.add(cache_key, 1, timeout=retry_after):
-        request_count = 1
-    else:
-        try:
-            request_count = cache.incr(cache_key)
-        except ValueError:
-            cache.set(cache_key, 1, timeout=retry_after)
-            request_count = 1
+    request_count = increment_reaction_request_count(
+        client_digest,
+        window_number,
+    )
 
     if request_count <= limit:
         return None

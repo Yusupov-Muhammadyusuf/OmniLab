@@ -41,12 +41,13 @@ The remaining deployment variables are optional:
 |---|---|---|
 | `OMNILAB_DEPLOY_DIR` | `.deploy` | Parent for the virtual environment and persistent runtime files. |
 | `OMNILAB_DATABASE_PATH` | `.deploy/data/db.sqlite3` | SQLite database path. Mount or back up its parent directory. |
+| `OMNILAB_REACTION_RATE_LIMIT_DATABASE_PATH` | Beside `OMNILAB_DATABASE_PATH` | Shared SQLite counter for reaction limits across Gunicorn workers. |
 | `OMNILAB_STATIC_ROOT` | `.deploy/staticfiles` | WhiteNoise collection target. |
 | `OMNILAB_PUBLIC_ORIGIN` | `https://omnilab-bk8q.onrender.com` | HTTPS origin for every absolute public discovery URL. |
 | `OMNILAB_NOINDEX` | unset | Set to `true` on temporary or preview deployments to send `X-Robots-Tag: noindex, nofollow` on every response. |
 | `OMNILAB_PYTHON` | `python3` | Python executable used to create the virtual environment. |
 | `PORT` | `8000` | Port Gunicorn listens on. |
-| `WEB_CONCURRENCY` | `2` | Gunicorn worker count. Keep one worker if process-local rate limits must be exact. |
+| `WEB_CONCURRENCY` | `2` | Gunicorn worker count. Reaction limits are shared across workers. |
 | `GUNICORN_TIMEOUT` | `30` | Worker timeout in seconds. |
 
 The Contact form also needs the `OMNILAB_EMAIL_*` and `OMNILAB_CONTACT_*`

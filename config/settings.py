@@ -132,6 +132,18 @@ DATABASES = {
     }
 }
 
+# Keep anonymous reaction-analysis counters in a small SQLite database beside
+# the application database. Gunicorn workers share this file, so one network
+# receives one limit across the whole service rather than one limit per worker.
+OMNILAB_REACTION_RATE_LIMIT_DATABASE_PATH = Path(
+    os.getenv(
+        "OMNILAB_REACTION_RATE_LIMIT_DATABASE_PATH",
+        DATABASES["default"]["NAME"].with_name(
+            "reaction-rate-limits.sqlite3"
+        ),
+    )
+).expanduser()
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
