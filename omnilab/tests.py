@@ -1,9 +1,13 @@
+import hashlib
 import json
+import multiprocessing
 import os
+from pathlib import Path
 import re
 import struct
 import subprocess
 import sys
+import tempfile
 import xml.etree.ElementTree as ET
 from unittest.mock import patch
 
@@ -52,6 +56,7 @@ from .views import (
     SOCIAL_PREVIEW_ALT,
     SOCIAL_PREVIEW_URL,
     equation_uses_only_selected_reactants,
+    increment_reaction_request_count,
     validate_complete_reaction_response,
 )
 from .reactions import (
@@ -61,6 +66,21 @@ from .reactions import (
     get_reaction,
     supported_reaction_pairs,
 )
+
+
+def _increment_reaction_limit_in_process(
+    database_path,
+    client_digest,
+    window_number,
+    result_queue,
+):
+    result_queue.put(
+        increment_reaction_request_count(
+            client_digest,
+            window_number,
+            database_path=database_path,
+        )
+    )
 
 
 class DjangoSecretConfigurationTests(SimpleTestCase):
@@ -3751,10 +3771,20 @@ class OptionalBrowserStorageTests(TestCase):
 )
 class ReactionRateLimitTests(TestCase):
     def setUp(self):
-        cache.clear()
+        self.rate_limit_directory = tempfile.TemporaryDirectory()
+        self.rate_limit_database = (
+            Path(self.rate_limit_directory.name) / "rate-limits.sqlite3"
+        )
+        self.rate_limit_settings = self.settings(
+            OMNILAB_REACTION_RATE_LIMIT_DATABASE_PATH=(
+                self.rate_limit_database
+            )
+        )
+        self.rate_limit_settings.enable()
 
     def tearDown(self):
-        cache.clear()
+        self.rate_limit_settings.disable()
+        self.rate_limit_directory.cleanup()
 
     def post_reaction(
         self,
@@ -3789,6 +3819,39 @@ class ReactionRateLimitTests(TestCase):
         self.assertEqual(response.json()["status"], "rate_limited")
         self.assertIn("Try again in 60 seconds", response.json()["message"])
         self.assertEqual(response.headers["Retry-After"], "60")
+
+    def test_separate_processes_share_one_limit(self):
+        process_context = multiprocessing.get_context("fork")
+        result_queue = process_context.Queue()
+        client_digest = hashlib.sha256(b"203.0.113.10").hexdigest()
+        processes = [
+            process_context.Process(
+                target=_increment_reaction_limit_in_process,
+                args=(
+                    self.rate_limit_database,
+                    client_digest,
+                    20,
+                    result_queue,
+                ),
+            )
+            for _ in range(2)
+        ]
+
+        for process in processes:
+            process.start()
+        for process in processes:
+            process.join(timeout=10)
+            self.assertEqual(process.exitcode, 0)
+
+        self.assertCountEqual(
+            [result_queue.get(timeout=1) for _ in processes],
+            [1, 2],
+        )
+        with patch("omnilab.views.time.time", return_value=1200):
+            response = self.post_reaction()
+
+        self.assertEqual(response.status_code, 429)
+        self.assertEqual(response.json()["status"], "rate_limited")
 
     @override_settings(OMNILAB_REACTION_RATE_LIMIT_REQUESTS=1)
     def test_reaction_request_recovers_after_window(self):
@@ -4141,14 +4204,14 @@ class ReactionCsrfProtectionTests(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    def test_cross_origin_request_is_rejected(self):
+    def test_forged_cross_site_request_is_rejected(self):
         token = self.get_token()
 
         response = self.post_reaction(token, origin="https://example.net")
 
         self.assertEqual(response.status_code, 403)
 
-    def test_valid_homepage_token_keeps_reaction_contract(self):
+    def test_legitimate_same_origin_request_keeps_reaction_contract(self):
         token = self.get_token()
 
         response = self.post_reaction(token)
