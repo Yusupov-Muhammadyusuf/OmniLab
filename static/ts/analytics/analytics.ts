@@ -17,8 +17,6 @@ const VISIT_TYPE_EVENTS = new Set([
     'reaction_analysis_completed'
 ]);
 
-type VisitType = 'internal' | 'unclassified';
-
 declare global {
     interface Window {
         posthog?: {
@@ -36,14 +34,11 @@ export function capture(
         query.get(CONTROLLED_VERIFICATION_PARAM) ===
         CONTROLLED_VERIFICATION_VALUE
     );
-    const tracksVisitType = VISIT_TYPE_EVENTS.has(event);
-    if (isControlledVerification && !tracksVisitType) return;
+    if (isControlledVerification) return;
 
-    const visitType: VisitType = isControlledVerification
-        ? 'internal'
-        : 'unclassified';
+    const tracksVisitType = VISIT_TYPE_EVENTS.has(event);
     const measuredProperties = tracksVisitType
-        ? { ...properties, visit_type: visitType }
+        ? { ...properties, visit_type: 'unclassified' }
         : properties;
 
     window.posthog?.capture?.(event, measuredProperties);
