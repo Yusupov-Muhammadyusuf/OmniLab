@@ -9,14 +9,11 @@ export function capture(event, properties = {}) {
     const query = new URLSearchParams(window.location?.search ?? '');
     const isControlledVerification = (query.get(CONTROLLED_VERIFICATION_PARAM) ===
         CONTROLLED_VERIFICATION_VALUE);
-    const tracksVisitType = VISIT_TYPE_EVENTS.has(event);
-    if (isControlledVerification && !tracksVisitType)
+    if (isControlledVerification)
         return;
-    const visitType = isControlledVerification
-        ? 'internal'
-        : 'unclassified';
+    const tracksVisitType = VISIT_TYPE_EVENTS.has(event);
     const measuredProperties = tracksVisitType
-        ? { ...properties, visit_type: visitType }
+        ? { ...properties, visit_type: 'unclassified' }
         : properties;
     window.posthog?.capture?.(event, measuredProperties);
 }

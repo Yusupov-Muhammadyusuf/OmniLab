@@ -54,7 +54,7 @@ test('completed analyses default to unclassified and ignore caller overrides', (
     );
 });
 
-test('controlled pages label only views and completions as internal', () => {
+test('controlled pages suppress every product analytics event', () => {
     capturedEvents.length = 0;
     window.location.search = '?verification=controlled&source=student_invite';
 
@@ -63,25 +63,7 @@ test('controlled pages label only views and completions as internal', () => {
     capture('reaction_analysis_completed', { chemical_count: 2 });
     capture('reaction_demo_entered', { demo_version: '1' });
 
-    assert.deepEqual(
-        capturedEvents,
-        [
-            [
-                'lab_viewed',
-                {
-                    route: '/demo/sodium-chlorine/',
-                    visit_type: 'internal'
-                }
-            ],
-            [
-                'reaction_analysis_completed',
-                {
-                    chemical_count: 2,
-                    visit_type: 'internal'
-                }
-            ]
-        ]
-    );
+    assert.deepEqual(capturedEvents, []);
 });
 
 test('non-visit events retain their existing unflagged properties', () => {
