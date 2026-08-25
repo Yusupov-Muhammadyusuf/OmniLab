@@ -96,6 +96,12 @@ urlpatterns = [
         name="demo_copper_oxygen",
     ),
     path(
+        'demo/potassium-permanganate-hydrogen-peroxide/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'potassium-permanganate-hydrogen-peroxide'},
+        name="demo_potassium_permanganate_hydrogen_peroxide",
+    ),
+    path(
         'demo/hydrochloric-acid-sodium-hydroxide/',
         views.prepared_reaction_demo,
         {'demo_key': 'hydrochloric-acid-sodium-hydroxide'},
@@ -207,6 +213,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'copper-oxygen'},
         name="guide_copper_oxygen",
+    ),
+    path(
+        'guides/potassium-permanganate-and-hydrogen-peroxide-reaction/',
+        views.observation_guide,
+        {'guide_key': 'potassium-permanganate-hydrogen-peroxide'},
+        name="guide_potassium_permanganate_hydrogen_peroxide",
     ),
     path(
         'guides/hydrochloric-acid-and-sodium-hydroxide-reaction/',

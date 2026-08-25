@@ -110,6 +110,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "reaction-of-copper-with-oxygen/"
     ),
+    "potassium_permanganate_hydrogen_peroxide": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "potassium-permanganate-and-hydrogen-peroxide-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -407,6 +411,29 @@ REACTION_DEMOS = {
             "to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/copper-oxygen/",
+    },
+    "potassium-permanganate-hydrogen-peroxide": {
+        "id": "potassium-permanganate-hydrogen-peroxide",
+        "version": "v1",
+        "selectedChemicals": ["KMnO4", "H2O2"],
+        "vessel": "beaker",
+        "liquidColor": "#7f3f98",
+        "mixture_label": "KMnO4 + H2O2",
+        "title": (
+            "Potassium permanganate and hydrogen peroxide, ready to analyze"
+        ),
+        "page_title": (
+            "OmniLab - Potassium permanganate and hydrogen peroxide demo"
+        ),
+        "page_description": (
+            "Open a prepared Potassium permanganate and Hydrogen peroxide "
+            "setup, then choose whether to request an educational reaction "
+            "prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "potassium-permanganate-hydrogen-peroxide/"
+        ),
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -2275,6 +2302,160 @@ OBSERVATION_GUIDE_PAGES = {
             "change, or a physical procedure."
         ),
     },
+    "potassium-permanganate-hydrogen-peroxide": {
+        "route_name": "guide_potassium_permanganate_hydrogen_peroxide",
+        "canonical_key": "potassium_permanganate_hydrogen_peroxide",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_potassium_permanganate_hydrogen_peroxide",
+        "title": (
+            "What happens when potassium permanganate reacts with hydrogen peroxide?"
+        ),
+        "page_title": (
+            "Potassium permanganate and hydrogen peroxide reaction | OmniLab"
+        ),
+        "description": (
+            "See the potassium permanganate and hydrogen peroxide reaction, "
+            "balanced equation, oxygen bubbles, manganese dioxide product, "
+            "redox roles, and safety."
+        ),
+        "reading_time": "6 minute read",
+        "direct_answer": (
+            "In neutral or alkaline conditions, potassium permanganate "
+            "oxidizes hydrogen peroxide to oxygen gas while brown manganese "
+            "dioxide forms. The permanganate color fades, bubbles appear, and "
+            "the simplified balanced equation is 2KMnO4(aq) + 3H2O2(aq) -> "
+            "2MnO2(s) + 3O2(g) + 2KOH(aq) + 2H2O(l)."
+        ),
+        "opening_boundary": (
+            "The products depend on acidity. This guide and OmniLab use the "
+            "neutral-or-alkaline pathway; acidic conditions can produce "
+            "manganese(II) ions instead of manganese dioxide."
+        ),
+        "student_job": (
+            "Use this guide to balance the equation, identify the oxidizing "
+            "and reducing agents, and connect oxygen bubbles and brown "
+            "manganese dioxide to the products."
+        ),
+        "study_intro": (
+            "Connect the coefficients to oxygen formation, manganese "
+            "reduction, hydrogen peroxide oxidation, and the visible result."
+        ),
+        "reactants": [
+            {"name": "Potassium permanganate", "formula": "KMnO4"},
+            {"name": "Hydrogen peroxide", "formula": "H2O2"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Potassium permanganate and Hydrogen "
+            "peroxide. Nothing runs until you select Analyze."
+        ),
+        "cta_label": "Try the potassium permanganate and peroxide setup",
+        "equation": (
+            "2KMnO4(aq) + 3H2O2(aq) -> 2MnO2(s) + 3O2(g) + "
+            "2KOH(aq) + 2H2O(l)"
+        ),
+        "explanation": (
+            "In neutral or alkaline conditions, permanganate oxidizes "
+            "hydrogen peroxide to oxygen while manganese dioxide forms. "
+            "Oxygen evolution produces bubbles and the permanganate color "
+            "fades as brown manganese dioxide appears. Different acidity "
+            "can change the products."
+        ),
+        "observation_title": "Oxygen bubbles and brown manganese dioxide",
+        "observation": (
+            "Oxygen evolution produces bubbles while the purple permanganate "
+            "color fades and brown manganese dioxide appears. OmniLab renders "
+            "the bubbling cue for this supported pair, but it does not render "
+            "the brown solid or reproduce the rate or intensity of a physical "
+            "reaction."
+        ),
+        "observation_class": "observation-bubbles",
+        "observation_label": "Oxygen bubbles",
+        "study_steps": [
+            {
+                "title": "Keep the condition with the equation",
+                "body": (
+                    "The displayed products fit neutral or alkaline conditions. "
+                    "Changing the acidity changes the manganese product, so the "
+                    "condition is part of the answer."
+                ),
+            },
+            {
+                "title": "Track manganese reduction",
+                "body": (
+                    "Manganese moves from +7 in MnO4- to +4 in MnO2. Because "
+                    "permanganate is reduced, it accepts electrons and acts as "
+                    "the oxidizing agent."
+                ),
+            },
+            {
+                "title": "Track oxygen formation",
+                "body": (
+                    "Some oxygen atoms in H2O2 move from oxidation state -1 to "
+                    "0 in O2. The oxygen gas accounts for the visible bubbles."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": (
+                    "What happens if you mix hydrogen peroxide with potassium permanganate?"
+                ),
+                "answer": (
+                    "In the neutral-or-alkaline pathway used here, oxygen gas "
+                    "and brown manganese dioxide form, the purple permanganate "
+                    "color fades, and bubbling occurs. The exact products and "
+                    "rate depend on conditions."
+                ),
+            },
+            {
+                "question": (
+                    "What is the balanced equation for KMnO4 and H2O2?"
+                ),
+                "answer": (
+                    "For the simplified neutral-or-alkaline pathway, it is "
+                    "2KMnO4(aq) + 3H2O2(aq) -> 2MnO2(s) + 3O2(g) + "
+                    "2KOH(aq) + 2H2O(l)."
+                ),
+            },
+            {
+                "question": "Is KMnO4 or H2O2 the oxidizing agent?",
+                "answer": (
+                    "Permanganate is the oxidizing agent because manganese is "
+                    "reduced from +7 to +4. Hydrogen peroxide is the reducing "
+                    "agent because some of its oxygen is oxidized from -1 to 0."
+                ),
+            },
+            {
+                "question": "Why does the reaction bubble?",
+                "answer": (
+                    "Hydrogen peroxide is converted partly into oxygen gas. "
+                    "That escaping O2 produces the bubbles."
+                ),
+            },
+            {
+                "question": "Why do acidic conditions give a different equation?",
+                "answer": (
+                    "Permanganate can be reduced to manganese(II) ions in acidic "
+                    "solution rather than to MnO2. Acidity changes the reduction "
+                    "half-reaction and therefore changes the overall products and "
+                    "coefficients."
+                ),
+            },
+        ],
+        "safety": [
+            "Use dilute solutions and add hydrogen peroxide slowly.",
+            "Keep both reagents away from combustible or reducing materials.",
+            "Do not seal the vessel because oxygen gas is produced.",
+        ],
+        "boundary": (
+            "OmniLab predicts one simplified neutral-or-alkaline result. It "
+            "does not model acidity, concentration, quantity, order of addition, "
+            "temperature, reaction rate, heat release, pressure, the brown "
+            "precipitate, or a physical procedure. It is an educational "
+            "prediction, not a verified simulation or a substitute for trained "
+            "laboratory supervision."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -2396,7 +2577,10 @@ GUIDE_RELATIONSHIPS = {
             "Study a supported neutralization reaction",
         ),
         ("limewater_carbon_dioxide", "See a cloudy precipitate result"),
-        ("iron_oxygen", "Study oxidation with a solid product"),
+        (
+            "potassium_permanganate_hydrogen_peroxide",
+            "Study oxygen bubbles in a supported redox reaction",
+        ),
     ],
     "sodium_chlorine_reaction": [
         ("sodium_chlorine_formula", "Use the same substances to build NaCl"),
@@ -2577,6 +2761,14 @@ GUIDE_RELATIONSHIPS = {
         (
             "copper_sulfate_potassium_hydroxide",
             "Compare another copper(II) compound",
+        ),
+    ],
+    "potassium_permanganate_hydrogen_peroxide": [
+        ("hydrogen_oxygen", "Compare another reaction involving oxygen"),
+        ("sodium_water", "Compare another gas-forming redox reaction"),
+        (
+            "chemical_reaction_virtual_lab",
+            "Review what the virtual lab does and does not model",
         ),
     ],
 }
@@ -2964,6 +3156,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "copper-oxygen"
+                ]["canonical_key"],
+            },
+            {
+                "number": "20",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "potassium-permanganate-hydrogen-peroxide"
+                ]["title"],
+                "summary": (
+                    "Connect oxygen bubbles, brown manganese dioxide, and "
+                    "redox roles to the condition-specific balanced equation."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "potassium-permanganate-hydrogen-peroxide"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "potassium-permanganate-hydrogen-peroxide"
                 ]["canonical_key"],
             },
         ],
@@ -3573,7 +3781,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 19 free, no-account chemistry guides about virtual reaction "
+        "Browse 20 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )

@@ -243,6 +243,15 @@ const reactionGuidesByPairKey = new Map<string, readonly ReactionGuide[]>([
         ]
     ],
     [
+        'H2O2+KMnO4',
+        [
+            {
+                href: '/guides/potassium-permanganate-and-hydrogen-peroxide-reaction/',
+                title: 'What happens when potassium permanganate reacts with hydrogen peroxide?'
+            }
+        ]
+    ],
+    [
         'CO+O2',
         [
             {
