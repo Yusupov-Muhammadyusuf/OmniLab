@@ -1,6 +1,7 @@
 import hashlib
 import ipaddress
 import json
+import logging
 import re
 import sqlite3
 import time
@@ -13,12 +14,20 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from .email_delivery import (
+    ContactEmailDeliveryCountError,
+    get_contact_email_failure_category,
+    validate_contact_email_configuration,
+)
 from .forms import ContactForm, REACTION_FEEDBACK_SOURCE
 from .reactions import (
     PRECIPITATE_COLORS,
     get_reaction,
     supported_reaction_pairs,
 )
+
+
+contact_logger = logging.getLogger("omnilab.contact")
 
 
 def health(request):
@@ -4002,12 +4011,15 @@ def contact(request):
     )
 
     try:
+        validate_contact_email_configuration()
         delivered_messages = message.send(fail_silently=False)
         if delivered_messages != 1:
-            raise RuntimeError(
-                "Contact email backend did not accept the message."
-            )
-    except Exception:
+            raise ContactEmailDeliveryCountError
+    except Exception as error:
+        contact_logger.error(
+            "contact_email_delivery_failed category=%s",
+            get_contact_email_failure_category(error),
+        )
         form.add_error(
             None,
             "Your message couldn't be sent right now. "
