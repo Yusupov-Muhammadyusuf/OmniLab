@@ -4,6 +4,7 @@ import multiprocessing
 import os
 from pathlib import Path
 import re
+import smtplib
 import struct
 import subprocess
 import sys
@@ -34,6 +35,19 @@ from config.environment import (
     get_public_origin,
     is_production_environment,
     is_search_indexing_disabled,
+)
+
+from .email_delivery import (
+    AUTHENTICATION_FAILURE,
+    CONFIGURATION_FAILURE,
+    CONNECTION_FAILURE,
+    RECIPIENT_FAILURE,
+    TIMEOUT_FAILURE,
+    UNKNOWN_FAILURE,
+    ContactEmailConfigurationError,
+    ContactEmailDeliveryCountError,
+    get_contact_email_failure_category,
+    validate_contact_email_configuration,
 )
 
 from .views import (
@@ -503,6 +517,64 @@ class ContactEmailConfigurationTests(SimpleTestCase):
             ),
             output,
         )
+
+
+class ContactEmailFailureEvidenceTests(SimpleTestCase):
+    def test_each_failure_has_one_stable_privacy_safe_category(self):
+        failures = (
+            (ContactEmailConfigurationError(), CONFIGURATION_FAILURE),
+            (
+                smtplib.SMTPAuthenticationError(
+                    535,
+                    b"private provider detail",
+                ),
+                AUTHENTICATION_FAILURE,
+            ),
+            (
+                ConnectionRefusedError("private SMTP host"),
+                CONNECTION_FAILURE,
+            ),
+            (TimeoutError("private timeout detail"), TIMEOUT_FAILURE),
+            (
+                smtplib.SMTPRecipientsRefused(
+                    {"private@example.com": (550, b"private refusal")}
+                ),
+                RECIPIENT_FAILURE,
+            ),
+            (ContactEmailDeliveryCountError(), UNKNOWN_FAILURE),
+        )
+
+        for error, expected_category in failures:
+            with self.subTest(expected_category=expected_category):
+                self.assertEqual(
+                    get_contact_email_failure_category(error),
+                    expected_category,
+                )
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend",
+        EMAIL_HOST="",
+        EMAIL_PORT=587,
+        EMAIL_HOST_USER="sender@example.com",
+        EMAIL_HOST_PASSWORD="private password",
+        DEFAULT_FROM_EMAIL="sender@example.com",
+        OMNILAB_CONTACT_TO_EMAIL="founder@example.com",
+    )
+    def test_incomplete_smtp_configuration_fails_before_delivery(self):
+        with self.assertRaises(ContactEmailConfigurationError):
+            validate_contact_email_configuration()
+
+    @override_settings(
+        EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend",
+        EMAIL_HOST="smtp.example.com",
+        EMAIL_PORT=587,
+        EMAIL_HOST_USER="sender@example.com",
+        EMAIL_HOST_PASSWORD="private password",
+        DEFAULT_FROM_EMAIL="sender@example.com",
+        OMNILAB_CONTACT_TO_EMAIL="founder@example.com",
+    )
+    def test_complete_smtp_configuration_can_attempt_delivery(self):
+        self.assertIsNone(validate_contact_email_configuration())
 
 
 class FaqPageTests(TestCase):
@@ -1220,15 +1292,16 @@ class ContactFormTests(TestCase):
 
     @patch("omnilab.views.EmailMessage.send", side_effect=OSError("SMTP detail"))
     def test_failed_feedback_delivery_uses_delivery_failed_event(self, send):
-        response = self.client.post(
-            "/contact/",
-            {
-                "name": "Amina Student",
-                "email": "amina@example.edu",
-                "message": "I was comparing this result with my notes.",
-                "source": "reaction_feedback",
-            },
-        )
+        with self.assertLogs("omnilab.contact", level="ERROR") as logs:
+            response = self.client.post(
+                "/contact/",
+                {
+                    "name": "Amina Student",
+                    "email": "amina@example.edu",
+                    "message": "I was comparing this result with my notes.",
+                    "source": "reaction_feedback",
+                },
+            )
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -1236,6 +1309,15 @@ class ContactFormTests(TestCase):
             'data-feedback-event="reaction_feedback_delivery_failed"',
             html=False,
         )
+        self.assertEqual(
+            logs.output,
+            [
+                "ERROR:omnilab.contact:"
+                "contact_email_delivery_failed category=connection"
+            ],
+        )
+        self.assertNotIn("SMTP detail", logs.output[0])
+        self.assertNotIn("amina@example.edu", logs.output[0])
         send.assert_called_once_with(fail_silently=False)
 
     @patch("omnilab.views.EmailMessage.send", return_value=0)
@@ -1500,6 +1582,10 @@ class ContactFormTests(TestCase):
         EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend",
         EMAIL_HOST="smtp.invalid",
         EMAIL_PORT=587,
+        EMAIL_HOST_USER="sender@example.com",
+        EMAIL_HOST_PASSWORD="private password",
+        DEFAULT_FROM_EMAIL="sender@example.com",
+        OMNILAB_CONTACT_TO_EMAIL="founder@example.com",
         EMAIL_USE_TLS=False,
     )
     @patch("django.core.mail.backends.smtp.EmailBackend.connection_class")
