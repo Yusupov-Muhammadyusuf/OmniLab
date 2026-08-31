@@ -2577,209 +2577,487 @@ GUIDE_PAGE_REFERENCES = {
     },
 }
 
-# These links stay deliberately small. Each one names the chemistry connection
-# a student can carry from the current guide into the next one.
-GUIDE_RELATIONSHIPS = {
+SODIUM_CHLORINE_REACTION_FAMILY = "Cl2+Na"
+GUIDE_REACTION_FAMILY_BY_PAGE = {
+    **{
+        guide["canonical_key"]: SODIUM_CHLORINE_REACTION_FAMILY
+        for guide in GUIDED_EXPERIMENT_PAGES.values()
+    },
+    **{
+        guide["canonical_key"]: "+".join(
+            sorted(reactant["formula"] for reactant in guide["reactants"])
+        )
+        for guide in OBSERVATION_GUIDE_PAGES.values()
+    },
+}
+GUIDE_SUPPORTED_REACTION_FAMILIES = {
+    CHEMICAL_REACTION_VIRTUAL_LAB_PAGE["canonical_key"]: frozenset(
+        GUIDE_REACTION_FAMILY_BY_PAGE.values()
+    ),
+    **{
+        guide_key: frozenset({reaction_family})
+        for guide_key, reaction_family in GUIDE_REACTION_FAMILY_BY_PAGE.items()
+    },
+}
+
+# Substance sets include reactants and products named in each rendered equation.
+# Reaction patterns are used only when two supported pairs teach the same
+# specific chemistry relationship and do not share an exact substance.
+GUIDE_CHEMISTRY_PROFILES = {
+    "chemical_reaction_virtual_lab": {
+        "substances": frozenset(),
+        "reaction_patterns": frozenset(),
+    },
+    "sodium_chlorine_reaction": {
+        "substances": frozenset({"Na", "Cl2", "NaCl"}),
+        "reaction_patterns": frozenset({"ionic-synthesis", "redox"}),
+    },
+    "sodium_chlorine_formula": {
+        "substances": frozenset({"Na", "Cl2", "NaCl"}),
+        "reaction_patterns": frozenset({"ionic-synthesis", "redox"}),
+    },
+    "sodium_chlorine_ionic_bond": {
+        "substances": frozenset({"Na", "Cl2", "NaCl"}),
+        "reaction_patterns": frozenset({"ionic-synthesis", "redox"}),
+    },
+    "limewater_carbon_dioxide": {
+        "substances": frozenset({"Ca(OH)2", "CO2", "CaCO3", "H2O"}),
+        "reaction_patterns": frozenset({"precipitation"}),
+    },
+    "sodium_carbonate_hydrochloric_acid": {
+        "substances": frozenset({"Na2CO3", "HCl", "NaCl", "CO2", "H2O"}),
+        "reaction_patterns": frozenset(
+            {"acid-base", "acid-carbonate", "gas-evolution"}
+        ),
+    },
+    "silver_nitrate_potassium_iodide": {
+        "substances": frozenset({"AgNO3", "KI", "AgI", "KNO3"}),
+        "reaction_patterns": frozenset({"precipitation"}),
+    },
+    "copper_sulfate_potassium_hydroxide": {
+        "substances": frozenset({"CuSO4", "KOH", "Cu(OH)2", "K2SO4"}),
+        "reaction_patterns": frozenset({"copper-ii", "precipitation"}),
+    },
+    "sodium_water": {
+        "substances": frozenset({"Na", "H2O", "NaOH", "H2"}),
+        "reaction_patterns": frozenset({"gas-forming-redox"}),
+    },
+    "zinc_hydrochloric_acid": {
+        "substances": frozenset({"Zn", "HCl", "ZnCl2", "H2"}),
+        "reaction_patterns": frozenset({"metal-acid"}),
+    },
+    "acetic_acid_sodium_bicarbonate": {
+        "substances": frozenset(
+            {"CH3COOH", "NaHCO3", "CH3COONa", "CO2", "H2O"}
+        ),
+        "reaction_patterns": frozenset(
+            {"acid-base", "acid-carbonate", "gas-evolution"}
+        ),
+    },
+    "hydrogen_oxygen": {
+        "substances": frozenset({"H2", "O2", "H2O"}),
+        "reaction_patterns": frozenset({"combustion", "redox"}),
+    },
+    "iron_oxygen": {
+        "substances": frozenset({"Fe", "O2", "Fe2O3"}),
+        "reaction_patterns": frozenset({"metal-oxidation", "redox"}),
+    },
+    "hydrochloric_acid_sodium_hydroxide": {
+        "substances": frozenset({"HCl", "NaOH", "NaCl", "H2O"}),
+        "reaction_patterns": frozenset({"acid-base", "neutralization"}),
+    },
+    "silver_nitrate_sodium_chloride": {
+        "substances": frozenset({"AgNO3", "NaCl", "AgCl", "NaNO3"}),
+        "reaction_patterns": frozenset({"precipitation"}),
+    },
+    "carbon_monoxide_oxygen": {
+        "substances": frozenset({"CO", "O2", "CO2"}),
+        "reaction_patterns": frozenset({"combustion", "redox"}),
+    },
+    "carbon_dioxide_water": {
+        "substances": frozenset({"CO2", "H2O", "H2CO3"}),
+        "reaction_patterns": frozenset({"acid-formation"}),
+    },
+    "iron_hydrochloric_acid": {
+        "substances": frozenset({"Fe", "HCl", "FeCl2", "H2"}),
+        "reaction_patterns": frozenset({"metal-acid"}),
+    },
+    "copper_oxygen": {
+        "substances": frozenset({"Cu", "O2", "CuO"}),
+        "reaction_patterns": frozenset({"copper-ii", "metal-oxidation"}),
+    },
+    "potassium_permanganate_hydrogen_peroxide": {
+        "substances": frozenset(
+            {"KMnO4", "H2O2", "MnO2", "O2", "KOH", "H2O"}
+        ),
+        "reaction_patterns": frozenset({"gas-forming-redox", "redox"}),
+    },
+}
+
+# Each edge carries machine-checkable chemistry evidence. The UI deliberately
+# renders only the student-facing reason.
+GUIDE_RELATIONSHIP_DEFINITIONS = {
     "chemical_reaction_virtual_lab": [
         (
             "hydrochloric_acid_sodium_hydroxide",
             "Study a supported neutralization reaction",
+            "supported_reaction_family",
+            "HCl+NaOH",
         ),
-        ("limewater_carbon_dioxide", "See a cloudy precipitate result"),
+        (
+            "limewater_carbon_dioxide",
+            "See a cloudy precipitate result",
+            "supported_reaction_family",
+            "CO2+Ca(OH)2",
+        ),
         (
             "potassium_permanganate_hydrogen_peroxide",
             "Study oxygen bubbles in a supported redox reaction",
+            "supported_reaction_family",
+            "H2O2+KMnO4",
         ),
     ],
     "sodium_chlorine_reaction": [
-        ("sodium_chlorine_formula", "Use the same substances to build NaCl"),
-        ("sodium_chlorine_ionic_bond", "Follow the same electron transfer"),
-        ("sodium_water", "Compare another reaction of sodium"),
+        (
+            "sodium_chlorine_formula",
+            "Use the same substances to build NaCl",
+            "supported_reaction_family",
+            SODIUM_CHLORINE_REACTION_FAMILY,
+        ),
+        (
+            "sodium_chlorine_ionic_bond",
+            "Follow the same electron transfer",
+            "supported_reaction_family",
+            SODIUM_CHLORINE_REACTION_FAMILY,
+        ),
+        ("sodium_water", "Compare another reaction of sodium", "shared_substance", "Na"),
     ],
     "sodium_chlorine_formula": [
-        ("sodium_chlorine_reaction", "Put NaCl into the balanced reaction"),
-        ("sodium_chlorine_ionic_bond", "Connect the formula to ion charges"),
-        ("sodium_water", "Compare another reaction of sodium"),
+        (
+            "sodium_chlorine_reaction",
+            "Put NaCl into the balanced reaction",
+            "supported_reaction_family",
+            SODIUM_CHLORINE_REACTION_FAMILY,
+        ),
+        (
+            "sodium_chlorine_ionic_bond",
+            "Connect the formula to ion charges",
+            "supported_reaction_family",
+            SODIUM_CHLORINE_REACTION_FAMILY,
+        ),
+        ("sodium_water", "Compare another reaction of sodium", "shared_substance", "Na"),
     ],
     "sodium_chlorine_ionic_bond": [
-        ("sodium_chlorine_formula", "Use the ion charges to build NaCl"),
-        ("sodium_chlorine_reaction", "See the same ions in the full reaction"),
-        ("sodium_water", "Compare another reaction of sodium"),
+        (
+            "sodium_chlorine_formula",
+            "Use the ion charges to build NaCl",
+            "supported_reaction_family",
+            SODIUM_CHLORINE_REACTION_FAMILY,
+        ),
+        (
+            "sodium_chlorine_reaction",
+            "See the same ions in the full reaction",
+            "supported_reaction_family",
+            SODIUM_CHLORINE_REACTION_FAMILY,
+        ),
+        ("sodium_water", "Compare another reaction of sodium", "shared_substance", "Na"),
     ],
     "limewater_carbon_dioxide": [
         (
             "carbon_dioxide_water",
             "Compare another reaction of carbon dioxide",
+            "shared_substance",
+            "CO2",
         ),
         (
             "sodium_carbonate_hydrochloric_acid",
             "Follow carbon dioxide from gas to precipitate",
+            "shared_substance",
+            "CO2",
         ),
         (
             "acetic_acid_sodium_bicarbonate",
             "See another reaction that produces carbon dioxide",
+            "shared_substance",
+            "CO2",
         ),
     ],
     "sodium_carbonate_hydrochloric_acid": [
-        ("zinc_hydrochloric_acid", "Compare another hydrochloric acid reaction"),
-        ("limewater_carbon_dioxide", "Use the carbon dioxide in limewater"),
+        (
+            "zinc_hydrochloric_acid",
+            "Compare another hydrochloric acid reaction",
+            "shared_substance",
+            "HCl",
+        ),
+        (
+            "limewater_carbon_dioxide",
+            "Use the carbon dioxide in limewater",
+            "shared_substance",
+            "CO2",
+        ),
         (
             "acetic_acid_sodium_bicarbonate",
             "Compare another carbon dioxide-producing reaction",
+            "shared_reaction_pattern",
+            "acid-carbonate",
         ),
     ],
     "silver_nitrate_potassium_iodide": [
         (
             "silver_nitrate_sodium_chloride",
             "Compare yellow and white silver precipitates",
+            "shared_substance",
+            "AgNO3",
         ),
         (
             "copper_sulfate_potassium_hydroxide",
             "Compare a blue precipitate result",
+            "shared_reaction_pattern",
+            "precipitation",
         ),
     ],
     "copper_sulfate_potassium_hydroxide": [
         (
             "silver_nitrate_potassium_iodide",
             "Compare a yellow precipitate result",
+            "shared_reaction_pattern",
+            "precipitation",
         ),
-        ("limewater_carbon_dioxide", "Compare a cloudy precipitate result"),
+        (
+            "limewater_carbon_dioxide",
+            "Compare a cloudy precipitate result",
+            "shared_reaction_pattern",
+            "precipitation",
+        ),
     ],
     "sodium_water": [
-        ("sodium_chlorine_reaction", "Compare another reaction of sodium"),
-        ("zinc_hydrochloric_acid", "Compare another hydrogen-producing reaction"),
-        ("hydrogen_oxygen", "Follow hydrogen into a water-forming reaction"),
+        ("sodium_chlorine_reaction", "Compare another reaction of sodium", "shared_substance", "Na"),
+        (
+            "zinc_hydrochloric_acid",
+            "Compare another hydrogen-producing reaction",
+            "shared_substance",
+            "H2",
+        ),
+        (
+            "hydrogen_oxygen",
+            "Follow hydrogen into a water-forming reaction",
+            "shared_substance",
+            "H2",
+        ),
     ],
     "zinc_hydrochloric_acid": [
         (
             "sodium_carbonate_hydrochloric_acid",
             "Compare another hydrochloric acid reaction",
+            "shared_substance",
+            "HCl",
         ),
         (
             "iron_hydrochloric_acid",
             "Compare another metal-acid reaction",
+            "shared_substance",
+            "HCl",
         ),
-        ("hydrogen_oxygen", "Follow hydrogen into a water-forming reaction"),
+        (
+            "hydrogen_oxygen",
+            "Follow hydrogen into a water-forming reaction",
+            "shared_substance",
+            "H2",
+        ),
     ],
     "acetic_acid_sodium_bicarbonate": [
         (
             "sodium_carbonate_hydrochloric_acid",
             "Compare another carbon dioxide-producing reaction",
+            "shared_reaction_pattern",
+            "acid-carbonate",
         ),
-        ("limewater_carbon_dioxide", "Use the carbon dioxide in limewater"),
+        (
+            "limewater_carbon_dioxide",
+            "Use the carbon dioxide in limewater",
+            "shared_substance",
+            "CO2",
+        ),
         (
             "carbon_dioxide_water",
             "Follow carbon dioxide into water",
+            "shared_substance",
+            "CO2",
         ),
     ],
     "hydrogen_oxygen": [
-        ("sodium_water", "Trace hydrogen from a water reaction"),
-        ("zinc_hydrochloric_acid", "Trace hydrogen from a metal-acid reaction"),
-        ("iron_oxygen", "Compare another reaction with oxygen"),
+        ("sodium_water", "Trace hydrogen from a water reaction", "shared_substance", "H2"),
+        (
+            "zinc_hydrochloric_acid",
+            "Trace hydrogen from a metal-acid reaction",
+            "shared_substance",
+            "H2",
+        ),
+        ("iron_oxygen", "Compare another reaction with oxygen", "shared_substance", "O2"),
     ],
     "iron_oxygen": [
-        ("hydrogen_oxygen", "Compare another reaction with oxygen"),
+        ("hydrogen_oxygen", "Compare another reaction with oxygen", "shared_substance", "O2"),
         (
             "copper_oxygen",
             "Compare another heated metal oxidation",
+            "shared_substance",
+            "O2",
         ),
         (
             "iron_hydrochloric_acid",
             "Compare another reaction of iron",
+            "shared_substance",
+            "Fe",
         ),
     ],
     "hydrochloric_acid_sodium_hydroxide": [
         (
             "zinc_hydrochloric_acid",
             "Compare an acid reacting with a metal",
+            "shared_substance",
+            "HCl",
         ),
         (
             "acetic_acid_sodium_bicarbonate",
             "Compare an acid reaction that releases a gas",
+            "shared_reaction_pattern",
+            "acid-base",
         ),
         (
             "sodium_carbonate_hydrochloric_acid",
             "Follow hydrochloric acid into a gas-forming reaction",
+            "shared_substance",
+            "HCl",
         ),
     ],
     "silver_nitrate_sodium_chloride": [
         (
             "silver_nitrate_potassium_iodide",
             "Compare yellow and white silver precipitates",
+            "shared_substance",
+            "AgNO3",
         ),
         (
             "copper_sulfate_potassium_hydroxide",
             "Compare a blue precipitate result",
+            "shared_reaction_pattern",
+            "precipitation",
         ),
         (
             "limewater_carbon_dioxide",
             "Compare another cloudy white precipitate",
+            "shared_reaction_pattern",
+            "precipitation",
         ),
     ],
     "carbon_monoxide_oxygen": [
         (
             "hydrogen_oxygen",
             "Compare another oxygen combustion reaction",
+            "shared_substance",
+            "O2",
         ),
         (
             "iron_oxygen",
             "Compare oxidation with a solid product",
+            "shared_substance",
+            "O2",
         ),
         (
             "chemical_reaction_virtual_lab",
             "Review how supported predictions work",
+            "supported_reaction_family",
+            "CO+O2",
         ),
     ],
     "carbon_dioxide_water": [
         (
             "limewater_carbon_dioxide",
             "Compare carbon dioxide reacting with limewater",
+            "shared_substance",
+            "CO2",
         ),
         (
             "acetic_acid_sodium_bicarbonate",
             "See a reaction that produces carbon dioxide",
+            "shared_substance",
+            "CO2",
         ),
         (
             "chemical_reaction_virtual_lab",
             "Review how supported predictions work",
+            "supported_reaction_family",
+            "CO2+H2O",
         ),
     ],
     "iron_hydrochloric_acid": [
         (
             "zinc_hydrochloric_acid",
             "Compare another metal-acid reaction",
+            "shared_substance",
+            "HCl",
         ),
         (
             "iron_oxygen",
             "Compare another reaction of iron",
+            "shared_substance",
+            "Fe",
         ),
         (
             "hydrochloric_acid_sodium_hydroxide",
             "Compare hydrochloric acid in neutralization",
+            "shared_substance",
+            "HCl",
         ),
     ],
     "copper_oxygen": [
         (
             "iron_oxygen",
             "Compare another metal reacting with oxygen",
+            "shared_substance",
+            "O2",
         ),
         (
             "carbon_monoxide_oxygen",
             "Compare oxidation that forms a gaseous product",
+            "shared_substance",
+            "O2",
         ),
         (
             "copper_sulfate_potassium_hydroxide",
             "Compare another copper(II) compound",
+            "shared_reaction_pattern",
+            "copper-ii",
         ),
     ],
     "potassium_permanganate_hydrogen_peroxide": [
-        ("hydrogen_oxygen", "Compare another reaction involving oxygen"),
-        ("sodium_water", "Compare another gas-forming redox reaction"),
+        (
+            "hydrogen_oxygen",
+            "Compare another reaction involving oxygen",
+            "shared_substance",
+            "O2",
+        ),
+        (
+            "sodium_water",
+            "Compare another gas-forming redox reaction",
+            "shared_reaction_pattern",
+            "gas-forming-redox",
+        ),
         (
             "chemical_reaction_virtual_lab",
             "Review what the virtual lab does and does not model",
+            "supported_reaction_family",
+            "H2O2+KMnO4",
         ),
     ],
+}
+
+GUIDE_RELATIONSHIPS = {
+    guide_key: [
+        (related_key, reason)
+        for related_key, reason, _evidence_kind, _evidence_value in relationships
+    ]
+    for guide_key, relationships in GUIDE_RELATIONSHIP_DEFINITIONS.items()
 }
 
 
