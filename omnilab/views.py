@@ -2846,6 +2846,10 @@ GUIDE_CHEMISTRY_PROFILES = {
         ),
         "reaction_patterns": frozenset({"gas-forming-redox", "redox"}),
     },
+    "sodium_chloride_water": {
+        "substances": frozenset({"NaCl", "H2O", "Na+", "Cl-"}),
+        "reaction_patterns": frozenset(),
+    },
 }
 
 # Each edge carries machine-checkable chemistry evidence. The UI deliberately
@@ -2899,7 +2903,12 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "supported_reaction_family",
             SODIUM_CHLORINE_REACTION_FAMILY,
         ),
-        ("sodium_water", "Compare another reaction of sodium", "shared_substance", "Na"),
+        (
+            "sodium_chloride_water",
+            "Follow NaCl from its formula to dissolved ions",
+            "shared_substance",
+            "NaCl",
+        ),
     ],
     "sodium_chlorine_ionic_bond": [
         (
@@ -3074,10 +3083,8 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
         (
             "sodium_chloride_water",
             "Follow the sodium chloride product into water",
-            "acetic_acid_sodium_bicarbonate",
-            "Compare an acid reaction that releases a gas",
-            "shared_reaction_pattern",
-            "acid-base",
+            "shared_substance",
+            "NaCl",
         ),
         (
             "sodium_carbonate_hydrochloric_acid",
@@ -3102,10 +3109,8 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
         (
             "sodium_chloride_water",
             "Compare dissolved chloride before silver chloride forms",
-            "limewater_carbon_dioxide",
-            "Compare another cloudy white precipitate",
-            "shared_reaction_pattern",
-            "precipitation",
+            "shared_substance",
+            "NaCl",
         ),
     ],
     "carbon_monoxide_oxygen": [
@@ -3212,14 +3217,20 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
         (
             "sodium_chlorine_formula",
             "Connect dissolved ions to the NaCl formula",
+            "shared_substance",
+            "NaCl",
         ),
         (
             "hydrochloric_acid_sodium_hydroxide",
             "See neutralization form sodium chloride and water",
+            "shared_substance",
+            "NaCl",
         ),
         (
             "silver_nitrate_sodium_chloride",
             "Use dissolved chloride to form silver chloride",
+            "shared_substance",
+            "NaCl",
         ),
     ],
 }
