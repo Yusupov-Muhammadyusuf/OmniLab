@@ -163,18 +163,33 @@ export function setupSearchFunction(): void {
 export function toggleCustomPopover(event: MouseEvent, panelId: string): void {
     event.stopPropagation();
     const target = document.getElementById(`sub-panel-${panelId}`);
-    const trigger = document.getElementById(`trigger-${panelId}`);
-    if (!target || !trigger) return;
+    if (!target) return;
     
     const isAlreadyOpen = target.style.display === 'block';
-    
-    closeAllPopovers();
 
-    if (!isAlreadyOpen) {
-        target.style.display = 'block';
-        trigger.classList.add('active');
-        trigger.setAttribute('aria-expanded', 'true');
-        if(panelId === 'chemicals') {
+    if (isAlreadyOpen) {
+        closeAllPopovers();
+        return;
+    }
+
+    openCustomPopover(panelId);
+}
+
+export function openCustomPopover(
+    panelId: string,
+    focusDefault: boolean = true
+): void {
+    const target = document.getElementById(`sub-panel-${panelId}`);
+    const trigger = document.getElementById(`trigger-${panelId}`);
+    if (!target || !trigger) return;
+
+    closeAllPopovers();
+    target.style.display = 'block';
+    trigger.classList.add('active');
+    trigger.setAttribute('aria-expanded', 'true');
+
+    if (focusDefault) {
+        if (panelId === 'chemicals') {
             setTimeout(() => { 
                 const input = document.getElementById('chem-search-input') as HTMLInputElement | null;
                 if (input) input.focus(); 

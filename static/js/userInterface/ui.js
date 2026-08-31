@@ -125,15 +125,25 @@ export function setupSearchFunction() {
 export function toggleCustomPopover(event, panelId) {
     event.stopPropagation();
     const target = document.getElementById(`sub-panel-${panelId}`);
+    if (!target)
+        return;
+    const isAlreadyOpen = target.style.display === 'block';
+    if (isAlreadyOpen) {
+        closeAllPopovers();
+        return;
+    }
+    openCustomPopover(panelId);
+}
+export function openCustomPopover(panelId, focusDefault = true) {
+    const target = document.getElementById(`sub-panel-${panelId}`);
     const trigger = document.getElementById(`trigger-${panelId}`);
     if (!target || !trigger)
         return;
-    const isAlreadyOpen = target.style.display === 'block';
     closeAllPopovers();
-    if (!isAlreadyOpen) {
-        target.style.display = 'block';
-        trigger.classList.add('active');
-        trigger.setAttribute('aria-expanded', 'true');
+    target.style.display = 'block';
+    trigger.classList.add('active');
+    trigger.setAttribute('aria-expanded', 'true');
+    if (focusDefault) {
         if (panelId === 'chemicals') {
             setTimeout(() => {
                 const input = document.getElementById('chem-search-input');

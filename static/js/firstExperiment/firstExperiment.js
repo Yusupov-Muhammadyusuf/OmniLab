@@ -1,4 +1,5 @@
 import * as config from '../configuration/config.js';
+import { openCustomPopover } from '../userInterface/ui.js';
 const STEP_COPY = {
     sodium: {
         label: 'Step 1 of 4',
@@ -90,6 +91,14 @@ function getCurrentStep() {
     const state = config.getLabState();
     return getFirstExperimentStep(state.selectedChemicals, state.currentVessel, resultIsComplete());
 }
+function openPanelForStep(step) {
+    if (step === 'sodium' || step === 'chlorine') {
+        openCustomPopover('chemicals', false);
+    }
+    else if (step === 'beaker') {
+        openCustomPopover('apparatus', false);
+    }
+}
 export function focusFirstExperimentTarget(step) {
     if (!window.firstExperiment || step === 'complete')
         return;
@@ -131,8 +140,10 @@ export function syncFirstExperimentGuide() {
 export function advanceFirstExperimentGuide() {
     if (!window.firstExperiment)
         return;
+    const step = getCurrentStep();
+    openPanelForStep(step);
     syncFirstExperimentGuide();
-    focusFirstExperimentTarget(getCurrentStep());
+    focusFirstExperimentTarget(step);
 }
 export function initializeFirstExperiment() {
     if (!window.firstExperiment)
@@ -152,6 +163,6 @@ export function initializeFirstExperiment() {
         });
     }
     window.addEventListener('omnilab:analysis-state-changed', syncFirstExperimentGuide);
-    syncFirstExperimentGuide();
+    advanceFirstExperimentGuide();
 }
 //# sourceMappingURL=firstExperiment.js.map
