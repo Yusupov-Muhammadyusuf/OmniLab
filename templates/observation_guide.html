@@ -221,25 +221,7 @@
             </section>
             {% endif %}
 
-            <section class="observation-guide-next" aria-labelledby="next-heading">
-                <div>
-                    <p class="guide-section-label">Keep exploring</p>
-                    <h2 id="next-heading">Connect this observation to another reaction</h2>
-                    <p>These guides use the same pattern: predict the equation, identify the visible cue, then check what the virtual model leaves out.</p>
-                    <a href="{% url 'chemical_reaction_virtual_lab' %}">See how the full virtual lab works <span aria-hidden="true">→</span></a>
-                </div>
-                <nav class="guide-related-links" aria-label="Related observation guides">
-                    {% for related_guide in related_guides %}
-                    <a href="{% url related_guide.route_name %}">
-                        <span class="guide-related-link-copy">
-                            <strong>{{ related_guide.title }}</strong>
-                            <small>{{ related_guide.reason }}</small>
-                        </span>
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    {% endfor %}
-                </nav>
-            </section>
+            {% include "partials/related_guides.html" with related_class="observation-guide-next" related_heading_id="next-heading" related_label="Keep exploring" related_heading="Connect this observation to another reaction" related_intro="These guides use the same pattern: predict the equation, identify the visible cue, then check what the virtual model leaves out." show_virtual_lab_link=True related_aria_label="Related observation guides" %}
         </article>
     </main>
 

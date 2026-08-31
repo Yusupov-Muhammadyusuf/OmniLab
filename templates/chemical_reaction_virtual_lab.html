@@ -165,23 +165,7 @@
                 </div>
             </section>
 
-            <nav class="guide-related reaction-lab-related" aria-labelledby="related-heading">
-                <div>
-                    <p class="guide-section-label">Continue studying</p>
-                    <h2 id="related-heading">Choose a connected guide</h2>
-                </div>
-                <div class="guide-related-links">
-                    {% for related_guide in related_guides %}
-                    <a href="{% url related_guide.route_name %}">
-                        <span class="guide-related-link-copy">
-                            <strong>{{ related_guide.title }}</strong>
-                            <small>{{ related_guide.reason }}</small>
-                        </span>
-                        <span aria-hidden="true">→</span>
-                    </a>
-                    {% endfor %}
-                </div>
-            </nav>
+            {% include "partials/related_guides.html" with related_class="guide-related reaction-lab-related" related_heading_id="related-heading" related_label="Continue studying" related_heading="Choose a connected guide" %}
         </article>
     </main>
 
