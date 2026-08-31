@@ -1,0 +1,21 @@
+{% if related_aria_label %}<section class="{{ related_class }}" aria-labelledby="{{ related_heading_id }}">{% else %}<nav class="{{ related_class }}" aria-labelledby="{{ related_heading_id }}">{% endif %}
+    <div>
+        <p class="guide-section-label">{{ related_label }}</p>
+        <h2 id="{{ related_heading_id }}">{{ related_heading }}</h2>
+        {% if related_intro %}<p>{{ related_intro }}</p>{% endif %}
+        {% if show_virtual_lab_link %}
+        <a href="{% url 'chemical_reaction_virtual_lab' %}">See how the full virtual lab works <span aria-hidden="true">→</span></a>
+        {% endif %}
+    </div>
+    {% if related_aria_label %}<nav class="guide-related-links" aria-label="{{ related_aria_label }}">{% else %}<div class="guide-related-links">{% endif %}
+        {% for related_guide in related_guides %}
+        <a href="{% url related_guide.route_name %}">
+            <span class="guide-related-link-copy">
+                <strong>{{ related_guide.title }}</strong>
+                <small>{{ related_guide.reason }}</small>
+            </span>
+            <span aria-hidden="true">→</span>
+        </a>
+        {% endfor %}
+    {% if related_aria_label %}</nav>{% else %}</div>{% endif %}
+{% if related_aria_label %}</section>{% else %}</nav>{% endif %}

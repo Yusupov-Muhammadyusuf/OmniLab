@@ -53,9 +53,13 @@ from .email_delivery import (
 from .views import (
     CHEMICAL_REACTION_VIRTUAL_LAB_PAGE,
     CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE,
+    GUIDE_CHEMISTRY_PROFILES,
     GUIDE_LIBRARY_GROUPS,
     GUIDE_PAGE_REFERENCES,
+    GUIDE_REACTION_FAMILY_BY_PAGE,
+    GUIDE_RELATIONSHIP_DEFINITIONS,
     GUIDE_RELATIONSHIPS,
+    GUIDE_SUPPORTED_REACTION_FAMILIES,
     GUIDED_EXPERIMENT_BOUNDARY,
     GUIDED_EXPERIMENT_PAGES,
     GUIDED_EXPERIMENT_SAFETY_WARNING,
@@ -887,6 +891,88 @@ class GuideLibraryPageTests(TestCase):
                 self.assertTrue(
                     set(related_keys).issubset(GUIDE_PAGE_REFERENCES)
                 )
+
+    def test_guide_map_covers_all_pages_and_supported_reaction_families(self):
+        virtual_lab_key = CHEMICAL_REACTION_VIRTUAL_LAB_PAGE["canonical_key"]
+        reaction_matrix_family_ids = {
+            "+".join(sorted(pair)) for pair in REACTION_MATRIX
+        }
+
+        self.assertEqual(
+            set(GUIDE_REACTION_FAMILY_BY_PAGE),
+            set(GUIDE_PAGE_REFERENCES) - {virtual_lab_key},
+        )
+        self.assertEqual(len(set(GUIDE_REACTION_FAMILY_BY_PAGE.values())), 17)
+        self.assertTrue(
+            set(GUIDE_REACTION_FAMILY_BY_PAGE.values()).issubset(
+                reaction_matrix_family_ids
+            )
+        )
+        self.assertEqual(
+            GUIDE_SUPPORTED_REACTION_FAMILIES[virtual_lab_key],
+            frozenset(GUIDE_REACTION_FAMILY_BY_PAGE.values()),
+        )
+        self.assertEqual(
+            set(GUIDE_SUPPORTED_REACTION_FAMILIES),
+            set(GUIDE_PAGE_REFERENCES),
+        )
+
+    def test_every_relationship_has_explicit_chemistry_evidence(self):
+        self.assertEqual(
+            set(GUIDE_RELATIONSHIP_DEFINITIONS),
+            set(GUIDE_PAGE_REFERENCES),
+        )
+        self.assertEqual(
+            set(GUIDE_CHEMISTRY_PROFILES),
+            set(GUIDE_PAGE_REFERENCES),
+        )
+
+        for guide_key, relationships in GUIDE_RELATIONSHIP_DEFINITIONS.items():
+            for related_key, _reason, evidence_kind, evidence_value in relationships:
+                with self.subTest(
+                    guide_key=guide_key,
+                    related_key=related_key,
+                    evidence_kind=evidence_kind,
+                    evidence_value=evidence_value,
+                ):
+                    if evidence_kind == "supported_reaction_family":
+                        self.assertIn(
+                            evidence_value,
+                            GUIDE_SUPPORTED_REACTION_FAMILIES[guide_key]
+                            & GUIDE_SUPPORTED_REACTION_FAMILIES[related_key],
+                        )
+                    elif evidence_kind == "shared_substance":
+                        self.assertIn(
+                            evidence_value,
+                            GUIDE_CHEMISTRY_PROFILES[guide_key]["substances"]
+                            & GUIDE_CHEMISTRY_PROFILES[related_key]["substances"],
+                        )
+                    elif evidence_kind == "shared_reaction_pattern":
+                        self.assertIn(
+                            evidence_value,
+                            GUIDE_CHEMISTRY_PROFILES[guide_key][
+                                "reaction_patterns"
+                            ]
+                            & GUIDE_CHEMISTRY_PROFILES[related_key][
+                                "reaction_patterns"
+                            ],
+                        )
+                    else:
+                        self.fail(f"Unknown relationship evidence: {evidence_kind}")
+
+    def test_all_guide_templates_use_the_shared_related_guides_partial(self):
+        template_dir = Path(settings.BASE_DIR) / "templates"
+        partial_include = 'include "partials/related_guides.html"'
+
+        for template_name in (
+            "chemical_reaction_virtual_lab.html",
+            "guided_experiment.html",
+            "observation_guide.html",
+        ):
+            with self.subTest(template_name=template_name):
+                template = (template_dir / template_name).read_text()
+                self.assertEqual(template.count(partial_include), 1)
+                self.assertNotIn("{% for related_guide in related_guides %}", template)
 
     def test_every_guide_navigation_destination_returns_success(self):
         prepared_demo_routes = {
