@@ -126,6 +126,15 @@ const reactionGuidesByPairKey = new Map([
         ]
     ],
     [
+        'H2O+NaCl',
+        [
+            {
+                href: '/guides/sodium-chloride-and-water-reaction/',
+                title: 'What happens when sodium chloride mixes with water?'
+            }
+        ]
+    ],
+    [
         'HCl+Zn',
         [
             {

@@ -102,6 +102,12 @@ urlpatterns = [
         name="demo_potassium_permanganate_hydrogen_peroxide",
     ),
     path(
+        'demo/sodium-chloride-water/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'sodium-chloride-water'},
+        name="demo_sodium_chloride_water",
+    ),
+    path(
         'demo/hydrochloric-acid-sodium-hydroxide/',
         views.prepared_reaction_demo,
         {'demo_key': 'hydrochloric-acid-sodium-hydroxide'},
@@ -219,6 +225,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'potassium-permanganate-hydrogen-peroxide'},
         name="guide_potassium_permanganate_hydrogen_peroxide",
+    ),
+    path(
+        'guides/sodium-chloride-and-water-reaction/',
+        views.observation_guide,
+        {'guide_key': 'sodium-chloride-water'},
+        name="guide_sodium_chloride_water",
     ),
     path(
         'guides/hydrochloric-acid-and-sodium-hydroxide-reaction/',
