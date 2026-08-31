@@ -902,7 +902,7 @@ class GuideLibraryPageTests(TestCase):
             set(GUIDE_REACTION_FAMILY_BY_PAGE),
             set(GUIDE_PAGE_REFERENCES) - {virtual_lab_key},
         )
-        self.assertEqual(len(set(GUIDE_REACTION_FAMILY_BY_PAGE.values())), 17)
+        self.assertEqual(len(set(GUIDE_REACTION_FAMILY_BY_PAGE.values())), 18)
         self.assertTrue(
             set(GUIDE_REACTION_FAMILY_BY_PAGE.values()).issubset(
                 reaction_matrix_family_ids
@@ -928,7 +928,18 @@ class GuideLibraryPageTests(TestCase):
         )
 
         for guide_key, relationships in GUIDE_RELATIONSHIP_DEFINITIONS.items():
-            for related_key, _reason, evidence_kind, evidence_value in relationships:
+            for relationship in relationships:
+                self.assertEqual(
+                    len(relationship),
+                    4,
+                    f"Malformed relationship for {guide_key}: {relationship!r}",
+                )
+                (
+                    related_key,
+                    _reason,
+                    evidence_kind,
+                    evidence_value,
+                ) = relationship
                 with self.subTest(
                     guide_key=guide_key,
                     related_key=related_key,
