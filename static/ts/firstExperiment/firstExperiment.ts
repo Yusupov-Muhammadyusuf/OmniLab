@@ -1,4 +1,5 @@
 import * as config from '../configuration/config.js';
+import { openCustomPopover } from '../userInterface/ui.js';
 
 export type FirstExperimentStep =
     | 'sodium'
@@ -124,6 +125,14 @@ function getCurrentStep(): FirstExperimentStep {
     );
 }
 
+function openPanelForStep(step: FirstExperimentStep): void {
+    if (step === 'sodium' || step === 'chlorine') {
+        openCustomPopover('chemicals', false);
+    } else if (step === 'beaker') {
+        openCustomPopover('apparatus', false);
+    }
+}
+
 export function focusFirstExperimentTarget(
     step: FirstExperimentStep
 ): void {
@@ -168,8 +177,10 @@ export function syncFirstExperimentGuide(): void {
 
 export function advanceFirstExperimentGuide(): void {
     if (!window.firstExperiment) return;
+    const step = getCurrentStep();
+    openPanelForStep(step);
     syncFirstExperimentGuide();
-    focusFirstExperimentTarget(getCurrentStep());
+    focusFirstExperimentTarget(step);
 }
 
 export function initializeFirstExperiment(): void {
@@ -193,5 +204,5 @@ export function initializeFirstExperiment(): void {
         'omnilab:analysis-state-changed',
         syncFirstExperimentGuide
     );
-    syncFirstExperimentGuide();
+    advanceFirstExperimentGuide();
 }

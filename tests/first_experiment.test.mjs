@@ -12,10 +12,14 @@ globalThis.document = {
 };
 
 const {
+    advanceFirstExperimentGuide,
     focusFirstExperimentTarget,
     getFirstExperimentStep
 } = await import(
     '../static/js/firstExperiment/firstExperiment.js'
+);
+const { updateLabState } = await import(
+    '../static/js/configuration/config.js'
 );
 
 test('the first experiment starts by asking for Sodium', () => {
@@ -68,4 +72,56 @@ test('the first experiment focuses the next useful closed-panel control', () => 
         'trigger-apparatus',
         'btn-fire-analysis'
     ]);
+});
+
+test('advancing exposes and focuses the next chemical control', () => {
+    const focused = [];
+    const makeClassList = () => ({
+        add: () => {},
+        remove: () => {},
+        toggle: () => {}
+    });
+    const chemicalsPanel = {
+        style: { display: 'none' }
+    };
+    const apparatusPanel = {
+        style: { display: 'none' }
+    };
+    const chemicalsTrigger = {
+        classList: makeClassList(),
+        setAttribute: () => {}
+    };
+    const apparatusTrigger = {
+        classList: makeClassList(),
+        setAttribute: () => {}
+    };
+    const chlorine = {
+        classList: makeClassList(),
+        focus: () => focused.push('chlorine')
+    };
+    const elements = {
+        'sub-panel-chemicals': chemicalsPanel,
+        'sub-panel-apparatus': apparatusPanel,
+        'trigger-chemicals': chemicalsTrigger,
+        'trigger-apparatus': apparatusTrigger,
+        'chem-item-Cl2': chlorine
+    };
+    globalThis.document.getElementById = id => elements[id] || null;
+    globalThis.document.querySelector = () => null;
+    globalThis.document.querySelectorAll = selector => {
+        if (selector === '.floating-popover-panel') {
+            return [chemicalsPanel, apparatusPanel];
+        }
+        if (selector === '.toolbar-trigger-btn') {
+            return [chemicalsTrigger, apparatusTrigger];
+        }
+        return [];
+    };
+    updateLabState({ selectedChemicals: ['Na'], currentVessel: 'flask' });
+
+    advanceFirstExperimentGuide();
+
+    assert.equal(chemicalsPanel.style.display, 'block');
+    assert.equal(apparatusPanel.style.display, 'none');
+    assert.deepEqual(focused, ['chlorine']);
 });
