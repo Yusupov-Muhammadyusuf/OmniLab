@@ -123,6 +123,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "potassium-permanganate-and-hydrogen-peroxide-reaction/"
     ),
+    "sodium_chloride_water": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "sodium-chloride-and-water-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -443,6 +447,21 @@ REACTION_DEMOS = {
             f"{PRODUCTION_BASE_URL}/demo/"
             "potassium-permanganate-hydrogen-peroxide/"
         ),
+    },
+    "sodium-chloride-water": {
+        "id": "sodium-chloride-water",
+        "version": "v1",
+        "selectedChemicals": ["NaCl", "H2O"],
+        "vessel": "beaker",
+        "liquidColor": "#d7edf7",
+        "mixture_label": "NaCl + H2O",
+        "title": "Sodium chloride and water, ready to analyze",
+        "page_title": "OmniLab - Sodium chloride and water demo",
+        "page_description": (
+            "Open a prepared Sodium chloride and Water setup, then choose "
+            "whether to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/sodium-chloride-water/",
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -2465,6 +2484,141 @@ OBSERVATION_GUIDE_PAGES = {
             "laboratory supervision."
         ),
     },
+    "sodium-chloride-water": {
+        "route_name": "guide_sodium_chloride_water",
+        "canonical_key": "sodium_chloride_water",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_sodium_chloride_water",
+        "title": "What happens when sodium chloride mixes with water?",
+        "page_title": "Sodium chloride and water reaction | OmniLab",
+        "description": (
+            "See what happens when sodium chloride mixes with water, including "
+            "the dissolution equation, hydrated ions, conductivity, and limits."
+        ),
+        "reading_time": "6 minute read",
+        "direct_answer": (
+            "Sodium chloride does not form a new compound when it mixes with "
+            "water. The solid dissolves and dissociates into hydrated sodium "
+            "and chloride ions, while water remains the solvent."
+        ),
+        "opening_boundary": (
+            "This is dissolution and ionic dissociation, not a chemical "
+            "reaction that forms sodium hydroxide or hydrochloric acid. "
+            "Electrolysis requires an external electric current and is outside "
+            "this supported setup."
+        ),
+        "student_job": (
+            "Use this guide to distinguish dissolving, dissociation, and "
+            "hydration. Then connect the aqueous state symbols to the mobile "
+            "ions in the solution."
+        ),
+        "study_intro": (
+            "Read the process equation from the ionic lattice to the hydrated "
+            "ions, while tracking water as the unchanged solvent."
+        ),
+        "reactants": [
+            {"name": "Sodium chloride", "formula": "NaCl"},
+            {"name": "Water", "formula": "H2O"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Sodium chloride and Water. Nothing runs "
+            "until you select Analyze."
+        ),
+        "cta_label": "Try the sodium chloride and water setup",
+        "equation": (
+            "NaCl(s) + H2O(l) -> Na+(aq) + Cl-(aq) + H2O(l)"
+        ),
+        "explanation": (
+            "Sodium chloride dissolves in water and dissociates into hydrated "
+            "sodium and chloride ions. Water is the solvent and is not consumed, "
+            "so it appears on both sides of this process equation. This is "
+            "dissolution rather than formation of a new compound."
+        ),
+        "observation_title": "A clear solution with dissolved ions",
+        "observation": (
+            "The salt can disappear from view as it dissolves, while the "
+            "solution stays clear. OmniLab uses a clear liquid cue and does not "
+            "render individual hydrated ions or measure conductivity."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Clear sodium chloride solution",
+        "study_steps": [
+            {
+                "title": "Separate the ions from the lattice",
+                "body": (
+                    "Solid NaCl contains a repeating ionic lattice. Polar water "
+                    "molecules stabilize Na+ and Cl- as the ions leave that "
+                    "lattice."
+                ),
+            },
+            {
+                "title": "Read the aqueous state",
+                "body": (
+                    "The symbol (aq) means each ion is hydrated in water. It "
+                    "does not mean isolated, dry ions are floating alone."
+                ),
+            },
+            {
+                "title": "Keep water on both sides",
+                "body": (
+                    "Water acts as the solvent and is not consumed. It appears "
+                    "on both sides to show the supported dissolution process."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "Is sodium chloride and water a chemical reaction?",
+                "answer": (
+                    "No new compound forms in this supported process. Sodium "
+                    "chloride dissolves and dissociates, which is a physical "
+                    "change at this level."
+                ),
+            },
+            {
+                "question": "Why does salt water conduct electricity?",
+                "answer": (
+                    "Dissolved Na+ and Cl- ions can move through the solution. "
+                    "Those mobile charged particles carry electric current."
+                ),
+            },
+            {
+                "question": "Do sodium hydroxide and hydrochloric acid form?",
+                "answer": (
+                    "No. Mixing sodium chloride with water alone gives hydrated "
+                    "sodium and chloride ions, not NaOH and HCl."
+                ),
+            },
+            {
+                "question": "Can salt water make new products during electrolysis?",
+                "answer": (
+                    "Yes, an imposed electric current can drive electrode "
+                    "reactions. That is a different process and is not modeled "
+                    "by this prepared setup."
+                ),
+            },
+            {
+                "question": "Can the sodium chloride be recovered?",
+                "answer": (
+                    "Yes. Removing the water can let sodium chloride crystallize "
+                    "again, subject to concentration and temperature conditions."
+                ),
+            },
+        ],
+        "safety": [
+            "Wear eye protection when handling laboratory solutions.",
+            "Do not ingest laboratory-grade sodium chloride.",
+            "Clean spills promptly to prevent slippery surfaces.",
+        ],
+        "boundary": (
+            "OmniLab predicts one simplified dissolution process. It does not "
+            "model mass, volume, concentration, saturation, temperature, "
+            "dissolution rate, conductivity, crystallization, electrolysis, or "
+            "a physical procedure. It is an educational prediction, not a "
+            "verified simulation or a substitute for trained laboratory "
+            "supervision."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -2918,6 +3072,8 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "HCl",
         ),
         (
+            "sodium_chloride_water",
+            "Follow the sodium chloride product into water",
             "acetic_acid_sodium_bicarbonate",
             "Compare an acid reaction that releases a gas",
             "shared_reaction_pattern",
@@ -2944,6 +3100,8 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "precipitation",
         ),
         (
+            "sodium_chloride_water",
+            "Compare dissolved chloride before silver chloride forms",
             "limewater_carbon_dioxide",
             "Compare another cloudy white precipitate",
             "shared_reaction_pattern",
@@ -3048,6 +3206,20 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "Review what the virtual lab does and does not model",
             "supported_reaction_family",
             "H2O2+KMnO4",
+        ),
+    ],
+    "sodium_chloride_water": [
+        (
+            "sodium_chlorine_formula",
+            "Connect dissolved ions to the NaCl formula",
+        ),
+        (
+            "hydrochloric_acid_sodium_hydroxide",
+            "See neutralization form sodium chloride and water",
+        ),
+        (
+            "silver_nitrate_sodium_chloride",
+            "Use dissolved chloride to form silver chloride",
         ),
     ],
 }
@@ -3459,6 +3631,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "potassium-permanganate-hydrogen-peroxide"
+                ]["canonical_key"],
+            },
+            {
+                "number": "21",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "sodium-chloride-water"
+                ]["title"],
+                "summary": (
+                    "Separate dissolution from chemical change, then connect "
+                    "the aqueous state symbols to hydrated ions."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "sodium-chloride-water"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "sodium-chloride-water"
                 ]["canonical_key"],
             },
         ],
@@ -4068,7 +4256,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 20 free, no-account chemistry guides about virtual reaction "
+        "Browse 21 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )
