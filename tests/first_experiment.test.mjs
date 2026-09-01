@@ -14,6 +14,7 @@ globalThis.document = {
 const {
     advanceFirstExperimentGuide,
     focusFirstExperimentTarget,
+    getFirstExperimentInstruction,
     getFirstExperimentStep
 } = await import(
     '../static/js/firstExperiment/firstExperiment.js'
@@ -48,6 +49,17 @@ test('the first experiment finishes only after a complete result is visible', ()
     assert.equal(
         getFirstExperimentStep(['Na', 'Cl2'], 'beaker', true),
         'complete'
+    );
+});
+
+test('visible controls replace the repeated prompts after the first step', () => {
+    assert.match(getFirstExperimentInstruction('sodium'), /select Sodium/);
+    assert.equal(getFirstExperimentInstruction('chlorine'), null);
+    assert.equal(getFirstExperimentInstruction('beaker'), null);
+    assert.equal(getFirstExperimentInstruction('analyze'), null);
+    assert.match(
+        getFirstExperimentInstruction('complete'),
+        /does not replace a physical lab procedure/
     );
 });
 

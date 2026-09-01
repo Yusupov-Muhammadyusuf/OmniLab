@@ -11,7 +11,7 @@ export type FirstExperimentStep =
 interface StepCopy {
     label: string;
     title: string;
-    instruction: string;
+    instruction: string | null;
     progress: number;
 }
 
@@ -25,19 +25,19 @@ const STEP_COPY: Record<FirstExperimentStep, StepCopy> = {
     chlorine: {
         label: 'Step 2 of 4',
         title: 'Add chlorine',
-        instruction: 'Open Chemicals again and select the marked Chlorine (Cl2) partner.',
+        instruction: null,
         progress: 2
     },
     beaker: {
         label: 'Step 3 of 4',
         title: 'Choose a beaker',
-        instruction: 'Open Apparatus and choose Laboratory Beaker. The vessel is a visual setup aid.',
+        instruction: null,
         progress: 3
     },
     analyze: {
         label: 'Step 4 of 4',
         title: 'Run the prediction',
-        instruction: 'Select Analyze Chemical Reaction. OmniLab will return an equation, explanation, and three safety rules.',
+        instruction: null,
         progress: 4
     },
     complete: {
@@ -47,6 +47,12 @@ const STEP_COPY: Record<FirstExperimentStep, StepCopy> = {
         progress: 4
     }
 };
+
+export function getFirstExperimentInstruction(
+    step: FirstExperimentStep
+): string | null {
+    return STEP_COPY[step].instruction;
+}
 
 export function getFirstExperimentStep(
     selectedChemicals: string[],
@@ -151,7 +157,10 @@ export function syncFirstExperimentGuide(): void {
 
     if (label) label.textContent = copy.label;
     if (title) title.textContent = copy.title;
-    if (instruction) instruction.textContent = copy.instruction;
+    if (instruction) {
+        instruction.hidden = copy.instruction === null;
+        instruction.textContent = copy.instruction ?? '';
+    }
 
     document.querySelectorAll<HTMLElement>('[data-guide-step]').forEach(marker => {
         const markerStep = Number(marker.dataset.guideStep || 0);
