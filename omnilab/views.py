@@ -127,6 +127,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "sodium-chloride-and-water-reaction/"
     ),
+    "carbon_dioxide_sodium_hydroxide": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "carbon-dioxide-and-sodium-hydroxide-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -462,6 +466,24 @@ REACTION_DEMOS = {
             "whether to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/sodium-chloride-water/",
+    },
+    "carbon-dioxide-sodium-hydroxide": {
+        "id": "carbon-dioxide-sodium-hydroxide",
+        "version": "v1",
+        "selectedChemicals": ["CO2", "NaOH"],
+        "vessel": "beaker",
+        "liquidColor": "#d7edf7",
+        "mixture_label": "CO2 + NaOH",
+        "title": "Carbon dioxide and sodium hydroxide, ready to analyze",
+        "page_title": "OmniLab - Carbon dioxide and sodium hydroxide demo",
+        "page_description": (
+            "Open a prepared Carbon dioxide and Sodium hydroxide setup, then "
+            "choose whether to request an educational reaction prediction."
+        ),
+        "url": (
+            f"{PRODUCTION_BASE_URL}/demo/"
+            "carbon-dioxide-sodium-hydroxide/"
+        ),
     },
 }
 CHEMICAL_REACTION_VIRTUAL_LAB_VISIT_SOURCE = "guide_virtual_lab"
@@ -2619,6 +2641,133 @@ OBSERVATION_GUIDE_PAGES = {
             "supervision."
         ),
     },
+    "carbon-dioxide-sodium-hydroxide": {
+        "route_name": "guide_carbon_dioxide_sodium_hydroxide",
+        "canonical_key": "carbon_dioxide_sodium_hydroxide",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_carbon_dioxide_sodium_hydroxide",
+        "title": "What happens when carbon dioxide reacts with sodium hydroxide?",
+        "page_title": "Carbon dioxide and sodium hydroxide reaction | OmniLab",
+        "description": (
+            "See how carbon dioxide reacts with sodium hydroxide, balance the "
+            "equation, compare carbonate and bicarbonate, and try the setup."
+        ),
+        "reading_time": "6 minute read",
+        "direct_answer": (
+            "Carbon dioxide reacts with excess sodium hydroxide to form sodium "
+            "carbonate and water. The balanced equation uses two moles of NaOH "
+            "for each mole of CO2."
+        ),
+        "opening_boundary": (
+            "The product depends on the reactant ratio. Excess NaOH supports "
+            "the carbonate equation shown here. A 1:1 ratio can instead favor "
+            "sodium bicarbonate."
+        ),
+        "student_job": (
+            "Track the 1:2 ratio in the balanced equation. Then explain why "
+            "carbon dioxide acts as an acidic oxide."
+        ),
+        "study_intro": (
+            "Follow the carbon atom into carbonate and check that sodium, "
+            "oxygen, and hydrogen atoms balance on both sides."
+        ),
+        "reactants": [
+            {"name": "Carbon dioxide", "formula": "CO2"},
+            {"name": "Sodium hydroxide", "formula": "NaOH"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Carbon dioxide and Sodium hydroxide. "
+            "Nothing runs until you select Analyze."
+        ),
+        "cta_label": "Try the carbon dioxide and sodium hydroxide setup",
+        "equation": "CO2(g) + 2NaOH(aq) -> Na2CO3(aq) + H2O(l)",
+        "explanation": (
+            "Carbon dioxide reacts with excess sodium hydroxide to form "
+            "sodium carbonate and water. Carbon dioxide behaves as an acidic "
+            "oxide in this acid-base reaction. Two hydroxide equivalents are "
+            "required for each carbon dioxide molecule in the stated equation."
+        ),
+        "observation_title": "No dramatic visible change",
+        "observation": (
+            "A dilute sodium hydroxide solution can remain clear as it absorbs "
+            "carbon dioxide. The reaction changes the dissolved ions, but it "
+            "does not produce a gas or precipitate in this stated pathway."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Clear carbonate solution",
+        "study_steps": [
+            {
+                "title": "Recognize the acidic oxide",
+                "body": (
+                    "Carbon dioxide is a non-metal oxide. It reacts with the "
+                    "alkaline hydroxide solution in an acid-base process."
+                ),
+            },
+            {
+                "title": "Use two hydroxide equivalents",
+                "body": (
+                    "Two NaOH units supply two sodium ions and two hydroxide "
+                    "groups for each CO2 molecule in the carbonate pathway."
+                ),
+            },
+            {
+                "title": "Check the product ratio",
+                "body": (
+                    "Excess NaOH favors Na2CO3. With less hydroxide, carbon "
+                    "dioxide can form NaHCO3 instead."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What forms when CO2 reacts with NaOH?",
+                "answer": (
+                    "Excess sodium hydroxide forms sodium carbonate and water. "
+                    "The supported equation is CO2 + 2NaOH -> Na2CO3 + H2O."
+                ),
+            },
+            {
+                "question": "Why are two moles of NaOH required?",
+                "answer": (
+                    "The carbonate ion has a 2- charge. Two sodium ions are "
+                    "needed to form neutral Na2CO3."
+                ),
+            },
+            {
+                "question": "Can sodium bicarbonate form instead?",
+                "answer": (
+                    "Yes. A 1:1 amount of CO2 and NaOH can favor NaHCO3. The "
+                    "supported result assumes excess NaOH and the 1:2 ratio."
+                ),
+            },
+            {
+                "question": "Is carbon dioxide an acid?",
+                "answer": (
+                    "Carbon dioxide is an acidic oxide, not an acid by itself. "
+                    "It reacts with bases and can form carbonic acid in water."
+                ),
+            },
+            {
+                "question": "What can you observe during the reaction?",
+                "answer": (
+                    "A dilute solution may stay clear. Indicators, pH data, or "
+                    "mass measurements can show absorption more clearly."
+                ),
+            },
+        ],
+        "safety": [
+            "Wear gloves and splash goggles when handling sodium hydroxide.",
+            "Add sodium hydroxide slowly to limit splashing.",
+            "Use ventilation when working with concentrated carbon dioxide.",
+        ],
+        "boundary": (
+            "OmniLab predicts the excess-NaOH carbonate pathway. It does not "
+            "model reactant amounts, concentration, pH, gas flow, absorption "
+            "rate, temperature, bicarbonate formation, or a physical procedure. "
+            "It is an educational prediction, not a verified simulation or a "
+            "substitute for trained laboratory supervision."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -2849,6 +2998,10 @@ GUIDE_CHEMISTRY_PROFILES = {
     "sodium_chloride_water": {
         "substances": frozenset({"NaCl", "H2O", "Na+", "Cl-"}),
         "reaction_patterns": frozenset(),
+    },
+    "carbon_dioxide_sodium_hydroxide": {
+        "substances": frozenset({"CO2", "NaOH", "Na2CO3", "H2O"}),
+        "reaction_patterns": frozenset({"acid-base"}),
     },
 }
 
@@ -3231,6 +3384,26 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "Use dissolved chloride to form silver chloride",
             "shared_substance",
             "NaCl",
+        ),
+    ],
+    "carbon_dioxide_sodium_hydroxide": [
+        (
+            "carbon_dioxide_water",
+            "Compare carbon dioxide reacting with water",
+            "shared_substance",
+            "CO2",
+        ),
+        (
+            "limewater_carbon_dioxide",
+            "Compare another reaction of carbon dioxide",
+            "shared_substance",
+            "CO2",
+        ),
+        (
+            "hydrochloric_acid_sodium_hydroxide",
+            "Compare sodium hydroxide in neutralization",
+            "shared_substance",
+            "NaOH",
         ),
     ],
 }
@@ -3658,6 +3831,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "sodium-chloride-water"
+                ]["canonical_key"],
+            },
+            {
+                "number": "22",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "carbon-dioxide-sodium-hydroxide"
+                ]["title"],
+                "summary": (
+                    "Balance the 1:2 reactant ratio and compare carbonate "
+                    "formation with the bicarbonate pathway."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "carbon-dioxide-sodium-hydroxide"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "carbon-dioxide-sodium-hydroxide"
                 ]["canonical_key"],
             },
         ],
@@ -4267,7 +4456,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 21 free, no-account chemistry guides about virtual reaction "
+        "Browse 22 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )

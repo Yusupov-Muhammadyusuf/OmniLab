@@ -108,6 +108,12 @@ urlpatterns = [
         name="demo_sodium_chloride_water",
     ),
     path(
+        'demo/carbon-dioxide-sodium-hydroxide/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'carbon-dioxide-sodium-hydroxide'},
+        name="demo_carbon_dioxide_sodium_hydroxide",
+    ),
+    path(
         'demo/hydrochloric-acid-sodium-hydroxide/',
         views.prepared_reaction_demo,
         {'demo_key': 'hydrochloric-acid-sodium-hydroxide'},
@@ -231,6 +237,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'sodium-chloride-water'},
         name="guide_sodium_chloride_water",
+    ),
+    path(
+        'guides/carbon-dioxide-and-sodium-hydroxide-reaction/',
+        views.observation_guide,
+        {'guide_key': 'carbon-dioxide-sodium-hydroxide'},
+        name="guide_carbon_dioxide_sodium_hydroxide",
     ),
     path(
         'guides/hydrochloric-acid-and-sodium-hydroxide-reaction/',

@@ -54,6 +54,15 @@ const reactionGuidesByPairKey = new Map([
         ]
     ],
     [
+        'CO2+NaOH',
+        [
+            {
+                href: '/guides/carbon-dioxide-and-sodium-hydroxide-reaction/',
+                title: 'What happens when carbon dioxide reacts with sodium hydroxide?'
+            }
+        ]
+    ],
+    [
         'Fe+HCl',
         [
             {
