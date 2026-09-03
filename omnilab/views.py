@@ -3092,8 +3092,8 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "CO2",
         ),
         (
-            "acetic_acid_sodium_bicarbonate",
-            "See another reaction that produces carbon dioxide",
+            "carbon_dioxide_sodium_hydroxide",
+            "Compare carbon dioxide reacting with sodium hydroxide",
             "shared_substance",
             "CO2",
         ),
@@ -3240,10 +3240,10 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "NaCl",
         ),
         (
-            "sodium_carbonate_hydrochloric_acid",
-            "Follow hydrochloric acid into a gas-forming reaction",
+            "carbon_dioxide_sodium_hydroxide",
+            "Compare sodium hydroxide reacting with carbon dioxide",
             "shared_substance",
-            "HCl",
+            "NaOH",
         ),
     ],
     "silver_nitrate_sodium_chloride": [
@@ -3300,10 +3300,10 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "CO2",
         ),
         (
-            "chemical_reaction_virtual_lab",
-            "Review how supported predictions work",
-            "supported_reaction_family",
-            "CO2+H2O",
+            "carbon_dioxide_sodium_hydroxide",
+            "Compare carbon dioxide reacting with sodium hydroxide",
+            "shared_substance",
+            "CO2",
         ),
     ],
     "iron_hydrochloric_acid": [

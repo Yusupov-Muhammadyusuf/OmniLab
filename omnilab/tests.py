@@ -2335,6 +2335,28 @@ class ObservationGuidePageTests(TestCase):
         )
         self.assertContains(response, "What forms when CO2 reacts with NaOH?")
 
+    def test_carbon_dioxide_sodium_hydroxide_has_three_reciprocal_neighbors(self):
+        guide_key = "carbon_dioxide_sodium_hydroxide"
+        neighbors = {
+            "carbon_dioxide_water",
+            "limewater_carbon_dioxide",
+            "hydrochloric_acid_sodium_hydroxide",
+        }
+
+        self.assertEqual(
+            {key for key, _reason in GUIDE_RELATIONSHIPS[guide_key]},
+            neighbors,
+        )
+        for neighbor in neighbors:
+            with self.subTest(neighbor=neighbor):
+                self.assertIn(
+                    guide_key,
+                    {
+                        key
+                        for key, _reason in GUIDE_RELATIONSHIPS[neighbor]
+                    },
+                )
+
     def test_sodium_water_guide_answers_the_target_query_completely(self):
         response = self.client.get("/guides/reaction-of-sodium-in-water/")
         html = response.content.decode()
