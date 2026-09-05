@@ -144,6 +144,15 @@ const reactionGuidesByPairKey = new Map<string, readonly ReactionGuide[]>([
         ]
     ],
     [
+        'H2O+NO2',
+        [
+            {
+                href: '/guides/nitrogen-dioxide-and-water-reaction/',
+                title: 'What happens when nitrogen dioxide reacts with water?'
+            }
+        ]
+    ],
+    [
         'CO2+NaOH',
         [
             {

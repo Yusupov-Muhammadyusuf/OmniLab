@@ -131,6 +131,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "carbon-dioxide-and-sodium-hydroxide-reaction/"
     ),
+    "nitrogen_dioxide_water": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "nitrogen-dioxide-and-water-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -398,6 +402,21 @@ REACTION_DEMOS = {
             "whether to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/carbon-dioxide-water/",
+    },
+    "nitrogen-dioxide-water": {
+        "id": "nitrogen-dioxide-water",
+        "version": "v1",
+        "selectedChemicals": ["NO2", "H2O"],
+        "vessel": "beaker",
+        "liquidColor": "#a85f32",
+        "mixture_label": "NO2 + H2O",
+        "title": "Nitrogen dioxide and water, ready to analyze",
+        "page_title": "OmniLab - Nitrogen dioxide and water demo",
+        "page_description": (
+            "Open a prepared Nitrogen dioxide and Water setup, then choose "
+            "whether to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/nitrogen-dioxide-water/",
     },
     "iron-hydrochloric-acid": {
         "id": "iron-hydrochloric-acid",
@@ -2768,6 +2787,134 @@ OBSERVATION_GUIDE_PAGES = {
             "substitute for trained laboratory supervision."
         ),
     },
+    "nitrogen-dioxide-water": {
+        "route_name": "guide_nitrogen_dioxide_water",
+        "canonical_key": "nitrogen_dioxide_water",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_nitrogen_dioxide_water",
+        "title": "What happens when nitrogen dioxide reacts with water?",
+        "page_title": "Nitrogen dioxide and water reaction | OmniLab",
+        "description": (
+            "See how nitrogen dioxide reacts with water, balance the simplified "
+            "equation, compare nitrous and nitric acid, and keep its limits clear."
+        ),
+        "reading_time": "6 minute read",
+        "direct_answer": (
+            "Nitrogen dioxide reacts with cool, dilute water in OmniLab's "
+            "simplified model. The products are nitrous acid and nitric acid."
+        ),
+        "opening_boundary": (
+            "Real absorption involves equilibria and further chemistry. Nitrous "
+            "acid can decompose, so some summaries show nitric acid and nitric "
+            "oxide instead."
+        ),
+        "student_job": (
+            "Balance the equation and track nitrogen from oxidation state +4. "
+            "Then separate the classroom model from real gas absorption."
+        ),
+        "study_intro": (
+            "Follow nitrogen into two acid products and check the atom count. "
+            "Keep the cool, dilute-water condition attached to the result."
+        ),
+        "reactants": [
+            {"name": "Nitrogen dioxide", "formula": "NO2"},
+            {"name": "Water", "formula": "H2O"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Nitrogen dioxide and Water. Nothing runs "
+            "until you select Analyze."
+        ),
+        "cta_label": "Try the nitrogen dioxide and water setup",
+        "equation": "2NO2(g) + H2O(l) -> HNO2(aq) + HNO3(aq)",
+        "explanation": (
+            "Nitrogen dioxide absorbed into cool, dilute water forms a mixture "
+            "of nitrous acid and nitric acid in this simplified equation. The "
+            "real gas absorption can involve additional equilibria, so this "
+            "result describes the classroom-scale net change."
+        ),
+        "observation_title": "Less brown gas above a clear acidic solution",
+        "observation": (
+            "Nitrogen dioxide is a reddish-brown gas. Absorption can reduce its "
+            "color while the liquid stays clear and becomes acidic. OmniLab "
+            "returns text only and does not simulate color or pH."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Clear acidic solution",
+        "study_steps": [
+            {
+                "title": "Balance nitrogen first",
+                "body": (
+                    "Place 2 before NO2. One nitrogen enters HNO2, and the "
+                    "other enters HNO3."
+                ),
+            },
+            {
+                "title": "Track the oxidation states",
+                "body": (
+                    "Nitrogen starts at +4. It changes to +3 in HNO2 and +5 "
+                    "in HNO3, so disproportionation occurs."
+                ),
+            },
+            {
+                "title": "Keep the model boundary",
+                "body": (
+                    "The equation represents one cool, dilute-water pathway. "
+                    "Equilibria and later nitrous acid chemistry can change the "
+                    "mixture."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What forms when nitrogen dioxide reacts with water?",
+                "answer": (
+                    "The simplified cool, dilute-water equation forms nitrous "
+                    "acid and nitric acid. Both products remain aqueous."
+                ),
+            },
+            {
+                "question": "What is the balanced equation for NO2 and water?",
+                "answer": (
+                    "OmniLab uses 2NO2(g) + H2O(l) -> HNO2(aq) + HNO3(aq). "
+                    "It balances two nitrogen, five oxygen, and two hydrogen atoms."
+                ),
+            },
+            {
+                "question": "Why do two different acids form?",
+                "answer": (
+                    "Nitrogen in NO2 has oxidation state +4. Some changes to +3, "
+                    "while some changes to +5."
+                ),
+            },
+            {
+                "question": "Why do some equations show nitric oxide?",
+                "answer": (
+                    "Nitrous acid can undergo further chemistry. A later net "
+                    "summary can therefore include nitric acid and nitric oxide."
+                ),
+            },
+            {
+                "question": "What would you observe?",
+                "answer": (
+                    "The reddish-brown gas can fade as it is absorbed. The liquid "
+                    "can stay clear, so acidity needs a suitable measurement."
+                ),
+            },
+        ],
+        "safety": [
+            "Use nitrogen dioxide only in a specialist fume-handling system.",
+            "Avoid inhalation and wear corrosion-resistant gloves and goggles.",
+            "Keep this oxidizer and the acidic products away from combustibles.",
+        ],
+        "boundary": (
+            "OmniLab predicts one simplified cool, dilute-water pathway. It does "
+            "not model gas concentration, NO2-N2O4 equilibrium, absorption rate, "
+            "temperature, pH, nitric oxide formation, acid decomposition, color "
+            "change, or a physical procedure. It is an educational prediction, "
+            "not a verified simulation or a substitute for trained laboratory "
+            "supervision."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -3002,6 +3149,12 @@ GUIDE_CHEMISTRY_PROFILES = {
     "carbon_dioxide_sodium_hydroxide": {
         "substances": frozenset({"CO2", "NaOH", "Na2CO3", "H2O"}),
         "reaction_patterns": frozenset({"acid-base"}),
+    },
+    "nitrogen_dioxide_water": {
+        "substances": frozenset({"NO2", "H2O", "HNO2", "HNO3"}),
+        "reaction_patterns": frozenset(
+            {"acid-formation", "disproportionation", "redox"}
+        ),
     },
 }
 
@@ -3294,10 +3447,10 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "CO2",
         ),
         (
-            "acetic_acid_sodium_bicarbonate",
-            "See a reaction that produces carbon dioxide",
+            "nitrogen_dioxide_water",
+            "Compare another gas oxide reacting with water",
             "shared_substance",
-            "CO2",
+            "H2O",
         ),
         (
             "carbon_dioxide_sodium_hydroxide",
@@ -3360,10 +3513,10 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "gas-forming-redox",
         ),
         (
-            "chemical_reaction_virtual_lab",
-            "Review what the virtual lab does and does not model",
-            "supported_reaction_family",
-            "H2O2+KMnO4",
+            "nitrogen_dioxide_water",
+            "Compare another condition-specific redox equation",
+            "shared_reaction_pattern",
+            "redox",
         ),
     ],
     "sodium_chloride_water": [
@@ -3404,6 +3557,20 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "Compare sodium hydroxide in neutralization",
             "shared_substance",
             "NaOH",
+        ),
+    ],
+    "nitrogen_dioxide_water": [
+        (
+            "carbon_dioxide_water",
+            "Compare another gas oxide reacting with water",
+            "shared_substance",
+            "H2O",
+        ),
+        (
+            "potassium_permanganate_hydrogen_peroxide",
+            "Compare another condition-specific redox equation",
+            "shared_reaction_pattern",
+            "redox",
         ),
     ],
 }
@@ -3847,6 +4014,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "carbon-dioxide-sodium-hydroxide"
+                ]["canonical_key"],
+            },
+            {
+                "number": "23",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "nitrogen-dioxide-water"
+                ]["title"],
+                "summary": (
+                    "Balance the two acid products and separate the simplified "
+                    "equation from later nitrogen oxide chemistry."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "nitrogen-dioxide-water"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "nitrogen-dioxide-water"
                 ]["canonical_key"],
             },
         ],
@@ -4456,7 +4639,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 22 free, no-account chemistry guides about virtual reaction "
+        "Browse 23 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )
