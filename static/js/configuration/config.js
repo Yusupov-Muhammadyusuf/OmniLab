@@ -126,6 +126,15 @@ const reactionGuidesByPairKey = new Map([
         ]
     ],
     [
+        'C+O2',
+        [
+            {
+                href: '/guides/carbon-and-oxygen-reaction/',
+                title: 'What happens when carbon reacts with oxygen?'
+            }
+        ]
+    ],
+    [
         'Cu+O2',
         [
             {

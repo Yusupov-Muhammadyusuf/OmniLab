@@ -139,6 +139,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "hydrogen-and-chlorine-reaction/"
     ),
+    "carbon_oxygen": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "carbon-and-oxygen-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -436,6 +440,21 @@ REACTION_DEMOS = {
             "whether to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/hydrogen-chlorine/",
+    },
+    "carbon-oxygen": {
+        "id": "carbon-oxygen",
+        "version": "v1",
+        "selectedChemicals": ["C", "O2"],
+        "vessel": "beaker",
+        "liquidColor": "#465b66",
+        "mixture_label": "C + O2",
+        "title": "Carbon and oxygen, ready to analyze",
+        "page_title": "OmniLab - Carbon and oxygen demo",
+        "page_description": (
+            "Open a prepared Carbon and Oxygen setup, then choose whether "
+            "to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/carbon-oxygen/",
     },
     "iron-hydrochloric-acid": {
         "id": "iron-hydrochloric-acid",
@@ -3053,6 +3072,125 @@ OBSERVATION_GUIDE_PAGES = {
             "laboratory supervision."
         ),
     },
+    "carbon-oxygen": {
+        "route_name": "guide_carbon_oxygen",
+        "canonical_key": "carbon_oxygen",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_carbon_oxygen",
+        "title": "What happens when carbon reacts with oxygen?",
+        "page_title": "Carbon and oxygen reaction | OmniLab",
+        "description": (
+            "See how carbon reacts with sufficient oxygen, balance the carbon "
+            "dioxide equation, and compare complete with incomplete combustion."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "In sufficient oxygen, carbon burns to form carbon dioxide. The "
+            "balanced equation is C(s) + O2(g) -> CO2(g)."
+        ),
+        "opening_boundary": (
+            "Carbon needs ignition or strong heating before it burns. Oxygen "
+            "supply changes the products, but OmniLab predicts only complete "
+            "combustion in sufficient oxygen."
+        ),
+        "student_job": (
+            "Balance the equation, name the complete-combustion product, and "
+            "keep oxygen supply attached to the result."
+        ),
+        "study_intro": (
+            "Follow one carbon atom and one oxygen molecule into carbon "
+            "dioxide. Then compare sufficient and limited oxygen."
+        ),
+        "reactants": [
+            {"name": "Carbon", "formula": "C"},
+            {"name": "Oxygen", "formula": "O2"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Carbon and Oxygen. The burner stays "
+            "off, and nothing runs until you select Analyze."
+        ),
+        "cta_label": "Try the carbon and oxygen setup",
+        "equation": "C(s) + O2(g) -> CO2(g)",
+        "explanation": (
+            "Carbon undergoes complete combustion in sufficient oxygen to "
+            "form carbon dioxide. The oxidation is exothermic and releases "
+            "energy as strong carbon-oxygen bonds form. One carbon atom and "
+            "one oxygen molecule produce one carbon dioxide molecule."
+        ),
+        "observation_title": "No simulated glow, flame, or gas buildup",
+        "observation": (
+            "OmniLab returns a text-only prediction for this pair. A physical "
+            "sample can glow or burn after ignition, but carbon dioxide is "
+            "colorless and the virtual beaker does not model combustion."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Text-only result",
+        "study_steps": [
+            {
+                "title": "Balance the atoms",
+                "body": (
+                    "One carbon atom and two oxygen atoms appear on each side, "
+                    "so every coefficient is 1."
+                ),
+            },
+            {
+                "title": "Keep sufficient oxygen in the answer",
+                "body": (
+                    "The equation describes complete combustion. Limited "
+                    "oxygen can produce carbon monoxide instead."
+                ),
+            },
+            {
+                "title": "Separate ignition from the net equation",
+                "body": (
+                    "Heating starts the physical reaction. It is a condition, "
+                    "not another reactant in the balanced equation."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What forms when carbon reacts with oxygen?",
+                "answer": (
+                    "Carbon dioxide forms during complete combustion in "
+                    "sufficient oxygen."
+                ),
+            },
+            {
+                "question": "What is the balanced equation for C and O2?",
+                "answer": (
+                    "The balanced equation is C(s) + O2(g) -> CO2(g). It has "
+                    "one carbon and two oxygen atoms on each side."
+                ),
+            },
+            {
+                "question": "What happens when oxygen is limited?",
+                "answer": (
+                    "Incomplete combustion can form carbon monoxide. The "
+                    "OmniLab result does not model that alternate pathway."
+                ),
+            },
+            {
+                "question": "What type of reaction is carbon and oxygen?",
+                "answer": (
+                    "It is a combustion reaction and a redox reaction. Carbon "
+                    "is oxidized as carbon dioxide forms."
+                ),
+            },
+        ],
+        "safety": [
+            "Use heat-resistant tools for hot carbon.",
+            "Vent carbon dioxide from the work area.",
+            "Keep combustible materials away from the reaction.",
+        ],
+        "boundary": (
+            "OmniLab predicts complete combustion without modeling ignition, "
+            "temperature, oxygen supply, reaction rate, glow, flame, carbon "
+            "monoxide formation, or a physical procedure. Its results are "
+            "educational predictions, not verified simulations, and never a "
+            "replacement for trained laboratory supervision."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -3298,6 +3436,10 @@ GUIDE_CHEMISTRY_PROFILES = {
         "substances": frozenset({"H2", "Cl2", "HCl"}),
         "reaction_patterns": frozenset({"combination", "redox"}),
     },
+    "carbon_oxygen": {
+        "substances": frozenset({"C", "O2", "CO2"}),
+        "reaction_patterns": frozenset({"combustion", "redox"}),
+    },
 }
 
 # Each edge carries machine-checkable chemistry evidence. The UI deliberately
@@ -3520,10 +3662,10 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "O2",
         ),
         (
-            "iron_hydrochloric_acid",
-            "Compare another reaction of iron",
+            "carbon_oxygen",
+            "Compare oxygen reacting with a nonmetal",
             "shared_substance",
-            "Fe",
+            "O2",
         ),
     ],
     "hydrochloric_acid_sodium_hydroxide": [
@@ -3580,10 +3722,10 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "O2",
         ),
         (
-            "chemical_reaction_virtual_lab",
-            "Review how supported predictions work",
-            "supported_reaction_family",
-            "CO+O2",
+            "carbon_oxygen",
+            "Compare complete combustion pathways",
+            "shared_substance",
+            "CO2",
         ),
     ],
     "carbon_dioxide_water": [
@@ -3612,12 +3754,6 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "Compare another metal-acid reaction",
             "shared_substance",
             "HCl",
-        ),
-        (
-            "iron_oxygen",
-            "Compare another reaction of iron",
-            "shared_substance",
-            "Fe",
         ),
         (
             "hydrochloric_acid_sodium_hydroxide",
@@ -3732,6 +3868,20 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "Compare chlorine reacting with another element",
             "shared_substance",
             "Cl2",
+        ),
+    ],
+    "carbon_oxygen": [
+        (
+            "carbon_monoxide_oxygen",
+            "Compare complete combustion pathways",
+            "shared_substance",
+            "CO2",
+        ),
+        (
+            "iron_oxygen",
+            "Compare oxygen reacting with a metal",
+            "shared_substance",
+            "O2",
         ),
     ],
 }
@@ -4207,6 +4357,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "hydrogen-chlorine"
+                ]["canonical_key"],
+            },
+            {
+                "number": "25",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "carbon-oxygen"
+                ]["title"],
+                "summary": (
+                    "Balance complete carbon combustion and keep oxygen "
+                    "supply attached to the carbon dioxide result."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "carbon-oxygen"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "carbon-oxygen"
                 ]["canonical_key"],
             },
         ],
@@ -4816,7 +4982,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 24 free, no-account chemistry guides about virtual reaction "
+        "Browse 25 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )
