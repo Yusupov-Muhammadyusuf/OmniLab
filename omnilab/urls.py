@@ -144,6 +144,12 @@ urlpatterns = [
         name="demo_nitrogen_dioxide_water",
     ),
     path(
+        'demo/hydrogen-chlorine/',
+        views.prepared_reaction_demo,
+        {'demo_key': 'hydrogen-chlorine'},
+        name="demo_hydrogen_chlorine",
+    ),
+    path(
         'demo/iron-hydrochloric-acid/',
         views.prepared_reaction_demo,
         {'demo_key': 'iron-hydrochloric-acid'},
@@ -279,6 +285,12 @@ urlpatterns = [
         views.observation_guide,
         {'guide_key': 'nitrogen-dioxide-water'},
         name="guide_nitrogen_dioxide_water",
+    ),
+    path(
+        'guides/hydrogen-and-chlorine-reaction/',
+        views.observation_guide,
+        {'guide_key': 'hydrogen-chlorine'},
+        name="guide_hydrogen_chlorine",
     ),
     path(
         'guides/iron-and-hydrochloric-acid-reaction/',

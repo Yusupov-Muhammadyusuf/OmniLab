@@ -135,6 +135,10 @@ PUBLIC_CANONICAL_URLS = {
         f"{PRODUCTION_BASE_URL}/guides/"
         "nitrogen-dioxide-and-water-reaction/"
     ),
+    "hydrogen_chlorine": (
+        f"{PRODUCTION_BASE_URL}/guides/"
+        "hydrogen-and-chlorine-reaction/"
+    ),
 }
 SODIUM_CHLORINE_DEMO_URL = f"{PRODUCTION_BASE_URL}/demo/sodium-chlorine/"
 FIRST_EXPERIMENT_URL = f"{PRODUCTION_BASE_URL}/first-experiment/"
@@ -417,6 +421,21 @@ REACTION_DEMOS = {
             "whether to request an educational reaction prediction."
         ),
         "url": f"{PRODUCTION_BASE_URL}/demo/nitrogen-dioxide-water/",
+    },
+    "hydrogen-chlorine": {
+        "id": "hydrogen-chlorine",
+        "version": "v1",
+        "selectedChemicals": ["H2", "Cl2"],
+        "vessel": "beaker",
+        "liquidColor": "#9cab4f",
+        "mixture_label": "H2 + Cl2",
+        "title": "Hydrogen and chlorine, ready to analyze",
+        "page_title": "OmniLab - Hydrogen and chlorine demo",
+        "page_description": (
+            "Open a prepared Hydrogen and Chlorine setup, then choose "
+            "whether to request an educational reaction prediction."
+        ),
+        "url": f"{PRODUCTION_BASE_URL}/demo/hydrogen-chlorine/",
     },
     "iron-hydrochloric-acid": {
         "id": "iron-hydrochloric-acid",
@@ -2915,6 +2934,125 @@ OBSERVATION_GUIDE_PAGES = {
             "supervision."
         ),
     },
+    "hydrogen-chlorine": {
+        "route_name": "guide_hydrogen_chlorine",
+        "canonical_key": "hydrogen_chlorine",
+        "visit_source": "guide_virtual_lab",
+        "demo_route_name": "demo_hydrogen_chlorine",
+        "title": "What happens when hydrogen reacts with chlorine?",
+        "page_title": "Hydrogen and chlorine reaction | OmniLab",
+        "description": (
+            "See how hydrogen reacts with chlorine, balance the hydrogen "
+            "chloride equation, and keep light, heat, and safety limits clear."
+        ),
+        "reading_time": "5 minute read",
+        "direct_answer": (
+            "Hydrogen reacts with chlorine after initiation to form hydrogen "
+            "chloride gas. The balanced equation is H2(g) + Cl2(g) -> 2HCl(g)."
+        ),
+        "opening_boundary": (
+            "Light or heat can initiate a rapid chain reaction. OmniLab "
+            "predicts the product without simulating initiation, flame, "
+            "pressure, or reaction rate."
+        ),
+        "student_job": (
+            "Balance the equation, distinguish hydrogen chloride gas from "
+            "hydrochloric acid, and keep initiation attached to the result."
+        ),
+        "study_intro": (
+            "Follow the one-to-one reactant ratio into two hydrogen chloride "
+            "molecules. Then separate the gas product from its aqueous form."
+        ),
+        "reactants": [
+            {"name": "Hydrogen", "formula": "H2"},
+            {"name": "Chlorine", "formula": "Cl2"},
+        ],
+        "setup_summary": (
+            "A beaker is prepared with Hydrogen and Chlorine. Nothing runs "
+            "until you select Analyze."
+        ),
+        "cta_label": "Try the hydrogen and chlorine setup",
+        "equation": "H2(g) + Cl2(g) -> 2HCl(g)",
+        "explanation": (
+            "Hydrogen and chlorine form hydrogen chloride after initiation, "
+            "often by light or heat. The chain reaction is highly exothermic "
+            "and can proceed violently. One molecule of each reactant forms "
+            "two hydrogen chloride molecules."
+        ),
+        "observation_title": "No simulated flash, flame, or pressure change",
+        "observation": (
+            "OmniLab returns a text-only prediction for this pair. A physical "
+            "mixture can react rapidly after initiation, but the virtual "
+            "beaker does not represent light, heat, flame, or pressure."
+        ),
+        "observation_class": "observation-clear",
+        "observation_label": "Text-only result",
+        "study_steps": [
+            {
+                "title": "Balance both diatomic reactants",
+                "body": (
+                    "H2 and Cl2 each supply two atoms. Place 2 before HCl so "
+                    "both hydrogen and chlorine balance."
+                ),
+            },
+            {
+                "title": "Keep initiation in the explanation",
+                "body": (
+                    "The equation gives the net change. Light or heat starts "
+                    "the chain reaction but is not another reactant."
+                ),
+            },
+            {
+                "title": "Name the product state correctly",
+                "body": (
+                    "The stated product is hydrogen chloride gas, HCl(g). It "
+                    "is called hydrochloric acid after it dissolves in water."
+                ),
+            },
+        ],
+        "common_questions": [
+            {
+                "question": "What forms when hydrogen reacts with chlorine?",
+                "answer": (
+                    "Hydrogen chloride gas forms. The balanced equation makes "
+                    "two HCl molecules from one H2 molecule and one Cl2 molecule."
+                ),
+            },
+            {
+                "question": "What is the balanced equation for H2 and Cl2?",
+                "answer": (
+                    "The balanced equation is H2(g) + Cl2(g) -> 2HCl(g). It "
+                    "has two hydrogen and two chlorine atoms on each side."
+                ),
+            },
+            {
+                "question": "Why does the reaction need light or heat?",
+                "answer": (
+                    "Initiation breaks a bond and creates reactive species. "
+                    "They continue the chain reaction that forms HCl."
+                ),
+            },
+            {
+                "question": "Is hydrogen chloride the same as hydrochloric acid?",
+                "answer": (
+                    "Hydrogen chloride is the molecular gas. Its aqueous "
+                    "solution is called hydrochloric acid."
+                ),
+            },
+        ],
+        "safety": [
+            "Keep the gas mixture away from bright light and ignition sources.",
+            "Use blast shielding and trained supervision.",
+            "Avoid inhaling chlorine or hydrogen chloride gas.",
+        ],
+        "boundary": (
+            "OmniLab predicts hydrogen chloride without modeling light level, "
+            "temperature, gas ratio, pressure, reaction rate, flame, or a "
+            "physical procedure. Its results are educational predictions, not "
+            "verified simulations, and never a replacement for trained "
+            "laboratory supervision."
+        ),
+    },
 }
 
 CHEMICAL_REACTION_VIRTUAL_LAB_PAGE = {
@@ -3156,6 +3294,10 @@ GUIDE_CHEMISTRY_PROFILES = {
             {"acid-formation", "disproportionation", "redox"}
         ),
     },
+    "hydrogen_chlorine": {
+        "substances": frozenset({"H2", "Cl2", "HCl"}),
+        "reaction_patterns": frozenset({"combination", "redox"}),
+    },
 }
 
 # Each edge carries machine-checkable chemistry evidence. The UI deliberately
@@ -3194,7 +3336,12 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "supported_reaction_family",
             SODIUM_CHLORINE_REACTION_FAMILY,
         ),
-        ("sodium_water", "Compare another reaction of sodium", "shared_substance", "Na"),
+        (
+            "hydrogen_chlorine",
+            "Compare chlorine reacting with another element",
+            "shared_substance",
+            "Cl2",
+        ),
     ],
     "sodium_chlorine_formula": [
         (
@@ -3357,8 +3504,8 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
     "hydrogen_oxygen": [
         ("sodium_water", "Trace hydrogen from a water reaction", "shared_substance", "H2"),
         (
-            "zinc_hydrochloric_acid",
-            "Trace hydrogen from a metal-acid reaction",
+            "hydrogen_chlorine",
+            "Compare hydrogen reacting with another diatomic gas",
             "shared_substance",
             "H2",
         ),
@@ -3571,6 +3718,20 @@ GUIDE_RELATIONSHIP_DEFINITIONS = {
             "Compare another condition-specific redox equation",
             "shared_reaction_pattern",
             "redox",
+        ),
+    ],
+    "hydrogen_chlorine": [
+        (
+            "hydrogen_oxygen",
+            "Compare hydrogen reacting with another diatomic gas",
+            "shared_substance",
+            "H2",
+        ),
+        (
+            "sodium_chlorine_reaction",
+            "Compare chlorine reacting with another element",
+            "shared_substance",
+            "Cl2",
         ),
     ],
 }
@@ -4030,6 +4191,22 @@ GUIDE_LIBRARY_GROUPS = [
                 ]["route_name"],
                 "canonical_key": OBSERVATION_GUIDE_PAGES[
                     "nitrogen-dioxide-water"
+                ]["canonical_key"],
+            },
+            {
+                "number": "24",
+                "title": OBSERVATION_GUIDE_PAGES[
+                    "hydrogen-chlorine"
+                ]["title"],
+                "summary": (
+                    "Balance the two diatomic gases and separate hydrogen "
+                    "chloride gas from hydrochloric acid."
+                ),
+                "route_name": OBSERVATION_GUIDE_PAGES[
+                    "hydrogen-chlorine"
+                ]["route_name"],
+                "canonical_key": OBSERVATION_GUIDE_PAGES[
+                    "hydrogen-chlorine"
                 ]["canonical_key"],
             },
         ],
@@ -4639,7 +4816,7 @@ def chemical_reaction_virtual_lab(request):
 def guide_library(request):
     canonical_url = PUBLIC_CANONICAL_URLS["guides"]
     description = (
-        "Browse 23 free, no-account chemistry guides about virtual reaction "
+        "Browse 24 free, no-account chemistry guides about virtual reaction "
         "labs, equations, bonding, combustion, oxidation, acids, gases, and "
         "precipitates."
     )

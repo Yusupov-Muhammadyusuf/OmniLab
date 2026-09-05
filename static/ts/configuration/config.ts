@@ -270,6 +270,15 @@ const reactionGuidesByPairKey = new Map<string, readonly ReactionGuide[]>([
         ]
     ],
     [
+        'Cl2+H2',
+        [
+            {
+                href: '/guides/hydrogen-and-chlorine-reaction/',
+                title: 'What happens when hydrogen reacts with chlorine?'
+            }
+        ]
+    ],
+    [
         'H2O2+KMnO4',
         [
             {
